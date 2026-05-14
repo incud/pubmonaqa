@@ -1,3 +1,4 @@
+from monaqa2.mcmc.model import IsingModel
 import numpy as np
 from functools import reduce
 
@@ -36,31 +37,10 @@ def bits(i: int, n: int) -> np.ndarray:
     return np.array([int(b) for b in int_to_bin(i, n)], dtype=int)
 
 
-def energy(i: int, h: np.ndarray, J: np.ndarray) -> float:
-    """
-    Ising energy of computational-basis state i.
-
-    Uses
-
-        E(z) = sum_i h_i Z_i + sum_{i<j} J_ij Z_i Z_j,
-
-    with Z_i = 1 - 2 z_i.
-    """
-    n = infer_n_from_h_J(h, J)
-    z = 1 - 2 * bits(i, n)
-
-    value = float(np.dot(h, z))
-
-    for p in range(n):
-        for q in range(p + 1, n):
-            value += float(J[p, q]) * int(z[p]) * int(z[q])
-
-    return value
-
-
 def energies(h: np.ndarray, J: np.ndarray) -> np.ndarray:
     n = infer_n_from_h_J(h, J)
-    return np.array([energy(i, h, J) for i in range(2**n)], dtype=float)
+    model = IsingModel.from_coefficients(n, np.hstack([h, J[np.triu_indices(n=n, k=1)]]))
+    return model.energies_rescaled
 
 
 def hamming(s1: str, s2: str) -> int:

@@ -1,21 +1,16 @@
 import numpy as np
+from monaqa2.mcmc.model import IsingModel
 from monaqa2.mcmc.proposal import create_proposal_matrix_quantum_exact, create_proposal_matrix_local, create_proposal_matrix_quantum_layden, create_proposal_matrix_uniform
 
 
-def energy(x: int, h: np.ndarray, J: np.ndarray) -> float:
-    n = len(h)
-    z = 1 - 2 * np.array([(x >> (n - 1 - i)) & 1 for i in range(n)])
-    return float(h @ z + sum(J[i, j] * z[i] * z[j] for i in range(n) for j in range(i + 1, n)))
-
-
-def create_acceptance_matrix(h: np.ndarray, J: np.ndarray, beta: float, a: float = 1.0,) -> np.ndarray:
+def create_acceptance_matrix(model: IsingModel, beta: float, a: float = 1.0,) -> np.ndarray:
+    
     if beta < 0:
         raise ValueError("beta must be non-negative.")
     if not (np.isinf(a) or a >= 1):
         raise ValueError("a must satisfy a >= 1 or a = np.inf.")
 
-    n = len(h)
-    E = np.array([energy(x, h, J) for x in range(2**n)])
+    E = model.energies_rescaled
     delta = E[:, None] - E[None, :]
     log_r = -beta * delta
 
@@ -29,9 +24,11 @@ def create_acceptance_matrix(h: np.ndarray, J: np.ndarray, beta: float, a: float
     return A
 
 
-def create_transition_matrix(P: np.ndarray | str, h: np.ndarray, J: np.ndarray, beta: float, a: float = 1.0, gamma: float = None, t: float = None) -> np.ndarray:
-    n = len(h)
-    A = create_acceptance_matrix(h, J, beta, a)
+def create_transition_matrix(P: np.ndarray | str, model: IsingModel, beta: float, a: float = 1.0, gamma: float = None, t: float = None) -> np.ndarray:
+    n = model.n
+    h = model.h_rescaled
+    J = model.J_rescaled
+    A = create_acceptance_matrix(model, beta, a)
 
     if isinstance(P, str):
         if P == "uniform":
