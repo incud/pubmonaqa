@@ -101,6 +101,15 @@ def run_experiment_to_generate_classical_queries(n_list, idx_min=0, idx_max=None
     out_file = CLASSICAL_QUERY_FILE if out_file is None else out_file
     columns = ["n", "idx", "proposal", "a", "beta", "q0_mode", "beta_0", "initial_overlap", "connectivity_bottleneck", "ok", "error_message"] + EPS_COLUMNS
 
+    def a_key(a):
+        return np.inf if np.isinf(float(a)) else float(a)
+
+    def row_key(row):
+        return (int(row["n"]), int(row["idx"]), str(row["proposal"]), a_key(row["a"]), float(row["beta"]), str(row["q0_mode"]))
+
+    def key(n, idx, proposal, a, beta, q0_mode):
+        return (int(n), int(idx), str(proposal), a_key(a), float(beta), str(q0_mode))
+
     def row_with_counts(n, idx, proposal, a, beta, q0_mode, beta_0=np.nan, initial_overlap=np.nan, bottleneck=np.nan, ok=False, error_message="", query_counts=None):
         row = {"n": n, "idx": idx, "proposal": proposal, "a": a, "beta": beta, "q0_mode": q0_mode, "beta_0": beta_0, "initial_overlap": initial_overlap, "connectivity_bottleneck": bottleneck, "ok": bool(ok), "error_message": str(error_message)}
         row.update({f"queries_eps_1e-{k}": int(query_counts[10.0 ** (-k)]) if query_counts is not None else -1 for k in range(2, 9)})
@@ -112,23 +121,47 @@ def run_experiment_to_generate_classical_queries(n_list, idx_min=0, idx_max=None
     for c in EPS_COLUMNS:
         df[c] = df[c].astype(object)
 
+    existing = set(row_key(row) for _, row in df.iterrows())
+
+    def append_and_save(rows):
+        nonlocal df
+        if not rows:
+            return
+        new_df = pd.DataFrame(rows, columns=columns)
+        for c in EPS_COLUMNS:
+            new_df[c] = pd.Series([int(x) for x in new_df[c].tolist()], dtype=object)
+        df = pd.concat([df, new_df], ignore_index=True)
+        for row in rows:
+            existing.add(row_key(row))
+        df.to_pickle(out_file)
+
+    def instance_complete(n, idx):
+        return all(key(n, idx, proposal, a, beta, q0_mode) in existing for proposal in PROPOSALS for a in AS for beta in BETAS for q0_mode in Q0_MODES)
+
     idx_max = 100 if idx_max is None else int(idx_max)
 
     for n in n_list:
-        ising = [load_instances(n, idx) for idx in range(idx_min, idx_max)]
-        params = [load_best_qemc_gamma_t(n, idx) for idx in range(idx_min, idx_max)]
+        for idx in range(idx_min, idx_max):
+            if instance_complete(n, idx):
+                print(f"Skipping n={n}, idx={idx}: already in table.", flush=True)
+                continue
 
-        for local_idx, idx in enumerate(range(idx_min, idx_max)):
             print(n, idx)
-            gamma, t_qemc = params[local_idx]
-            rows = []
+            model = load_instances(n, idx)
+            gamma, t_qemc = load_best_qemc_gamma_t(n, idx)
 
             for proposal in PROPOSALS:
                 for a in AS:
                     for beta in BETAS:
+                        missing_q0_modes = [q0_mode for q0_mode in Q0_MODES if key(n, idx, proposal, a, beta, q0_mode) not in existing]
+
+                        if not missing_q0_modes:
+                            print(f"Skipping n={n}, idx={idx}, proposal={proposal}, a={a}, beta={beta}: already in table.", flush=True)
+                            continue
+
                         try:
-                            pi = np.asarray(get_gibbs_distribution(ising[local_idx], beta), dtype=float)
-                            P = np.asarray(create_transition_matrix(proposal, ising[local_idx], beta, a, gamma, t_qemc), dtype=float)
+                            pi = np.asarray(get_gibbs_distribution(model, beta), dtype=float)
+                            P = np.asarray(create_transition_matrix(proposal, model, beta, a, gamma, t_qemc), dtype=float)
 
                             if not np.all(np.isfinite(pi)) or not np.all(np.isfinite(P)):
                                 raise ValueError("P or pi contains NaN/inf")
@@ -153,24 +186,20 @@ def run_experiment_to_generate_classical_queries(n_list, idx_min=0, idx_max=None
                             bottleneck = connectivity_bottleneck(X)
 
                         except Exception as e:
-                            for q0_mode in Q0_MODES:
-                                mask = (df["n"] == n) & (df["idx"] == idx) & (df["proposal"] == proposal) & (df["a"] == a) & (df["beta"] == beta) & (df["q0_mode"] == q0_mode)
-                                if not mask.any():
-                                    rows.append(row_with_counts(n, idx, proposal, a, beta, q0_mode, ok=False, error_message=repr(e)))
-                                    print(".", end="", flush=True)
+                            append_and_save([row_with_counts(n, idx, proposal, a, beta, q0_mode, ok=False, error_message=repr(e)) for q0_mode in missing_q0_modes])
+                            print(".", end="", flush=True)
                             continue
 
-                        for q0_mode in Q0_MODES:
-                            mask = (df["n"] == n) & (df["idx"] == idx) & (df["proposal"] == proposal) & (df["a"] == a) & (df["beta"] == beta) & (df["q0_mode"] == q0_mode)
-                            if mask.any():
-                                continue
+                        for q0_mode in missing_q0_modes:
+                            beta_0 = np.nan
+                            initial_overlap = np.nan
 
                             try:
                                 if q0_mode == "uniform":
                                     q0 = np.full_like(pi, 1.0 / pi.size)
                                     beta_0 = 0.0
                                 elif q0_mode == "bhattacharyya":
-                                    res = get_gibbs_distribution_with_bhattacharyya_guarantee(ising[local_idx], beta, pi, np.sqrt(1.0 / np.e))
+                                    res = get_gibbs_distribution_with_bhattacharyya_guarantee(model, beta, pi, np.sqrt(1.0 / np.e))
                                     q0, beta_0 = res if isinstance(res, tuple) else (res, np.nan)
                                     q0 = np.asarray(q0, dtype=float)
                                 else:
@@ -207,20 +236,14 @@ def run_experiment_to_generate_classical_queries(n_list, idx_min=0, idx_max=None
                                         break
                                     previous = t_eps
 
-                                rows.append(row_with_counts(n, idx, proposal, a, beta, q0_mode, beta_0, initial_overlap, bottleneck, ok, error_message, query_counts))
+                                append_and_save([row_with_counts(n, idx, proposal, a, beta, q0_mode, beta_0, initial_overlap, bottleneck, ok, error_message, query_counts)])
 
                             except Exception as e:
-                                rows.append(row_with_counts(n, idx, proposal, a, beta, q0_mode, beta_0=locals().get("beta_0", np.nan), initial_overlap=locals().get("initial_overlap", np.nan), bottleneck=bottleneck, ok=False, error_message=repr(e)))
+                                append_and_save([row_with_counts(n, idx, proposal, a, beta, q0_mode, beta_0=beta_0, initial_overlap=initial_overlap, bottleneck=bottleneck, ok=False, error_message=repr(e))])
 
                             print(".", end="", flush=True)
 
             print("")
-            if rows:
-                new_df = pd.DataFrame(rows, columns=columns)
-                for c in EPS_COLUMNS:
-                    new_df[c] = pd.Series([int(x) for x in new_df[c].tolist()], dtype=object)
-                df = pd.concat([df, new_df], ignore_index=True)
-                df.to_pickle(out_file)
 
 
 def _epsilon_to_query_column(epsilon: float) -> str:

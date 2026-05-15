@@ -22,8 +22,9 @@ BEST_HYPERPARAMS_JSON_FILE_LIST = [
 ]
 BEST_HYPERPARAMS_QEMC_FILE = MONAQA2_PARENT / "data/best_hyperparams_qemc.hdf5"
 
-SPECTRAL_GAP_FILE = MONAQA2_PARENT / "data/spectral_gap.pkl"
+SPECTRAL_GAP_FILE = MONAQA2_PARENT / "data/spectral_gaps_merged.pkl"
 
 ANNEALING_SCHEDULE_FILE = MONAQA2_PARENT / "data/annealing_schedules.hdf5"
 
-CLASSICAL_QUERY_FILE = MONAQA2_PARENT / "data/classical_queries.pkl"
+CLASSICAL_QUERY_FILE = MONAQA2_PARENT / "data/classical_queries_merged.pkl"
+
