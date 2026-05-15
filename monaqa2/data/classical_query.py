@@ -89,9 +89,10 @@ def tv_convergence_times_column_stochastic(P, q0, pi, eps_list, tol=1e-11, max_i
     return out
 
 
-def run_experiment_to_generate_classical_queries(n_list, idx_min=0, idx_max=None, out_file: Path = None) -> None:
+def run_experiment_to_generate_classical_queries(n_list, idx_min=0, idx_max=None, out_file: Path = None, skip_most_acceptance: bool = True) -> None:
+    
     PROPOSALS = ["uniform", "local1", "local2", "local3", "qemc", "layden"]
-    AS = [np.inf, 1, 10]
+    AS = [np.inf] if skip_most_acceptance else [np.inf, 1, 10]
     BETAS = [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 1.00, 2.00, 3.00, 4.00, 5.00, 6.00, 7.00, 8.00, 9.00, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0]
     EPS_LIST = [10.0 ** (-k) for k in range(2, 9)]
     EPS_COLUMNS = [f"queries_eps_1e-{k}" for k in range(2, 9)]
@@ -106,7 +107,7 @@ def run_experiment_to_generate_classical_queries(n_list, idx_min=0, idx_max=None
         return row
 
     out_file.parent.mkdir(parents=True, exist_ok=True)
-    df = pd.DataFrame(columns=columns)
+    df = pd.read_pickle(out_file) if out_file.exists() else pd.DataFrame(columns=columns)
     df = df.reindex(columns=columns)
     for c in EPS_COLUMNS:
         df[c] = df[c].astype(object)
@@ -220,3 +221,133 @@ def run_experiment_to_generate_classical_queries(n_list, idx_min=0, idx_max=None
                     new_df[c] = pd.Series([int(x) for x in new_df[c].tolist()], dtype=object)
                 df = pd.concat([df, new_df], ignore_index=True)
                 df.to_pickle(out_file)
+
+
+def _epsilon_to_query_column(epsilon: float) -> str:
+    eps_map = {10.0 ** (-k): f"queries_eps_1e-{k}" for k in range(2, 9)}
+    eps_key = min(eps_map, key=lambda x: abs(x - float(epsilon)))
+
+    if not np.isclose(eps_key, float(epsilon)):
+        raise ValueError(f"epsilon must be one of {sorted(eps_map)}")
+
+    return eps_map[eps_key]
+
+
+def load_classical_queries(
+    proposal: str,
+    a: int | float,
+    q0_mode: str,
+    epsilon: float,
+    in_file: Path = CLASSICAL_QUERY_FILE,
+    only_ok: bool = True,
+) -> pd.DataFrame:
+    proposals = ["uniform", "local1", "local2", "local3", "qemc", "layden"]
+    acceptances = [np.inf, 1, 10]
+    q0_modes = ["uniform", "bhattacharyya"]
+
+    assert proposal in proposals, f"proposal must be one of {proposals}"
+    assert a in acceptances, f"a must be one of {acceptances}"
+    assert q0_mode in q0_modes, f"q0_mode must be one of {q0_modes}"
+
+    col = _epsilon_to_query_column(epsilon)
+    df = pd.read_pickle(in_file)
+
+    if np.isinf(a):
+        a_mask = np.isinf(df["a"].astype(float))
+    else:
+        a_mask = np.isclose(df["a"].astype(float), float(a))
+
+    mask = (df["proposal"] == proposal) & a_mask & (df["q0_mode"] == q0_mode)
+
+    if only_ok and "ok" in df.columns:
+        mask = mask & df["ok"].astype(bool)
+
+    out = df.loc[mask, ["n", "idx", "beta", col]].copy()
+    out = out.rename(columns={col: "queries"})
+    out["queries"] = pd.to_numeric(out["queries"], errors="coerce")
+
+    return out.reset_index(drop=True)
+
+
+def get_classical_query_stats(
+    proposal: str,
+    a: int | float,
+    q0_mode: str,
+    epsilon: float,
+    in_file: Path = CLASSICAL_QUERY_FILE,
+    statistic: str = "mean+std",
+    only_ok: bool = True,
+) -> pd.DataFrame:
+    """
+    Calculate query-count statistics over idx for each (n, beta).
+    """
+    statistics = ["mean+std", "mean+std-tail", "median+mad"]
+    assert statistic in statistics, f"statistic must be one of {statistics}"
+
+    df = load_classical_queries(proposal=proposal, a=a, q0_mode=q0_mode, epsilon=epsilon, in_file=in_file, only_ok=only_ok)
+    rows = []
+
+    for (n, beta), group in df.groupby(["n", "beta"], sort=True):
+        x = group["queries"].to_numpy(dtype=float)
+        x = x[np.isfinite(x) & (x > 0)]
+
+        if x.size == 0:
+            center, spread, count = np.nan, np.nan, 0
+
+        elif statistic == "mean+std":
+            center, spread, count = np.mean(x), np.std(x), x.size
+
+        elif statistic == "mean+std-tail":
+            q1, q3 = np.percentile(x, [25, 75])
+            x = x[(x >= q1) & (x <= q3)]
+            center, spread, count = (np.mean(x), np.std(x), x.size) if x.size else (np.nan, np.nan, 0)
+
+        elif statistic == "median+mad":
+            center = np.median(x)
+            spread = np.median(np.abs(x - center))
+            count = x.size
+
+        rows.append({"n": int(n), "beta": float(beta), "center": float(center), "spread": float(spread), "count": int(count), "statistic": statistic, "epsilon": float(epsilon), "q0_mode": q0_mode})
+
+    return pd.DataFrame(rows).sort_values(["n", "beta"]).reset_index(drop=True)
+
+
+def get_classical_query_fit(
+    proposal: str,
+    a: int | float,
+    q0_mode: str,
+    epsilon: float,
+    beta: float,
+    in_file: Path = CLASSICAL_QUERY_FILE,
+    statistic: str = "mean+std",
+    n_min: int | None = None,
+    n_max: int | None = None,
+    only_ok: bool = True,
+) -> tuple[float, float]:
+    """
+    Fit T(n) = A * exp(b n) at fixed beta, optionally using only n_min <= n <= n_max.
+    """
+    table = get_classical_query_stats(proposal=proposal, a=a, q0_mode=q0_mode, epsilon=epsilon, in_file=in_file, statistic=statistic, only_ok=only_ok)
+    table = table[np.isclose(table["beta"].astype(float), float(beta))]
+
+    if n_min is not None:
+        table = table[table["n"].astype(int) >= n_min]
+
+    if n_max is not None:
+        table = table[table["n"].astype(int) <= n_max]
+
+    if table.empty:
+        raise ValueError(f"No data found for beta={beta}, epsilon={epsilon}, q0_mode={q0_mode} in n range [{n_min}, {n_max}].")
+
+    n = table["n"].to_numpy(dtype=float)
+    y = table["center"].to_numpy(dtype=float)
+
+    mask = np.isfinite(n) & np.isfinite(y) & (y > 0.0)
+    n, y = n[mask], y[mask]
+
+    if len(y) < 2:
+        raise ValueError("Need at least two positive points to fit.")
+
+    b, log_A = np.polyfit(n, np.log(y), deg=1)
+
+    return float(np.exp(log_A)), float(b)
