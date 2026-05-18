@@ -4,19 +4,20 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from monaqa2.data.filename import CLASSICAL_QUERY_FILE, SPECTRAL_GAP_FILE
-from monaqa2.data.spectral_gap import load_spectral_gap, get_spectral_gap_stats, get_spectral_gap_fit_by_n
-from monaqa2.data.classical_query import load_classical_queries, get_classical_query_stats, get_classical_query_fit
+from monaqa2.data.spectral_gap import get_spectral_gap_fit_by_n
+from monaqa2.data.classical_query import get_classical_query_stats, get_classical_query_fit
 
 
-PROPOSALS = ["local1", "local2", "local3", "uniform", "qemc", "layden"]
+# PROPOSALS = ["local1", "local2", "local3", "uniform", "qemc", "layden"]
+PROPOSALS = ["local1", "uniform", "layden"]
 
 PROPOSAL_LABELS = {
     "uniform": "Uniform",
-    "local1": "Local spin-flip (single)",
+    "local1": "Local spin-flip",
     "local2": "Local spin-flip (double)",
     "local3": "Local spin-flip (triple)",
     "qemc": "Quantum enhanced (best hyperparameters)",
-    "layden": "Quantum enhanced (randomized)",
+    "layden": "Quantum enhanced",
 }
 
 PROPOSAL_COLORS = {
@@ -37,7 +38,7 @@ def _positive_band(center: np.ndarray, spread: np.ndarray) -> tuple[np.ndarray, 
     return np.maximum(lower, floor), np.maximum(upper, floor)
 
 
-def plot_classical_query_vs_n(
+def plot_classical_queries_vs_n(
     beta: float,
     a: int | float,
     q0_mode: str,
@@ -49,7 +50,7 @@ def plot_classical_query_vs_n(
     show_inverse_gap: bool = True,
     min_count: int = 1,
     n_fit_min: int | None = 5,
-    n_fit_max: int | None = 8,
+    n_fit_max: int | None = 10,
     n_plot_min: int | None = None,
     n_plot_max: int | None = None,
     ax: plt.Axes | None = None,
@@ -139,7 +140,7 @@ def plot_classical_query_vs_n(
             inv_gap_fit = (1.0 / A_g) * np.exp(b_g * n_grid)
             (gap_line,) = ax_gap.plot(n_grid, inv_gap_fit, color=color, linewidth=2.0, linestyle="--", alpha=0.90, zorder=2)
             gap_handles[proposal] = gap_line
-            gap_labels[proposal] = rf"{PROPOSAL_LABELS[proposal]} $1/\delta$: ${1.0 / A_g:.3g}\exp({b_g:.3f}n)$"
+            gap_labels[proposal] = rf"{PROPOSAL_LABELS[proposal]} inverse gap: ${1.0 / A_g:.3g}\exp({b_g:.3f}n)$"
 
     ax.set_yscale("log")
     ax.set_xlabel(r"$n$")
@@ -149,10 +150,15 @@ def plot_classical_query_vs_n(
     ax.grid(True, which="major", alpha=0.30)
     ax.grid(False, which="minor")
 
-    if ax_gap is not None:
-        ax_gap.set_yscale("log")
-        ax_gap.set_ylabel(r"Inverse spectral gap $1/\delta$")
-        ax_gap.grid(False)
+    ax_gap.set_yscale("log")
+    ax_gap.set_ylabel(r"Inverse spectral gap $1/\delta$")
+    ax_gap.grid(False)
+
+    left_ylim = ax.get_ylim()
+    right_ylim = ax_gap.get_ylim()
+    shared_ylim = (min(left_ylim[0], right_ylim[0]), max(left_ylim[1], right_ylim[1]))
+    ax.set_ylim(shared_ylim)
+    ax_gap.set_ylim(shared_ylim)
 
     handles = [query_handles[p] for p in PROPOSALS if p in query_handles]
     labels = [query_labels[p] for p in PROPOSALS if p in query_labels]

@@ -26,16 +26,18 @@ def plot_spectral_gap_vs_n(
     Transparent bands show center +/- spread.
     Solid lines show fits delta(n) = A * exp(-b n).
     """
-    plot_order = ["local1", "local2", "local3", "uniform", "qemc", "layden"]
-    legend_order = ["local1", "local2", "local3", "uniform", "qemc", "layden"]
+    # plot_order = ["local1", "local2", "local3", "uniform", "qemc", "layden"]
+    # legend_order = ["local1", "local2", "local3", "uniform", "qemc", "layden"]
+    plot_order = ["local1", "uniform", "layden"]
+    legend_order = ["local1", "uniform", "layden"]
 
     proposal_labels = {
-        "uniform": "Uniform",
-        "local1": "Local spin-flip (single)",
+        "layden": "Quantum enhanced",
+        "local1": "Local spin-flip",
         "local2": "Local spin-flip (double)",
         "local3": "Local spin-flip (triple)",
+        "uniform": "Uniform",
         "qemc": "Quantum enhanced (best hyperparameters)",
-        "layden": "Quantum enhanced (randomized)",
     }
 
     proposal_colors = {

@@ -18,6 +18,8 @@ def plot_spectral_gap_vs_beta(
     show_spread: bool = True,
     min_count: int = 1,
     ax: plt.Axes | None = None,
+    x_shift_mini: float = 0.5,
+    y_shift_mini: float = 0.5
 ) -> tuple[plt.Figure, plt.Axes]:
     """
     Plot spectral-gap statistics versus beta for a fixed n and acceptance parameter a.
@@ -31,12 +33,14 @@ def plot_spectral_gap_vs_beta(
     :param ax: Optional matplotlib axis.
     :return: The matplotlib figure and axis.
     """
-    plot_order = ["local1", "local2", "local3", "uniform", "qemc", "layden"]
-    legend_order = ["local1", "local2", "local3", "uniform", "qemc", "layden"]
+    # plot_order = ["local1", "local2", "local3", "uniform", "qemc", "layden"]
+    # legend_order = ["local1", "local2", "local3", "uniform", "qemc", "layden"]
+    plot_order = ["local1", "uniform", "layden"]
+    legend_order = ["local1", "uniform", "layden"]
 
     proposal_labels = {
-        "layden": "Quantum enhanced (randomized)",
-        "local1": "Local spin-flip (single)",
+        "layden": "Quantum enhanced",
+        "local1": "Local spin-flip",
         "local2": "Local spin-flip (double)",
         "local3": "Local spin-flip (triple)",
         "uniform": "Uniform",
@@ -152,15 +156,15 @@ def plot_spectral_gap_vs_beta(
         frameon=False,
         loc="upper center",
         bbox_to_anchor=(0.5, -0.18),
-        ncol=2,
+        ncol=3,
         borderaxespad=0.0,
         columnspacing=1.8,
         handlelength=2.4,
     )
 
     offset = ScaledTranslation(
-        0.5 / 2.54,
-        1.5 / 2.54,
+        x_shift_mini / 2.54,
+        y_shift_mini / 2.54,
         fig.dpi_scale_trans,
     )
 
