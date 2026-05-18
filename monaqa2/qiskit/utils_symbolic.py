@@ -42,6 +42,10 @@ def substitute_by_symbol_name(expr, substitutions):
 
 
 def advanced_initial_simplify(expr):
+    if isinstance(expr, float):
+        return expr
+    if expr.is_number:
+        return float(expr.evalf())
     a, b = sp.Wild('a'), sp.Wild('b')
     expr = expr.replace(sp.log(2), 1)
     expr = expr.replace(sp.ceiling(a), a+1)
@@ -55,6 +59,10 @@ def advanced_initial_simplify(expr):
 def leading_terms_upper_bound(expr, variables, assumptions=(), *, default_lower=1):
     import sympy as sp
     from sympy.core.relational import Relational
+
+    expr0 = sp.sympify(expr)
+    if expr0.is_number:
+        return float(expr0.evalf())
 
     variables = tuple(map(sp.sympify, variables))
 

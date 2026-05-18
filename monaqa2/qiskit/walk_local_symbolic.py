@@ -240,6 +240,7 @@ def walk_local_coins(
             eps_px=eps_px,
         )
     )
+    # if result is a number, return here the float
     expr = replace_shifted_logs(
         advanced_initial_simplify(expr),
         variables=[d_px, f, n, k]
@@ -367,7 +368,13 @@ def walk_local_nc_depth(
         variables=[d_px, f, n, k],
         assumptions=[d_px >= 2, f >= 10, n >= 2]
     )
-    return advanced_initial_simplify(expr).collect([k**2, sp.log(f)])
+    expr = advanced_initial_simplify(expr)
+    if isinstance(expr, float):
+        return expr
+    elif expr.is_number:
+        return float(expr.evalf())
+    else:
+        return expr.collect([k**2, sp.log(f)])
 
 
 def walk_local_t_count(

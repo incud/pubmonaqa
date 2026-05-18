@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from monaqa2.data.filename import CLASSICAL_QUERY_FILE, SPECTRAL_GAP_FILE
-from monaqa2.data.spectral_gap import load_spectral_gap, get_spectral_gap_stats, get_spectral_gap_fit
+from monaqa2.data.spectral_gap import load_spectral_gap, get_spectral_gap_stats, get_spectral_gap_fit_by_n
 from monaqa2.data.classical_query import load_classical_queries, get_classical_query_stats, get_classical_query_fit
 
 
@@ -128,7 +128,7 @@ def plot_classical_query_vs_n(
 
         if show_inverse_gap and ax_gap is not None:
             try:
-                A_g, b_g = get_spectral_gap_fit(proposal=proposal, a=a, beta=beta, in_file=spectral_gap_file, statistic=statistic, n_min=n_fit_min, n_max=n_fit_max)
+                A_g, b_g = get_spectral_gap_fit_by_n(proposal=proposal, a=a, fixed_beta=beta, in_file=spectral_gap_file, statistic=statistic, n_min=n_fit_min, n_max=n_fit_max)
             except ValueError:
                 continue
 

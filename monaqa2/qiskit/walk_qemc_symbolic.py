@@ -600,14 +600,16 @@ def walk_qemc_nc_depth(
         advanced_initial_simplify(expr),
         variables=[d_px, f, n]
     )
-    return advanced_initial_simplify(expr).subs(sp.log(2*n**2-3), 4*sp.log(n))\
+    expr = advanced_initial_simplify(expr)
+    if isinstance(expr, float):
+        return expr
+    expr = expr.subs(sp.log(2*n**2-3), 4*sp.log(n))\
         .subs(sp.log(2*n**2-2), 4*sp.log(n))\
         .subs(sp.log(7*f*n**2*sp.log(f)-1), sp.log(8*f*n**2*sp.log(f)))\
         .subs(sp.log(7*f*n**2*sp.log(f)+5*n**2+2*n-3), sp.log(8*f*n**2*sp.log(f)))\
         .subs(sp.log(8*f*n**2*sp.log(f)), 12*sp.log(f)+12*sp.log(n)+18)\
         .collect([n, sp.log(n), sp.log(f)])
-
-
+    return expr
 
 def walk_qemc_t_count(
     n: sp.Expr,

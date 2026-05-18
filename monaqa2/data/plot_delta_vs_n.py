@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from monaqa2.data.filename import SPECTRAL_GAP_FILE
-from monaqa2.data.spectral_gap import get_spectral_gap_stats, get_spectral_gap_fit
+from monaqa2.data.spectral_gap import get_spectral_gap_stats, get_spectral_gap_fit_by_n
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -112,7 +112,7 @@ def plot_spectral_gap_vs_n(
         ax.scatter(n_vals, center, s=36, color=color, edgecolors="none", alpha=0.95, zorder=3)
 
         try:
-            A, b = get_spectral_gap_fit(proposal=proposal, a=a, beta=beta, in_file=in_file, statistic=statistic, n_min=n_fit_min, n_max=n_fit_max)
+            A, b = get_spectral_gap_fit_by_n(proposal=proposal, a=a, fixed_beta=beta, in_file=in_file, statistic=statistic, n_min=n_fit_min, n_max=n_fit_max)
         except ValueError:
             continue
 

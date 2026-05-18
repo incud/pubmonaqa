@@ -28,3 +28,4 @@ ANNEALING_SCHEDULE_FILE = MONAQA2_PARENT / "data/annealing_schedules.hdf5"
 
 CLASSICAL_QUERY_FILE = MONAQA2_PARENT / "data/classical_queries_merged.pkl"
 
+QUANTUM_QUERY_FILE = MONAQA2_PARENT / "data/quantum_queries.pkl"

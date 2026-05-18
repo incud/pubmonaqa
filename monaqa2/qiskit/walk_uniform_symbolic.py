@@ -1067,7 +1067,10 @@ def walk_uniform_nc_depth(
         variables=[d_px, f, n],
         assumptions=[d_px >= 2, f >= 10, n >= 2]
     )
-    expr = advanced_initial_simplify(expr).xreplace({
+    expr = advanced_initial_simplify(expr)
+    if isinstance(expr, float):
+        return expr
+    expr = expr.xreplace({
         256: 260,
         259: 260, 
         6*sp.log(12): 0})
