@@ -3,11 +3,11 @@ from qiskit import QuantumCircuit, transpile
 from qiskit.quantum_info import Operator
 
 
-def qiskit_to_clifford_rz(qc: QuantumCircuit, seed: int=1234) -> QuantumCircuit:
+def qiskit_to_clifford_rz(qc: QuantumCircuit, seed: int = 1234, opt: int = 0) -> QuantumCircuit:
     qc_u = transpile(
         qc,
         basis_gates=["cx", "h", "s", "sdg", "t", "tdg", "x", "z", "rz", "ccx"],
-        optimization_level=0,
+        optimization_level=opt,
         seed_transpiler=seed,
         output_name=""
     )

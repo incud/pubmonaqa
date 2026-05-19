@@ -78,6 +78,8 @@ class ProposalQemc(Gate):
         self.mocked_angles = bool(mocked_angles)
         self.atol = float(atol)
 
+        
+
         if self.evolution == "exact":
             gamma_arr = np.asarray(gamma, dtype=float)
             if gamma_arr.ndim != 0:
@@ -86,7 +88,10 @@ class ProposalQemc(Gate):
             self.hsim = None
             self.n_aux = 0
         else:
-            gamma_arr = np.asarray(gamma, dtype=float)
+            if isinstance(gamma, float):
+                gamma_arr = np.array([gamma] * n, dtype=float)
+            else:
+                gamma_arr = np.asarray(gamma, dtype=float)
             if gamma_arr.shape != (n,):
                 raise ValueError(f"For evolution='{self.evolution}', gamma must have shape ({n},), got {gamma_arr.shape}.")
             self.gamma = gamma_arr
