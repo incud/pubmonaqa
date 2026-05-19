@@ -14,6 +14,7 @@
 set -euo pipefail
 
 module load python/3.11
+module load profile/quantum
 source "$HOME/monaqa_venv/bin/activate"
 
 mkdir -p logs
