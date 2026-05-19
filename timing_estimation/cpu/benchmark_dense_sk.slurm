@@ -1,15 +1,15 @@
 #!/bin/bash
 #SBATCH --job-name=cpu_time
-#SBATCH --account=YOUR_ACCOUNT
+#SBATCH --account=IscrC_MONAQA
 #SBATCH --partition=dcgp_usr_prod
 #SBATCH --qos=normal
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --time=1:00:00
-#SBATCH --mem=1G
-#SBATCH --output=sk_move_latency_%j.out
-#SBATCH --error=sk_move_latency_%j.err
+#SBATCH --time=24:00:00
+#SBATCH --mem=8G
+#SBATCH --output=cpu_timing_log_%j.out
+#SBATCH --error=cpu_timing_log_%j.err
 
 set -euo pipefail
 
@@ -56,23 +56,29 @@ echo "===== MODULES ====="
 module list 2>&1 || true
 echo
 
+module purge
+module load profile/base
+module load gcc/12.2.0
+
 export OMP_NUM_THREADS=1
 export MKL_NUM_THREADS=1
 export OPENBLAS_NUM_THREADS=1
 
-SRC=benchmark_dense_sk_fixedN_bitset_v5.cpp
+SRC=benchmark_dense_sk.cpp
 OUTDIR=results_${SLURM_JOB_ID:-manual}
 mkdir -p "$OUTDIR"
 
-for n in $(seq 10 10); do
-    exe="$OUTDIR/dense_sk_bench_N${n}"
-    csv="$OUTDIR/dense_sk_single_move_N${n}.csv"
+for n in $(seq 10 100); do
+    exe="$OUTDIR/dense_sk_executable_N${n}"
+    csv="$OUTDIR/dense_sk_timing_N${n}.csv"
+    steps=10000000
 
     echo "===== COMPILE SK_N=${n} ====="
     g++ -O3 -march=native -DNDEBUG -std=c++20 -DSK_N=${n} "$SRC" -o "$exe"
 
     echo "===== RUN SK_N=${n} ====="
-    srun "$exe" --instances 100 --steps 1000000 --seed 123456789 --beta 1.0 --out "$csv"
+    echo "Instances 100 | Steps $steps | Seed 123456789 | beta 1.0" || true
+    srun "$exe" --instances 100 --steps "$steps" --seed 123456789 --beta 1.0 --out "$csv"
 done
 
 echo "===== DONE ====="
