@@ -142,3 +142,17 @@ def run_experiment_coin(beta: float, eps_2_minus: int):
             jobs.append(({"component": "coin_sqrt_exp", "n": n, "idx": idx, "beta": beta, "eps_2_minus": int(eps_2_minus), "eps": eps}, build_sqrt_exp))
 
     _run(out_file, jobs)
+
+
+def launch_experiment_on_cineca(experiment: str, beta: float):
+
+    assert experiment in ["qemc", "coin"]
+    EPS_LIST = [2, 4, 8, 16, 32, 64, 96, 100]
+
+    if experiment == "qemc":
+        for eps_2_minus_k in EPS_LIST:
+            run_experiment_proposal_qemc(eps_2_minus_k)
+    
+    if experiment == "coin":
+        for eps_2_minus_k in EPS_LIST:
+            run_experiment_coin(beta, eps_2_minus_k)
