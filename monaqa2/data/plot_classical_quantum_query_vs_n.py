@@ -65,7 +65,7 @@ def plot_classical_and_quantum_queries(
     show_spread: bool = True,
     min_count: int = 1,
     n_fit_min: int | None = 5,
-    n_fit_max: int | None = 8,
+    n_fit_max: int | None = 10,
     n_plot_min: int | None = None,
     n_plot_max: int | None = None,
     only_ok: bool = True,
