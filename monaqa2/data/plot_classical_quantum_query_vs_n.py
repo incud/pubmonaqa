@@ -4,15 +4,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from monaqa2.data.filename import CLASSICAL_QUERY_FILE, QUANTUM_QUERY_FILE
-from monaqa2.data.classical_query import get_classical_query_stats, get_classical_query_fit
-from monaqa2.data.quantum_query import get_quantum_query_stats, get_quantum_query_fit
+from monaqa2.data.table_classical_quantum_query_vs_n import get_classical_quantum_query_vs_n_table
 
 
 # PLOT_ORDER = ["local1", "local2", "local3", "uniform", "qemc", "layden"]
 # LEGEND_ORDER = ["local1", "local2", "local3", "uniform", "qemc", "layden"]
 
-PLOT_ORDER = ["local1", "uniform", "layden"]
-LEGEND_ORDER = ["local1", "uniform", "layden"]
+PLOT_ORDER = ["local1", "uniform", "qemc"]
+LEGEND_ORDER = ["local1", "uniform", "qemc"]
 
 PROPOSAL_LABELS = {
     "uniform": "Uniform",
@@ -33,27 +32,6 @@ PROPOSAL_COLORS = {
 }
 
 
-def _positive_band(center: np.ndarray, spread: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-    lower = center - spread
-    upper = center + spread
-    positive = np.concatenate([center[center > 0.0], upper[upper > 0.0]])
-    floor = np.min(positive) * 1e-2 if positive.size else np.finfo(float).tiny
-    return np.maximum(lower, floor), np.maximum(upper, floor)
-
-
-def _filter_stats_table(table, beta: float, min_count: int):
-    table = table[np.isclose(table["beta"].astype(float), float(beta)) & (table["count"].astype(int) >= min_count) & np.isfinite(table["n"].astype(float)) & np.isfinite(table["center"].astype(float)) & (table["center"].astype(float) > 0.0)].copy()
-
-    if table.empty:
-        return table
-
-    table["n"] = table["n"].astype(float)
-    table["center"] = table["center"].astype(float)
-    table["spread"] = table["spread"].fillna(0.0).astype(float)
-
-    return table.sort_values("n")
-
-
 def plot_classical_and_quantum_queries(
     beta: float,
     a: int | float,
@@ -62,87 +40,63 @@ def plot_classical_and_quantum_queries(
     classical_query_file: Path = CLASSICAL_QUERY_FILE,
     quantum_query_file: Path = QUANTUM_QUERY_FILE,
     statistic: str = "mean+std",
-    show_spread: bool = True,
     min_count: int = 1,
     n_fit_min: int | None = 5,
     n_fit_max: int | None = 10,
+    n_project_values=tuple(range(10, 101, 10)),
     n_plot_min: int | None = None,
     n_plot_max: int | None = None,
     only_ok: bool = True,
     ax: plt.Axes | None = None,
 ) -> tuple[plt.Figure, plt.Axes]:
     """
-    Plot classical and quantum query counts versus n for fixed beta, acceptance a, and initialization mode.
+    Plot classical and quantum query counts from the table returned by get_classical_quantum_query_vs_n_table.
 
-    Points show the selected statistic over instances. Lines are the fitted forms Q(n)=A exp(b n), using the common query fitting utilities. Classical traces are solid lines with circle markers; quantum traces are dashed lines with square markers.
+    Observed points are scatter markers. Projected points are connected into the fitted line A exp(b n).
     """
+    table = get_classical_quantum_query_vs_n_table(beta=beta, a=a, q0_mode=q0_mode, epsilon=epsilon, classical_query_file=classical_query_file, quantum_query_file=quantum_query_file, statistic=statistic, min_count=min_count, n_fit_min=n_fit_min, n_fit_max=n_fit_max, n_project_values=n_project_values, moves=tuple(PLOT_ORDER), only_ok=only_ok)
+
+    if table.empty:
+        raise ValueError(f"No valid data found for beta={beta}, a={a}, q0_mode={q0_mode}, epsilon={epsilon}, statistic={statistic}.")
+
     if ax is None:
         fig, ax = plt.subplots(figsize=(8.5, 4.8))
     else:
         fig = ax.figure
 
-    stats = {"classical": {}, "quantum": {}}
-    all_n = []
-
-    for proposal in PLOT_ORDER:
-        classical_table = get_classical_query_stats(proposal=proposal, a=a, q0_mode=q0_mode, epsilon=epsilon, in_file=classical_query_file, statistic=statistic, only_ok=only_ok)
-        classical_table = _filter_stats_table(classical_table, beta=beta, min_count=min_count)
-        if not classical_table.empty:
-            stats["classical"][proposal] = classical_table
-            all_n.extend(classical_table["n"].tolist())
-
-        quantum_table = get_quantum_query_stats(proposal=proposal, a=a, q0_mode=q0_mode, in_file=quantum_query_file, statistic=statistic, only_ok=only_ok)
-        quantum_table = _filter_stats_table(quantum_table, beta=beta, min_count=min_count)
-        if not quantum_table.empty:
-            stats["quantum"][proposal] = quantum_table
-            all_n.extend(quantum_table["n"].tolist())
-
-    if not all_n:
-        raise ValueError(f"No valid data found for beta={beta}, a={a}, q0_mode={q0_mode}, epsilon={epsilon}, statistic={statistic}.")
-
-    n_min = float(np.min(all_n)) if n_plot_min is None else float(n_plot_min)
-    n_max = float(np.max(all_n)) if n_plot_max is None else float(n_plot_max)
-    n_grid = np.linspace(n_min, n_max, 300)
-
     styles = {
-        "classical": {"linestyle": "-", "marker": "o", "alpha_fill": 0.18, "markersize": 34, "linewidth": 2.2, "name": "classical"},
-        "quantum": {"linestyle": "--", "marker": "s", "alpha_fill": 0.10, "markersize": 30, "linewidth": 2.0, "name": "quantum"},
+        "classical": {"linestyle": "-", "marker": "o", "markersize": 34, "linewidth": 2.2, "name": "classical"},
+        "quantum": {"linestyle": "--", "marker": "s", "markersize": 30, "linewidth": 2.0, "name": "quantum"},
     }
 
     legend_handles = {}
     legend_labels = {}
 
-    for proposal in PLOT_ORDER:
-        color = PROPOSAL_COLORS[proposal]
+    for move in PLOT_ORDER:
+        color = PROPOSAL_COLORS[move]
 
-        for kind in ("classical", "quantum"):
-            if proposal not in stats[kind]:
+        for walk in ("classical", "quantum"):
+            sub = table[(table["move"] == move) & (table["walk"] == walk)]
+            observed = sub[sub["source"] == "observed"].sort_values("n")
+            projected = sub[sub["source"] == "projected"].sort_values("n")
+
+            if observed.empty and projected.empty:
                 continue
 
-            table = stats[kind][proposal]
-            n_vals = table["n"].to_numpy(dtype=float)
-            center = table["center"].to_numpy(dtype=float)
-            spread = table["spread"].to_numpy(dtype=float)
-            style = styles[kind]
+            style = styles[walk]
 
-            if show_spread:
-                lower, upper = _positive_band(center, spread)
-                ax.fill_between(n_vals, lower, upper, color=color, alpha=style["alpha_fill"], linewidth=0.0, zorder=1)
+            if not observed.empty:
+                ax.scatter(observed["n"].to_numpy(dtype=float), observed["num_queries"].to_numpy(dtype=float), s=style["markersize"], marker=style["marker"], color=color, edgecolors="none", alpha=0.95, zorder=4)
 
-            ax.scatter(n_vals, center, s=style["markersize"], marker=style["marker"], color=color, edgecolors="none", alpha=0.95, zorder=4)
+            if not projected.empty:
+                (line,) = ax.plot(projected["n"].to_numpy(dtype=float), projected["num_queries"].to_numpy(dtype=float), color=color, linewidth=style["linewidth"], linestyle=style["linestyle"], alpha=0.95, zorder=3)
+                legend_handles[(move, walk)] = line
+                A = float(projected["A"].iloc[0])
+                b = float(projected["b"].iloc[0])
+                legend_labels[(move, walk)] = f"{PROPOSAL_LABELS[move]} ({style['name']}): {A:.3g} exp({b:.3f} n)"
 
-            try:
-                if kind == "classical":
-                    A, b = get_classical_query_fit(proposal=proposal, a=a, q0_mode=q0_mode, epsilon=epsilon, beta=beta, in_file=classical_query_file, statistic=statistic, n_min=n_fit_min, n_max=n_fit_max, only_ok=only_ok)
-                else:
-                    A, b = get_quantum_query_fit(proposal=proposal, a=a, q0_mode=q0_mode, beta=beta, in_file=quantum_query_file, statistic=statistic, n_min=n_fit_min, n_max=n_fit_max, only_ok=only_ok)
-            except ValueError:
-                continue
-
-            y_fit = A * np.exp(b * n_grid)
-            (line,) = ax.plot(n_grid, y_fit, color=color, linewidth=style["linewidth"], linestyle=style["linestyle"], alpha=0.95, zorder=3)
-            legend_handles[(proposal, kind)] = line
-            legend_labels[(proposal, kind)] = f"{PROPOSAL_LABELS[proposal]} ({style['name']}): {A:.3g} exp({b:.3f} n)"
+    if n_plot_min is not None or n_plot_max is not None:
+        ax.set_xlim(left=n_plot_min, right=n_plot_max)
 
     ax.set_yscale("log")
     ax.set_xlabel(r"$n$")
@@ -155,13 +109,13 @@ def plot_classical_and_quantum_queries(
 
     handles = []
     labels = []
-    for proposal in LEGEND_ORDER:
-        if (proposal, "classical") in legend_handles:
-            handles.append(legend_handles[(proposal, "classical")])
-            labels.append(legend_labels[(proposal, "classical")])
-        if (proposal, "quantum") in legend_handles:
-            handles.append(legend_handles[(proposal, "quantum")])
-            labels.append(legend_labels[(proposal, "quantum")])
+    for move in LEGEND_ORDER:
+        if (move, "classical") in legend_handles:
+            handles.append(legend_handles[(move, "classical")])
+            labels.append(legend_labels[(move, "classical")])
+        if (move, "quantum") in legend_handles:
+            handles.append(legend_handles[(move, "quantum")])
+            labels.append(legend_labels[(move, "quantum")])
 
     old_legend = ax.get_legend()
     if old_legend is not None:

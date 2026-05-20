@@ -38,7 +38,6 @@ def get_classical_quantum_query_vs_n_table(
     min_count: int = 1,
     n_fit_min: int | None = 5,
     n_fit_max: int | None = 10,
-    n_project_values=tuple(range(10, 101, 10)),
     moves: tuple[str, ...] = MOVES,
     only_ok: bool = True,
 ) -> pd.DataFrame:
