@@ -50,7 +50,7 @@ generate_coin_cache = {}
 
 
 def generate_coin(n: int, idx: int, model: IsingModel, beta: float, eps: float):
-    key = (int(n), int(idx))
+    key = (int(n), int(idx), float(beta), float(eps))
 
     if key in generate_coin_cache:
         return generate_coin_cache[key]
