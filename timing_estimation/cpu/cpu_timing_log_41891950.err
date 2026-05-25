@@ -177,3 +177,324 @@ SK_N=24, instances=100, steps=10000000
   completed instance 70/100
   completed instance 80/100
   completed instance 90/100
+  completed instance 100/100
+wrote results_41891950/dense_sk_timing_N24.csv
+SK_N=25, instances=100, steps=10000000
+  completed instance 10/100
+  completed instance 20/100
+  completed instance 30/100
+  completed instance 40/100
+  completed instance 50/100
+  completed instance 60/100
+  completed instance 70/100
+  completed instance 80/100
+  completed instance 90/100
+  completed instance 100/100
+wrote results_41891950/dense_sk_timing_N25.csv
+SK_N=26, instances=100, steps=10000000
+  completed instance 10/100
+  completed instance 20/100
+  completed instance 30/100
+  completed instance 40/100
+  completed instance 50/100
+  completed instance 60/100
+  completed instance 70/100
+  completed instance 80/100
+  completed instance 90/100
+  completed instance 100/100
+wrote results_41891950/dense_sk_timing_N26.csv
+SK_N=27, instances=100, steps=10000000
+  completed instance 10/100
+  completed instance 20/100
+  completed instance 30/100
+  completed instance 40/100
+  completed instance 50/100
+  completed instance 60/100
+  completed instance 70/100
+  completed instance 80/100
+  completed instance 90/100
+  completed instance 100/100
+wrote results_41891950/dense_sk_timing_N27.csv
+SK_N=28, instances=100, steps=10000000
+  completed instance 10/100
+  completed instance 20/100
+  completed instance 30/100
+  completed instance 40/100
+  completed instance 50/100
+  completed instance 60/100
+  completed instance 70/100
+  completed instance 80/100
+  completed instance 90/100
+  completed instance 100/100
+wrote results_41891950/dense_sk_timing_N28.csv
+SK_N=29, instances=100, steps=10000000
+  completed instance 10/100
+  completed instance 20/100
+  completed instance 30/100
+  completed instance 40/100
+  completed instance 50/100
+  completed instance 60/100
+  completed instance 70/100
+  completed instance 80/100
+  completed instance 90/100
+  completed instance 100/100
+wrote results_41891950/dense_sk_timing_N29.csv
+SK_N=30, instances=100, steps=10000000
+  completed instance 10/100
+  completed instance 20/100
+  completed instance 30/100
+  completed instance 40/100
+  completed instance 50/100
+  completed instance 60/100
+  completed instance 70/100
+  completed instance 80/100
+  completed instance 90/100
+  completed instance 100/100
+wrote results_41891950/dense_sk_timing_N30.csv
+SK_N=31, instances=100, steps=10000000
+  completed instance 10/100
+  completed instance 20/100
+  completed instance 30/100
+  completed instance 40/100
+  completed instance 50/100
+  completed instance 60/100
+  completed instance 70/100
+  completed instance 80/100
+  completed instance 90/100
+  completed instance 100/100
+wrote results_41891950/dense_sk_timing_N31.csv
+SK_N=32, instances=100, steps=10000000
+  completed instance 10/100
+  completed instance 20/100
+  completed instance 30/100
+  completed instance 40/100
+  completed instance 50/100
+  completed instance 60/100
+  completed instance 70/100
+  completed instance 80/100
+  completed instance 90/100
+  completed instance 100/100
+wrote results_41891950/dense_sk_timing_N32.csv
+SK_N=33, instances=100, steps=10000000
+  completed instance 10/100
+  completed instance 20/100
+  completed instance 30/100
+  completed instance 40/100
+  completed instance 50/100
+  completed instance 60/100
+  completed instance 70/100
+  completed instance 80/100
+  completed instance 90/100
+  completed instance 100/100
+wrote results_41891950/dense_sk_timing_N33.csv
+SK_N=34, instances=100, steps=10000000
+  completed instance 10/100
+  completed instance 20/100
+  completed instance 30/100
+  completed instance 40/100
+  completed instance 50/100
+  completed instance 60/100
+  completed instance 70/100
+  completed instance 80/100
+  completed instance 90/100
+  completed instance 100/100
+wrote results_41891950/dense_sk_timing_N34.csv
+SK_N=35, instances=100, steps=10000000
+  completed instance 10/100
+  completed instance 20/100
+  completed instance 30/100
+  completed instance 40/100
+  completed instance 50/100
+  completed instance 60/100
+  completed instance 70/100
+  completed instance 80/100
+  completed instance 90/100
+  completed instance 100/100
+wrote results_41891950/dense_sk_timing_N35.csv
+SK_N=36, instances=100, steps=10000000
+  completed instance 10/100
+  completed instance 20/100
+  completed instance 30/100
+  completed instance 40/100
+  completed instance 50/100
+  completed instance 60/100
+  completed instance 70/100
+  completed instance 80/100
+  completed instance 90/100
+  completed instance 100/100
+wrote results_41891950/dense_sk_timing_N36.csv
+SK_N=37, instances=100, steps=10000000
+  completed instance 10/100
+  completed instance 20/100
+  completed instance 30/100
+  completed instance 40/100
+  completed instance 50/100
+  completed instance 60/100
+  completed instance 70/100
+  completed instance 80/100
+  completed instance 90/100
+  completed instance 100/100
+wrote results_41891950/dense_sk_timing_N37.csv
+SK_N=38, instances=100, steps=10000000
+  completed instance 10/100
+  completed instance 20/100
+  completed instance 30/100
+  completed instance 40/100
+  completed instance 50/100
+  completed instance 60/100
+  completed instance 70/100
+  completed instance 80/100
+  completed instance 90/100
+  completed instance 100/100
+wrote results_41891950/dense_sk_timing_N38.csv
+SK_N=39, instances=100, steps=10000000
+  completed instance 10/100
+  completed instance 20/100
+  completed instance 30/100
+  completed instance 40/100
+  completed instance 50/100
+  completed instance 60/100
+  completed instance 70/100
+  completed instance 80/100
+  completed instance 90/100
+  completed instance 100/100
+wrote results_41891950/dense_sk_timing_N39.csv
+SK_N=40, instances=100, steps=10000000
+  completed instance 10/100
+  completed instance 20/100
+  completed instance 30/100
+  completed instance 40/100
+  completed instance 50/100
+  completed instance 60/100
+  completed instance 70/100
+  completed instance 80/100
+  completed instance 90/100
+  completed instance 100/100
+wrote results_41891950/dense_sk_timing_N40.csv
+SK_N=41, instances=100, steps=10000000
+  completed instance 10/100
+  completed instance 20/100
+  completed instance 30/100
+  completed instance 40/100
+  completed instance 50/100
+  completed instance 60/100
+  completed instance 70/100
+  completed instance 80/100
+  completed instance 90/100
+  completed instance 100/100
+wrote results_41891950/dense_sk_timing_N41.csv
+SK_N=42, instances=100, steps=10000000
+  completed instance 10/100
+  completed instance 20/100
+  completed instance 30/100
+  completed instance 40/100
+  completed instance 50/100
+  completed instance 60/100
+  completed instance 70/100
+  completed instance 80/100
+  completed instance 90/100
+  completed instance 100/100
+wrote results_41891950/dense_sk_timing_N42.csv
+SK_N=43, instances=100, steps=10000000
+  completed instance 10/100
+  completed instance 20/100
+  completed instance 30/100
+  completed instance 40/100
+  completed instance 50/100
+  completed instance 60/100
+  completed instance 70/100
+  completed instance 80/100
+  completed instance 90/100
+  completed instance 100/100
+wrote results_41891950/dense_sk_timing_N43.csv
+SK_N=44, instances=100, steps=10000000
+  completed instance 10/100
+  completed instance 20/100
+  completed instance 30/100
+  completed instance 40/100
+  completed instance 50/100
+  completed instance 60/100
+  completed instance 70/100
+  completed instance 80/100
+  completed instance 90/100
+  completed instance 100/100
+wrote results_41891950/dense_sk_timing_N44.csv
+SK_N=45, instances=100, steps=10000000
+  completed instance 10/100
+  completed instance 20/100
+  completed instance 30/100
+  completed instance 40/100
+  completed instance 50/100
+  completed instance 60/100
+  completed instance 70/100
+  completed instance 80/100
+  completed instance 90/100
+  completed instance 100/100
+wrote results_41891950/dense_sk_timing_N45.csv
+SK_N=46, instances=100, steps=10000000
+  completed instance 10/100
+  completed instance 20/100
+  completed instance 30/100
+  completed instance 40/100
+  completed instance 50/100
+  completed instance 60/100
+  completed instance 70/100
+  completed instance 80/100
+  completed instance 90/100
+  completed instance 100/100
+wrote results_41891950/dense_sk_timing_N46.csv
+SK_N=47, instances=100, steps=10000000
+  completed instance 10/100
+  completed instance 20/100
+  completed instance 30/100
+  completed instance 40/100
+  completed instance 50/100
+  completed instance 60/100
+  completed instance 70/100
+  completed instance 80/100
+  completed instance 90/100
+  completed instance 100/100
+wrote results_41891950/dense_sk_timing_N47.csv
+SK_N=48, instances=100, steps=10000000
+  completed instance 10/100
+  completed instance 20/100
+  completed instance 30/100
+  completed instance 40/100
+  completed instance 50/100
+  completed instance 60/100
+  completed instance 70/100
+  completed instance 80/100
+  completed instance 90/100
+  completed instance 100/100
+wrote results_41891950/dense_sk_timing_N48.csv
+SK_N=49, instances=100, steps=10000000
+  completed instance 10/100
+  completed instance 20/100
+  completed instance 30/100
+  completed instance 40/100
+  completed instance 50/100
+  completed instance 60/100
+  completed instance 70/100
+  completed instance 80/100
+  completed instance 90/100
+  completed instance 100/100
+wrote results_41891950/dense_sk_timing_N49.csv
+SK_N=50, instances=100, steps=10000000
+  completed instance 10/100
+  completed instance 20/100
+  completed instance 30/100
+  completed instance 40/100
+  completed instance 50/100
+  completed instance 60/100
+  completed instance 70/100
+  completed instance 80/100
+  completed instance 90/100
+  completed instance 100/100
+wrote results_41891950/dense_sk_timing_N50.csv
+SK_N=51, instances=100, steps=10000000
+  completed instance 10/100
+  completed instance 20/100
+  completed instance 30/100
+  completed instance 40/100
+srun: Job step aborted: Waiting up to 122 seconds for job step to finish.
+slurmstepd: error: *** JOB 41891950 ON lrdn4992 CANCELLED AT 2026-05-20T09:14:26 ***
