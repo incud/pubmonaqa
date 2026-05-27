@@ -1,9 +1,0 @@
-{
-  "name": "csim_local_spin_flip_N10_FRAC64",
-  "type": "HLS",
-  "configuration": {
-    "componentType": "HLS",
-    "configFiles": ["hls_config.cfg"],
-    "work_dir": "."
-  }
-}
