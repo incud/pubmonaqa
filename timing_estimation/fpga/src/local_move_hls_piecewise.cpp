@@ -33,11 +33,17 @@ using prob_t = ap_ufixed<32, 1, AP_RND, AP_SAT>;
 // Chebyshev coefficients and Clenshaw intermediate values can be negative.
 using poly_t = ap_fixed<40, 4, AP_RND, AP_SAT>;
 
-// Generated offline by 'make_exp_cheby.py' for fixed SK_N, beta, and polynomial degree.
-// The generated polynomial directly approximates exp(-beta * alpha * x) on x in [0,1],
-// so no runtime multiplication by beta or alpha is needed in this file.
+// Generated offline by 'make_exp_cheby.py' for fixed SK_N, beta, polynomial degree,
+// and operation-error budget. The generated header implements the piecewise-tail
+// approximation of g(x)=exp(-beta*alpha*x):
+//   g(x)=1 for x<=0,
+//   g(x)=p_d(2*x/x_cut-1) for 0<x<x_cut,
+//   g(x)=0 for x>=x_cut,
+// where x_cut=tau/(beta*alpha) and tau=log(1/eps_tail).
 // Must define:
 //   static const int POLY_DEGREE;
+//   static const delta_t EXP_X_CUT;
+//   static const poly_t EXP_INV_X_CUT;
 //   static const poly_t CHEB_COEFFS[POLY_DEGREE + 1];
 #include "exp_cheby.hpp"
 
@@ -212,9 +218,14 @@ static delta_t positive_part(delta_t delta_over_alpha) {
     return delta_over_alpha < delta_t(0) ? delta_t(0) : delta_over_alpha;
 }
 
-// Evaluate the generated Chebyshev approximation to g(x)=exp(-beta*alpha*x) on x in [0,1].
-// The coefficients are generated offline for the fixed values of SK_N, beta, and POLY_DEGREE.
-// This block therefore contains only the polynomial evaluation, not a runtime beta*alpha multiplication.
+// Evaluate the generated piecewise Chebyshev approximation to g(x)=exp(-beta*alpha*x).
+// The polynomial is not a global approximation on [0,1]. It is evaluated only on
+// the short interval [0,x_cut], and the output is forced to zero for x>=x_cut.
+// This is the hardware version of:
+//   u = beta*alpha*x
+//   if x <= 0: return 1
+//   if u >= tau: return 0
+//   return chebval(2*u/tau - 1, coeffs(tau,d)).
 static prob_t chebyshev_g(delta_t x) {
 #pragma HLS INLINE
 #pragma HLS ARRAY_PARTITION variable=CHEB_COEFFS complete dim=1
@@ -224,11 +235,19 @@ static prob_t chebyshev_g(delta_t x) {
         return prob_t(1);
     }
 
-    // Map x in [0,1] to the Chebyshev variable y in [-1,1].
-    poly_t y = poly_t(2) * poly_t(x) - poly_t(1);
+    // For x >= x_cut=tau/(beta*alpha), the exact value is at most eps_tail,
+    // so the piecewise approximation returns zero.
+    if (x >= EXP_X_CUT) {
+        return prob_t(0);
+    }
 
-    // Clenshaw recurrence for p(x)=sum_k c_k T_k(2x-1).
-    // This is numerically stable and avoids explicitly constructing all Chebyshev polynomials.
+    // Map x in [0,x_cut] to the Chebyshev variable y in [-1,1].
+    // Since EXP_INV_X_CUT = 1/x_cut = beta*alpha/tau, this implements
+    // y = 2*x/x_cut - 1 = 2*(beta*alpha*x)/tau - 1.
+    poly_t y = poly_t(2) * poly_t(x) * EXP_INV_X_CUT - poly_t(1);
+
+    // Clenshaw recurrence for p(y)=sum_k c_k T_k(y).
+    // Here the coefficients approximate exp(-u) on u in [0,tau].
     poly_t b1 = poly_t(0);
     poly_t b2 = poly_t(0);
 
@@ -261,7 +280,7 @@ static prob_t chebyshev_g(delta_t x) {
  * This is the HLS entry point. It implements only the local single-spin-flip arithmetic:
  *   1. compute delta_over_alpha = Delta E / alpha for the spin selected by flip_mask;
  *   2. clip it to x=max(delta_over_alpha,0);
- *   3. evaluate the pre-generated Chebyshev approximation to exp(-beta*alpha*x).
+ *   3. evaluate the pre-generated piecewise Chebyshev approximation to exp(-beta*alpha*x).
  *
  * Inputs:
  *   h[SK_N]
@@ -277,11 +296,11 @@ static prob_t chebyshev_g(delta_t x) {
  *   delta_x
  *       Nonnegative normalized value x=max(Delta E/alpha,0). This is the argument of g.
  *   accept_prob
- *       Approximation to exp(-beta*alpha*x), clipped to [0,1].
+ *       Piecewise approximation to exp(-beta*alpha*x), clipped to [0,1].
  *
  * Convention:
- *   The factor beta*alpha is already absorbed in exp_cheby.hpp. The HLS circuit therefore
- *   does not receive beta as an input and does not multiply by alpha at runtime.
+ *   The factor beta*alpha, the cutoff x_cut, and the Chebyshev coefficients are already
+ *   absorbed in exp_cheby.hpp. The HLS circuit therefore does not receive beta as an input.
  */
 void local_spin_flip_operation(
     const coeff_t h[SK_N],
@@ -310,7 +329,7 @@ void local_spin_flip_operation(
     // Metropolis clips downhill moves to x=0, making the acceptance probability exactly 1.
     delta_t x = positive_part(delta_over_alpha);
 
-    // Evaluate the offline-generated polynomial approximation to exp(-beta*alpha*x).
+    // Evaluate the offline-generated piecewise polynomial approximation to exp(-beta*alpha*x).
     prob_t p = chebyshev_g(x);
 
     *delta_x = x;

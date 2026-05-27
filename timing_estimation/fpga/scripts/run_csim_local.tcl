@@ -34,8 +34,8 @@ puts "============================================================"
 
 open_component -reset ${comp_name} -flow_target vivado
 
-add_files src/local_move_hls.cpp -cflags "-std=c++17 -Isrc -DSK_N=${n_spins} -DF=${f_bits}"
-add_files -tb tb/tb_local_move.cpp -cflags "-std=c++17 -Isrc -DSK_N=${n_spins} -DF=${f_bits}"
+add_files src/local_move_hls.cpp -cflags "-std=c++17 -Isrc -DSK_N=${n_spins} -DFRAC=${f_bits}"
+add_files -tb tb/tb_local_move.cpp -cflags "-std=c++17 -Isrc -DSK_N=${n_spins} -DFRAC=${f_bits}"
 
 set_top ${top_name}
 set_part ${part}
