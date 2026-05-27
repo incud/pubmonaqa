@@ -1,0 +1,84 @@
+Sourcing Vitis...
+Generating exp_cheby.hpp... (needs python3.11 + numpy + scipy)
+Running C simulation...
+
+****** vitis-run v2025.2 (64-bit)
+  **** SW Build 6295257 on 2025-11-13-01:29:13
+  **** Start of session at: Wed May 27 16:22:32 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+
+  **** HLS Build v2025.2 6295257
+Sourcing Tcl script '/u/m/mincudin/Documents/fpga/scripts/run_csim_local_n10.tcl'
+============================================================
+C simulation: all local flips against std::exp
+Top function : local_spin_flip_operation
+SK_N         : 10
+FRAC         : 64
+lambda       : 142.702511707779
+Part         : xcvu19p-fsva3824-2-e
+Clock ns     : 3.333
+CFLAGS       : -std=c++17 -Isrc -DSK_N=10 -DFRAC=64 -DTEST_LAMBDA=142.702511707779
+Component    : csim_local_spin_flip_N10_FRAC64
+============================================================
+INFO: [HLS 200-1510] Running: open_component -reset csim_local_spin_flip_N10_FRAC64 -flow_target vivado 
+INFO: [HLS 200-10] Creating and opening component '/u/m/mincudin/Documents/fpga/csim_local_spin_flip_N10_FRAC64'.
+INFO: [HLS 200-10] Cleaning up the component database.
+INFO: [HLS 200-1505] Using flow_target 'vivado'
+Resolution: For help on HLS 200-1505 see docs.amd.com/access/sources/dita/topic?Doc_Version=2025.2%20English&url=ug1448-hls-guidance&resourceid=200-1505.html
+INFO: [HLS 200-2176] Writing Vitis IDE component file /u/m/mincudin/Documents/fpga/csim_local_spin_flip_N10_FRAC64/vitis-comp.json
+INFO: [HLS 200-1915] Writing HLS config ini file /u/m/mincudin/Documents/fpga/csim_local_spin_flip_N10_FRAC64/hls_config.cfg
+INFO: [HLS 200-1510] Running: add_files src/local_move_hls.cpp -cflags -std=c++17 -Isrc -DSK_N=10 -DFRAC=64 -DTEST_LAMBDA=142.702511707779 
+INFO: [HLS 200-10] Adding design file 'src/local_move_hls.cpp' to the project
+INFO: [HLS 200-1510] Running: add_files -tb tb/tb_local_move_n10_all.cpp -cflags -std=c++17 -Isrc -DSK_N=10 -DFRAC=64 -DTEST_LAMBDA=142.702511707779 
+INFO: [HLS 200-10] Adding test bench file 'tb/tb_local_move_n10_all.cpp' to the project
+INFO: [HLS 200-1510] Running: set_top local_spin_flip_operation 
+INFO: [HLS 200-1510] Running: set_part xcvu19p-fsva3824-2-e 
+INFO: [HLS 200-1611] Setting target device to 'xcvu19p-fsva3824-2-e'
+INFO: [HLS 200-1510] Running: create_clock -period 3.333 -name default 
+INFO: [SYN 201-201] Setting up clock 'default' with a period of 3.333ns.
+INFO: [HLS 200-1510] Running: csim_design 
+INFO: [HLS 200-1915] Writing HLS config ini file /u/m/mincudin/Documents/fpga/csim_local_spin_flip_N10_FRAC64/hls_config.cfg
+INFO: [SIM 211-2] *************** CSIM start ***************
+INFO: [HLS 200-2191] C-Simulation will use clang-16 as the compiler
+INFO: [HLS 200-2036] Building debug C Simulation binaries
+   Compiling ../../../../tb/tb_local_move_n10_all.cpp in debug mode
+   Compiling ../../../../src/local_move_hls.cpp in debug mode
+   Generating csim.exe
+SK_N 10
+FRAC 64
+TEST_LAMBDA 142.702511707779
+NUM_CONFIGS 1024
+TOTAL_TESTS 10240
+delta_tol 1.0000000000000001e-15
+prob_tol 0.0001
+
+cfg  spins  flip_i  spin  ref_x           got_x           err_x          exact_prob     got_prob        err_prob
+  0      0      0    -1    0.00200    0.00200    0.00000    0.75171    0.75167    0.00004
+  0      0      1    -1    0.00000    0.00000    0.00000    1.00000    1.00000    0.00000
+  0      0      2    -1    0.00000    0.00000    0.00000    1.00000    1.00000    0.00000
+  0      0      3    -1    0.00000    0.00000    0.00000    1.00000    1.00000    0.00000
+  0      0      4    -1    0.00160    0.00160    0.00000    0.79587    0.79583    0.00003
+  0      0      5    -1    0.00000    0.00000    0.00000    1.00000    1.00000    0.00000
+  0      0      6    -1    0.00000    0.00000    0.00000    1.00000    1.00000    0.00000
+  0      0      7    -1    0.00360    0.00360    0.00000    0.59826    0.59820    0.00006
+  0      0      8    -1    0.00060    0.00060    0.00000    0.91794    0.91793    0.00001
+  0      0      9    -1    0.00000    0.00000    0.00000    1.00000    1.00000    0.00000
+  1      1      0     1    0.00000    0.00000    0.00000    1.00000    1.00000    0.00000
+  1      1      1    -1    0.00000    0.00000    0.00000    1.00000    1.00000    0.00000
+  1      1      2    -1    0.00100    0.00100    0.00000    0.86701    0.86699    0.00002
+  1      1      3    -1    0.00000    0.00000    0.00000    1.00000    1.00000    0.00000
+  1      1      4    -1    0.00240    0.00240    0.00000    0.71000    0.70996    0.00005
+  1      1      5    -1    0.00000    0.00000    0.00000    1.00000    1.00000    0.00000
+  1      1      6    -1    0.00000    0.00000    0.00000    1.00000    1.00000    0.00000
+  1      1      7    -1    0.00200    0.00200    0.00000    0.75171    0.75167    0.00004
+  1      1      8    -1    0.00060    0.00060    0.00000    0.91794    0.91793    0.00001
+  1      1      9    -1    0.00160    0.00160    0.00000    0.79587    0.79583    0.00003
+
+Total failures: 0 / 10240
+INFO: [SIM 211-1] CSim done with 0 errors.
+INFO: [SIM 211-3] *************** CSIM finish ***************
+INFO: [HLS 200-2161] Finished Command csim_design Elapsed time: 00:00:13; Allocated memory: 16.000 MB.
+INFO: [HLS 200-112] Total CPU user time: 11.29 seconds. Total CPU system time: 0.33 seconds. Total elapsed time: 14.52 seconds; peak allocated memory: 256.238 MB.
+INFO: [vitis-run 60-791] Total elapsed time: 0h 0m 15s
+INFO: [vitis-run 60-1662] Stopping dispatch session having empty uuid.

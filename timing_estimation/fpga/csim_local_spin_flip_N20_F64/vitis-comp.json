@@ -1,0 +1,9 @@
+{
+  "name": "csim_local_spin_flip_N20_F64",
+  "type": "HLS",
+  "configuration": {
+    "componentType": "HLS",
+    "configFiles": ["hls_config.cfg"],
+    "work_dir": "."
+  }
+}
