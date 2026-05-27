@@ -1,0 +1,54 @@
+<design_size title="Design Size Report">
+    <item name="Total Instructions per Compilation Phase">
+        <table>
+            <keys size="4">Phase, Step, Instructions, Description</keys>
+            <column name="Compile/Link">, 3652, After all functions are compiled and linked into a single design</column>
+            <column name="">, , </column>
+            <column name="Unroll/Inline">, , After user unroll and inline pragmas are applied</column>
+            <column name="">(1) unroll, 1345, user unroll pragmas are applied</column>
+            <column name="">(2) simplification,   477, simplification of applied user unroll pragmas</column>
+            <column name="">(3) inline,   364, user inline pragmas are applied</column>
+            <column name="">(4) simplification,   241, simplification of applied user inline pragmas</column>
+            <column name="">, , </column>
+            <column name="Array/Struct">, , After user array partition and struct aggregate/disaggregate pragmas are applied</column>
+            <column name="">(1) array partition, 3185, user array partition pragmas are applied</column>
+            <column name="">(2) simplification,   635, simplification of applied user array partition &amp; struct aggregate/disaggregate pragmas</column>
+            <column name="">(3) aggregate/disaggregate,   831, user struct aggregate/disaggregate pragmas are applied</column>
+            <column name="">(4) array reshape,   831, apply array reshape pragmas</column>
+            <column name="">(5) access patterns,   831, array access pattern optmizations</column>
+            <column name="">, , </column>
+            <column name="Performance">, , After transformations are applied to meet performance pragma targets</column>
+            <column name="">(1) loop simplification,   426, loop and instruction simplification</column>
+            <column name="">(2) parallelization,   426, loops are unrolled or pipelined to meet performance targets</column>
+            <column name="">(3) array partition,   426, arrays are partitioned to meet performance targets</column>
+            <column name="">(4) simplification,   426, simplification of design after performance transformations</column>
+            <column name="">, , </column>
+            <column name="HW Transforms">, , After hardware transfomations</column>
+            <column name="">(1) lowering,   885, initial conversion to HW specific instructions</column>
+            <column name="">(2) optimizations,   886, high level synthesis optimizations</column>
+        </table>
+    </item>
+    <item name="Instructions per Function for each Compilation Phase">
+        <hiertable>
+            <header size="7" col0="Function" col1="Location" col2="Compile/Link" col3="Unroll/Inline" col4="Array/Struct" col5="Performance" col6="HW Transforms"/>
+            <rows>
+                <row id="0" col0="local_metropolis_step" col1="sk_step.cpp:217" col2="3652" col3="241" col4="831" col5="426" col6="886">
+                    <row id="3" col0="local_delta_energy" col1="sk_step.cpp:133" col2="1108" col3="168" col4="753" col5="124" col6="124">
+                        <row id="5" col0="spin_mul" col1="sk_step.cpp:37" col2="289" col3="" col4="" col5="" col6=""/>
+                        <row id="2" col0="spin_value" col1="sk_step.cpp:28" col2="116" col3="" col4="" col5="" col6=""/>
+                    </row>
+                    <row id="1" col0="metropolis_accept" col1="sk_step.cpp:115" col2="2287" col3="" col4="" col5="" col6="">
+                        <row id="4" col0="exp_neg_approx" col1="sk_step.cpp:58" col2="1975" col3="" col4="" col5="" col6=""/>
+                    </row>
+                </row>
+            </rows>
+            <notes/>
+        </hiertable>
+    </item>
+    <item name="Design Size Message Settings">
+        <table>
+            <keys size="3">Message Setting, Value, Description</keys>
+            <column name="config_compile -design_size_maximum_warning">100000, Show a warning when total design instructions exceeds this value</column>
+        </table>
+    </item>
+</design_size>

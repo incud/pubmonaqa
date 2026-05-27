@@ -1,0 +1,600 @@
+
+
+================================================================
+== Vitis HLS Report for 'local_delta_energy'
+================================================================
+* Date:           Tue May 19 20:36:46 2026
+
+* Version:        2025.2 (Build 6295257 on Nov 14 2025)
+* Project:        hls_local_metropolis_step_N17
+* Solution:       hls (Vivado IP Flow Target)
+* Product family: virtexuplus
+* Target device:  xcvu19p-fsva3824-2-e
+
+
+================================================================
+== Performance Estimates
+================================================================
++ Timing: 
+    * Summary: 
+    +--------+---------+----------+------------+
+    |  Clock |  Target | Estimated| Uncertainty|
+    +--------+---------+----------+------------+
+    |ap_clk  |  3.33 ns|  2.421 ns|     0.90 ns|
+    +--------+---------+----------+------------+
+
++ Latency: 
+    * Summary: 
+    +---------+---------+-----------+-----------+-----+-----+---------+
+    |  Latency (cycles) |   Latency (absolute)  |  Interval | Pipeline|
+    |   min   |   max   |    min    |    max    | min | max |   Type  |
+    +---------+---------+-----------+-----------+-----+-----+---------+
+    |       13|       13|  43.329 ns|  43.329 ns|   13|   13|       no|
+    +---------+---------+-----------+-----------+-----+-----+---------+
+
+    + Detail: 
+        * Instance: 
+        N/A
+
+        * Loop: 
+        N/A
+
+
+
+================================================================
+== Utilization Estimates
+================================================================
+* Summary: 
++---------------------+---------+------+---------+---------+-----+
+|         Name        | BRAM_18K|  DSP |    FF   |   LUT   | URAM|
++---------------------+---------+------+---------+---------+-----+
+|DSP                  |        -|     -|        -|        -|    -|
+|Expression           |        -|     -|        0|     3661|    -|
+|FIFO                 |        -|     -|        -|        -|    -|
+|Instance             |        -|     6|      340|     1353|    -|
+|Memory               |        -|     -|        -|        -|    -|
+|Multiplexer          |        -|     -|        0|       74|    -|
+|Register             |        -|     -|     1477|        -|    -|
++---------------------+---------+------+---------+---------+-----+
+|Total                |        0|     6|     1817|     5088|    0|
++---------------------+---------+------+---------+---------+-----+
+|Available SLR        |     1080|   960|  2042880|  1021440|   80|
++---------------------+---------+------+---------+---------+-----+
+|Utilization SLR (%)  |        0|    ~0|       ~0|       ~0|    0|
++---------------------+---------+------+---------+---------+-----+
+|Available            |     4320|  3840|  8171520|  4085760|  320|
++---------------------+---------+------+---------+---------+-----+
+|Utilization (%)      |        0|    ~0|       ~0|       ~0|    0|
++---------------------+---------+------+---------+---------+-----+
+
++ Detail: 
+    * Instance: 
+    +---------------------------+-----------------------+---------+----+-----+----+-----+
+    |          Instance         |         Module        | BRAM_18K| DSP|  FF | LUT| URAM|
+    +---------------------------+-----------------------+---------+----+-----+----+-----+
+    |mul_40s_50s_88_5_1_U1      |mul_40s_50s_88_5_1     |        0|   6|  340|  86|    0|
+    |sparsemux_33_5_40_1_1_U3   |sparsemux_33_5_40_1_1  |        0|   0|    0|  65|    0|
+    |sparsemux_33_5_40_1_1_U4   |sparsemux_33_5_40_1_1  |        0|   0|    0|  65|    0|
+    |sparsemux_33_5_40_1_1_U5   |sparsemux_33_5_40_1_1  |        0|   0|    0|  65|    0|
+    |sparsemux_33_5_40_1_1_U6   |sparsemux_33_5_40_1_1  |        0|   0|    0|  65|    0|
+    |sparsemux_33_5_40_1_1_U7   |sparsemux_33_5_40_1_1  |        0|   0|    0|  65|    0|
+    |sparsemux_33_5_40_1_1_U8   |sparsemux_33_5_40_1_1  |        0|   0|    0|  65|    0|
+    |sparsemux_33_5_40_1_1_U9   |sparsemux_33_5_40_1_1  |        0|   0|    0|  65|    0|
+    |sparsemux_33_5_40_1_1_U10  |sparsemux_33_5_40_1_1  |        0|   0|    0|  65|    0|
+    |sparsemux_33_5_40_1_1_U11  |sparsemux_33_5_40_1_1  |        0|   0|    0|  65|    0|
+    |sparsemux_33_5_40_1_1_U12  |sparsemux_33_5_40_1_1  |        0|   0|    0|  65|    0|
+    |sparsemux_33_5_40_1_1_U14  |sparsemux_33_5_40_1_1  |        0|   0|    0|  65|    0|
+    |sparsemux_33_5_40_1_1_U15  |sparsemux_33_5_40_1_1  |        0|   0|    0|  65|    0|
+    |sparsemux_33_5_40_1_1_U16  |sparsemux_33_5_40_1_1  |        0|   0|    0|  65|    0|
+    |sparsemux_33_5_40_1_1_U17  |sparsemux_33_5_40_1_1  |        0|   0|    0|  65|    0|
+    |sparsemux_33_5_40_1_1_U18  |sparsemux_33_5_40_1_1  |        0|   0|    0|  65|    0|
+    |sparsemux_33_5_40_1_1_U19  |sparsemux_33_5_40_1_1  |        0|   0|    0|  65|    0|
+    |sparsemux_33_5_40_1_1_U20  |sparsemux_33_5_40_1_1  |        0|   0|    0|  65|    0|
+    |sparsemux_35_5_1_1_1_U13   |sparsemux_35_5_1_1_1   |        0|   0|    0|  81|    0|
+    |sparsemux_35_5_40_1_1_U2   |sparsemux_35_5_40_1_1  |        0|   0|    0|  81|    0|
+    +---------------------------+-----------------------+---------+----+-----+----+-----+
+    |Total                      |                       |        0|   6|  340|1353|    0|
+    +---------------------------+-----------------------+---------+----+-----+----+-----+
+
+    * DSP: 
+    N/A
+
+    * Memory: 
+    N/A
+
+    * FIFO: 
+    N/A
+
+    * Expression: 
+    +--------------------------+----------+----+---+----+------------+------------+
+    |       Variable Name      | Operation| DSP| FF| LUT| Bitwidth P0| Bitwidth P1|
+    +--------------------------+----------+----+---+----+------------+------------+
+    |field_11_fu_3304_p2       |         +|   0|  0|  47|          40|          40|
+    |field_13_fu_3402_p2       |         +|   0|  0|  47|          40|          40|
+    |field_15_fu_3496_p2       |         +|   0|  0|  47|          40|          40|
+    |field_17_fu_3594_p2       |         +|   0|  0|  47|          40|          40|
+    |field_19_fu_3755_p2       |         +|   0|  0|  47|          40|          40|
+    |field_21_fu_3852_p2       |         +|   0|  0|  47|          40|          40|
+    |field_23_fu_3945_p2       |         +|   0|  0|  47|          40|          40|
+    |field_25_fu_4042_p2       |         +|   0|  0|  47|          40|          40|
+    |field_27_fu_4135_p2       |         +|   0|  0|  47|          40|          40|
+    |field_29_fu_4232_p2       |         +|   0|  0|  47|          40|          40|
+    |field_2_fu_2729_p2        |         +|   0|  0|  47|          40|          40|
+    |field_31_fu_4325_p2       |         +|   0|  0|  47|          40|          40|
+    |field_33_fu_4422_p2       |         +|   0|  0|  47|          40|          40|
+    |field_3_fu_2920_p2        |         +|   0|  0|  47|          40|          40|
+    |field_5_fu_3018_p2        |         +|   0|  0|  47|          40|          40|
+    |field_7_fu_3112_p2        |         +|   0|  0|  47|          40|          40|
+    |field_9_fu_3210_p2        |         +|   0|  0|  47|          40|          40|
+    |sub_ln42_10_fu_3839_p2    |         -|   0|  0|  47|           1|          40|
+    |sub_ln42_11_fu_3929_p2    |         -|   0|  0|  47|           1|          40|
+    |sub_ln42_12_fu_4029_p2    |         -|   0|  0|  47|           1|          40|
+    |sub_ln42_13_fu_4119_p2    |         -|   0|  0|  47|           1|          40|
+    |sub_ln42_14_fu_4219_p2    |         -|   0|  0|  47|           1|          40|
+    |sub_ln42_15_fu_4309_p2    |         -|   0|  0|  47|           1|          40|
+    |sub_ln42_16_fu_4409_p2    |         -|   0|  0|  47|           1|          40|
+    |sub_ln42_1_fu_2813_p2     |         -|   0|  0|  47|           1|          40|
+    |sub_ln42_2_fu_3004_p2     |         -|   0|  0|  47|           1|          40|
+    |sub_ln42_3_fu_3095_p2     |         -|   0|  0|  47|           1|          40|
+    |sub_ln42_4_fu_3196_p2     |         -|   0|  0|  47|           1|          40|
+    |sub_ln42_5_fu_3287_p2     |         -|   0|  0|  47|           1|          40|
+    |sub_ln42_6_fu_3388_p2     |         -|   0|  0|  47|           1|          40|
+    |sub_ln42_7_fu_3479_p2     |         -|   0|  0|  47|           1|          40|
+    |sub_ln42_8_fu_3580_p2     |         -|   0|  0|  47|           1|          40|
+    |sub_ln42_9_fu_3671_p2     |         -|   0|  0|  47|           1|          40|
+    |sub_ln42_fu_2715_p2       |         -|   0|  0|  47|           1|          40|
+    |icmp_ln147_10_fu_2867_p2  |      icmp|   0|  0|  39|          32|           4|
+    |icmp_ln147_11_fu_2873_p2  |      icmp|   0|  0|  39|          32|           4|
+    |icmp_ln147_12_fu_2879_p2  |      icmp|   0|  0|  39|          32|           4|
+    |icmp_ln147_13_fu_2885_p2  |      icmp|   0|  0|  39|          32|           4|
+    |icmp_ln147_14_fu_2891_p2  |      icmp|   0|  0|  39|          32|           4|
+    |icmp_ln147_15_fu_2897_p2  |      icmp|   0|  0|  39|          32|           4|
+    |icmp_ln147_16_fu_2903_p2  |      icmp|   0|  0|  39|          32|           5|
+    |icmp_ln147_1_fu_2735_p2   |      icmp|   0|  0|  39|          32|           1|
+    |icmp_ln147_2_fu_2819_p2   |      icmp|   0|  0|  39|          32|           2|
+    |icmp_ln147_3_fu_2825_p2   |      icmp|   0|  0|  39|          32|           2|
+    |icmp_ln147_4_fu_2831_p2   |      icmp|   0|  0|  39|          32|           3|
+    |icmp_ln147_5_fu_2837_p2   |      icmp|   0|  0|  39|          32|           3|
+    |icmp_ln147_6_fu_2843_p2   |      icmp|   0|  0|  39|          32|           3|
+    |icmp_ln147_7_fu_2849_p2   |      icmp|   0|  0|  39|          32|           3|
+    |icmp_ln147_8_fu_2855_p2   |      icmp|   0|  0|  39|          32|           4|
+    |icmp_ln147_9_fu_2861_p2   |      icmp|   0|  0|  39|          32|           4|
+    |icmp_ln147_fu_2637_p2     |      icmp|   0|  0|  39|          32|           1|
+    |field_10_fu_3293_p3       |    select|   0|  0|  40|           1|          40|
+    |field_12_fu_3310_p3       |    select|   0|  0|  40|           1|          40|
+    |field_14_fu_3485_p3       |    select|   0|  0|  40|           1|          40|
+    |field_16_fu_3502_p3       |    select|   0|  0|  40|           1|          40|
+    |field_18_fu_3745_p3       |    select|   0|  0|  40|           1|          40|
+    |field_1_fu_2909_p3        |    select|   0|  0|  40|           1|          40|
+    |field_20_fu_3761_p3       |    select|   0|  0|  40|           1|          40|
+    |field_22_fu_3935_p3       |    select|   0|  0|  40|           1|          40|
+    |field_24_fu_3951_p3       |    select|   0|  0|  40|           1|          40|
+    |field_26_fu_4125_p3       |    select|   0|  0|  40|           1|          40|
+    |field_28_fu_4141_p3       |    select|   0|  0|  40|           1|          40|
+    |field_30_fu_4315_p3       |    select|   0|  0|  40|           1|          40|
+    |field_32_fu_4331_p3       |    select|   0|  0|  40|           1|          40|
+    |field_34_fu_4428_p3       |    select|   0|  0|  40|           1|          40|
+    |field_4_fu_2926_p3        |    select|   0|  0|  40|           1|          40|
+    |field_6_fu_3101_p3        |    select|   0|  0|  40|           1|          40|
+    |field_8_fu_3118_p3        |    select|   0|  0|  40|           1|          40|
+    |out_fu_4453_p3            |    select|   0|  0|  40|           1|          40|
+    |term_10_fu_3845_p3        |    select|   0|  0|  40|           1|          40|
+    |term_11_fu_3940_p3        |    select|   0|  0|  40|           1|          40|
+    |term_12_fu_4035_p3        |    select|   0|  0|  40|           1|          40|
+    |term_13_fu_4130_p3        |    select|   0|  0|  40|           1|          40|
+    |term_14_fu_4225_p3        |    select|   0|  0|  40|           1|          40|
+    |term_15_fu_4320_p3        |    select|   0|  0|  40|           1|          40|
+    |term_16_fu_4415_p3        |    select|   0|  0|  40|           1|          40|
+    |term_1_fu_2914_p3         |    select|   0|  0|  40|           1|          40|
+    |term_2_fu_3010_p3         |    select|   0|  0|  40|           1|          40|
+    |term_3_fu_3106_p3         |    select|   0|  0|  40|           1|          40|
+    |term_4_fu_3202_p3         |    select|   0|  0|  40|           1|          40|
+    |term_5_fu_3298_p3         |    select|   0|  0|  40|           1|          40|
+    |term_6_fu_3394_p3         |    select|   0|  0|  40|           1|          40|
+    |term_7_fu_3490_p3         |    select|   0|  0|  40|           1|          40|
+    |term_8_fu_3586_p3         |    select|   0|  0|  40|           1|          40|
+    |term_9_fu_3750_p3         |    select|   0|  0|  40|           1|          40|
+    |term_fu_2721_p3           |    select|   0|  0|  40|           1|          40|
+    +--------------------------+----------+----+---+----+------------+------------+
+    |Total                     |          |   0|  0|3661|        1276|        2815|
+    +--------------------------+----------+----+---+----+------------+------------+
+
+    * Multiplexer: 
+    +-----------+----+-----------+-----+-----------+
+    |    Name   | LUT| Input Size| Bits| Total Bits|
+    +-----------+----+-----------+-----+-----------+
+    |ap_NS_fsm  |  65|         15|    1|         15|
+    |ap_return  |   9|          2|   40|         80|
+    +-----------+----+-----------+-----+-----------+
+    |Total      |  74|         17|   41|         95|
+    +-----------+----+-----------+-----+-----------+
+
+    * Register: 
+    +------------------------+----+----+-----+-----------+
+    |          Name          | FF | LUT| Bits| Const Bits|
+    +------------------------+----+----+-----+-----------+
+    |a_11_reg_4755           |  40|   0|   40|          0|
+    |a_13_reg_4775           |  40|   0|   40|          0|
+    |a_15_reg_4795           |  40|   0|   40|          0|
+    |a_1_reg_4505            |  40|   0|   40|          0|
+    |a_3_reg_4610            |  40|   0|   40|          0|
+    |a_5_reg_4640            |  40|   0|   40|          0|
+    |a_7_reg_4670            |  40|   0|   40|          0|
+    |a_9_reg_4730            |  40|   0|   40|          0|
+    |ap_CS_fsm               |  14|   0|   14|          0|
+    |ap_return_preg          |  40|   0|   40|          0|
+    |b_reg_4740              |   1|   0|    1|          0|
+    |field_12_reg_4660       |  40|   0|   40|          0|
+    |field_13_reg_4665       |  40|   0|   40|          0|
+    |field_16_reg_4720       |  40|   0|   40|          0|
+    |field_17_reg_4725       |  40|   0|   40|          0|
+    |field_20_reg_4745       |  40|   0|   40|          0|
+    |field_21_reg_4750       |  40|   0|   40|          0|
+    |field_24_reg_4765       |  40|   0|   40|          0|
+    |field_25_reg_4770       |  40|   0|   40|          0|
+    |field_28_reg_4785       |  40|   0|   40|          0|
+    |field_29_reg_4790       |  40|   0|   40|          0|
+    |field_2_reg_4495        |  40|   0|   40|          0|
+    |field_32_reg_4805       |  40|   0|   40|          0|
+    |field_33_reg_4810       |  40|   0|   40|          0|
+    |field_34_reg_4815       |  40|   0|   40|          0|
+    |field_4_reg_4600        |  40|   0|   40|          0|
+    |field_5_reg_4605        |  40|   0|   40|          0|
+    |field_8_reg_4630        |  40|   0|   40|          0|
+    |field_9_reg_4635        |  40|   0|   40|          0|
+    |field_reg_4485          |  40|   0|   40|          0|
+    |icmp_ln147_10_reg_4555  |   1|   0|    1|          0|
+    |icmp_ln147_11_reg_4560  |   1|   0|    1|          0|
+    |icmp_ln147_12_reg_4565  |   1|   0|    1|          0|
+    |icmp_ln147_13_reg_4570  |   1|   0|    1|          0|
+    |icmp_ln147_14_reg_4575  |   1|   0|    1|          0|
+    |icmp_ln147_15_reg_4580  |   1|   0|    1|          0|
+    |icmp_ln147_16_reg_4585  |   1|   0|    1|          0|
+    |icmp_ln147_1_reg_4500   |   1|   0|    1|          0|
+    |icmp_ln147_2_reg_4515   |   1|   0|    1|          0|
+    |icmp_ln147_3_reg_4520   |   1|   0|    1|          0|
+    |icmp_ln147_4_reg_4525   |   1|   0|    1|          0|
+    |icmp_ln147_5_reg_4530   |   1|   0|    1|          0|
+    |icmp_ln147_6_reg_4535   |   1|   0|    1|          0|
+    |icmp_ln147_7_reg_4540   |   1|   0|    1|          0|
+    |icmp_ln147_8_reg_4545   |   1|   0|    1|          0|
+    |icmp_ln147_9_reg_4550   |   1|   0|    1|          0|
+    |icmp_ln147_reg_4490     |   1|   0|    1|          0|
+    |sub_ln42_11_reg_4760    |  40|   0|   40|          0|
+    |sub_ln42_13_reg_4780    |  40|   0|   40|          0|
+    |sub_ln42_15_reg_4800    |  40|   0|   40|          0|
+    |sub_ln42_1_reg_4510     |  40|   0|   40|          0|
+    |sub_ln42_3_reg_4615     |  40|   0|   40|          0|
+    |sub_ln42_5_reg_4645     |  40|   0|   40|          0|
+    |sub_ln42_7_reg_4675     |  40|   0|   40|          0|
+    |sub_ln42_9_reg_4735     |  40|   0|   40|          0|
+    |trunc_ln137_reg_4465    |   5|   0|    5|          0|
+    +------------------------+----+----+-----+-----------+
+    |Total                   |1477|   0| 1477|          0|
+    +------------------------+----+----+-----+-----------+
+
+
+
+================================================================
+== Interface
+================================================================
+* Summary: 
++-------------+-----+-----+------------+--------------------+--------------+
+|  RTL Ports  | Dir | Bits|  Protocol  |    Source Object   |    C Type    |
++-------------+-----+-----+------------+--------------------+--------------+
+|ap_clk       |   in|    1|  ap_ctrl_hs|  local_delta_energy|  return value|
+|ap_rst       |   in|    1|  ap_ctrl_hs|  local_delta_energy|  return value|
+|ap_start     |   in|    1|  ap_ctrl_hs|  local_delta_energy|  return value|
+|ap_done      |  out|    1|  ap_ctrl_hs|  local_delta_energy|  return value|
+|ap_idle      |  out|    1|  ap_ctrl_hs|  local_delta_energy|  return value|
+|ap_ready     |  out|    1|  ap_ctrl_hs|  local_delta_energy|  return value|
+|ap_return    |  out|   40|  ap_ctrl_hs|  local_delta_energy|  return value|
+|J_0_1_val    |   in|   40|     ap_none|           J_0_1_val|        scalar|
+|J_0_2_val    |   in|   40|     ap_none|           J_0_2_val|        scalar|
+|J_0_3_val    |   in|   40|     ap_none|           J_0_3_val|        scalar|
+|J_0_4_val    |   in|   40|     ap_none|           J_0_4_val|        scalar|
+|J_0_5_val    |   in|   40|     ap_none|           J_0_5_val|        scalar|
+|J_0_6_val    |   in|   40|     ap_none|           J_0_6_val|        scalar|
+|J_0_7_val    |   in|   40|     ap_none|           J_0_7_val|        scalar|
+|J_0_8_val    |   in|   40|     ap_none|           J_0_8_val|        scalar|
+|J_0_9_val    |   in|   40|     ap_none|           J_0_9_val|        scalar|
+|J_0_10_val   |   in|   40|     ap_none|          J_0_10_val|        scalar|
+|J_0_11_val   |   in|   40|     ap_none|          J_0_11_val|        scalar|
+|J_0_12_val   |   in|   40|     ap_none|          J_0_12_val|        scalar|
+|J_0_13_val   |   in|   40|     ap_none|          J_0_13_val|        scalar|
+|J_0_14_val   |   in|   40|     ap_none|          J_0_14_val|        scalar|
+|J_0_15_val   |   in|   40|     ap_none|          J_0_15_val|        scalar|
+|J_0_16_val   |   in|   40|     ap_none|          J_0_16_val|        scalar|
+|J_1_0_val    |   in|   40|     ap_none|           J_1_0_val|        scalar|
+|J_1_2_val    |   in|   40|     ap_none|           J_1_2_val|        scalar|
+|J_1_3_val    |   in|   40|     ap_none|           J_1_3_val|        scalar|
+|J_1_4_val    |   in|   40|     ap_none|           J_1_4_val|        scalar|
+|J_1_5_val    |   in|   40|     ap_none|           J_1_5_val|        scalar|
+|J_1_6_val    |   in|   40|     ap_none|           J_1_6_val|        scalar|
+|J_1_7_val    |   in|   40|     ap_none|           J_1_7_val|        scalar|
+|J_1_8_val    |   in|   40|     ap_none|           J_1_8_val|        scalar|
+|J_1_9_val    |   in|   40|     ap_none|           J_1_9_val|        scalar|
+|J_1_10_val   |   in|   40|     ap_none|          J_1_10_val|        scalar|
+|J_1_11_val   |   in|   40|     ap_none|          J_1_11_val|        scalar|
+|J_1_12_val   |   in|   40|     ap_none|          J_1_12_val|        scalar|
+|J_1_13_val   |   in|   40|     ap_none|          J_1_13_val|        scalar|
+|J_1_14_val   |   in|   40|     ap_none|          J_1_14_val|        scalar|
+|J_1_15_val   |   in|   40|     ap_none|          J_1_15_val|        scalar|
+|J_1_16_val   |   in|   40|     ap_none|          J_1_16_val|        scalar|
+|J_2_0_val    |   in|   40|     ap_none|           J_2_0_val|        scalar|
+|J_2_1_val    |   in|   40|     ap_none|           J_2_1_val|        scalar|
+|J_2_3_val    |   in|   40|     ap_none|           J_2_3_val|        scalar|
+|J_2_4_val    |   in|   40|     ap_none|           J_2_4_val|        scalar|
+|J_2_5_val    |   in|   40|     ap_none|           J_2_5_val|        scalar|
+|J_2_6_val    |   in|   40|     ap_none|           J_2_6_val|        scalar|
+|J_2_7_val    |   in|   40|     ap_none|           J_2_7_val|        scalar|
+|J_2_8_val    |   in|   40|     ap_none|           J_2_8_val|        scalar|
+|J_2_9_val    |   in|   40|     ap_none|           J_2_9_val|        scalar|
+|J_2_10_val   |   in|   40|     ap_none|          J_2_10_val|        scalar|
+|J_2_11_val   |   in|   40|     ap_none|          J_2_11_val|        scalar|
+|J_2_12_val   |   in|   40|     ap_none|          J_2_12_val|        scalar|
+|J_2_13_val   |   in|   40|     ap_none|          J_2_13_val|        scalar|
+|J_2_14_val   |   in|   40|     ap_none|          J_2_14_val|        scalar|
+|J_2_15_val   |   in|   40|     ap_none|          J_2_15_val|        scalar|
+|J_2_16_val   |   in|   40|     ap_none|          J_2_16_val|        scalar|
+|J_3_0_val    |   in|   40|     ap_none|           J_3_0_val|        scalar|
+|J_3_1_val    |   in|   40|     ap_none|           J_3_1_val|        scalar|
+|J_3_2_val    |   in|   40|     ap_none|           J_3_2_val|        scalar|
+|J_3_4_val    |   in|   40|     ap_none|           J_3_4_val|        scalar|
+|J_3_5_val    |   in|   40|     ap_none|           J_3_5_val|        scalar|
+|J_3_6_val    |   in|   40|     ap_none|           J_3_6_val|        scalar|
+|J_3_7_val    |   in|   40|     ap_none|           J_3_7_val|        scalar|
+|J_3_8_val    |   in|   40|     ap_none|           J_3_8_val|        scalar|
+|J_3_9_val    |   in|   40|     ap_none|           J_3_9_val|        scalar|
+|J_3_10_val   |   in|   40|     ap_none|          J_3_10_val|        scalar|
+|J_3_11_val   |   in|   40|     ap_none|          J_3_11_val|        scalar|
+|J_3_12_val   |   in|   40|     ap_none|          J_3_12_val|        scalar|
+|J_3_13_val   |   in|   40|     ap_none|          J_3_13_val|        scalar|
+|J_3_14_val   |   in|   40|     ap_none|          J_3_14_val|        scalar|
+|J_3_15_val   |   in|   40|     ap_none|          J_3_15_val|        scalar|
+|J_3_16_val   |   in|   40|     ap_none|          J_3_16_val|        scalar|
+|J_4_0_val    |   in|   40|     ap_none|           J_4_0_val|        scalar|
+|J_4_1_val    |   in|   40|     ap_none|           J_4_1_val|        scalar|
+|J_4_2_val    |   in|   40|     ap_none|           J_4_2_val|        scalar|
+|J_4_3_val    |   in|   40|     ap_none|           J_4_3_val|        scalar|
+|J_4_5_val    |   in|   40|     ap_none|           J_4_5_val|        scalar|
+|J_4_6_val    |   in|   40|     ap_none|           J_4_6_val|        scalar|
+|J_4_7_val    |   in|   40|     ap_none|           J_4_7_val|        scalar|
+|J_4_8_val    |   in|   40|     ap_none|           J_4_8_val|        scalar|
+|J_4_9_val    |   in|   40|     ap_none|           J_4_9_val|        scalar|
+|J_4_10_val   |   in|   40|     ap_none|          J_4_10_val|        scalar|
+|J_4_11_val   |   in|   40|     ap_none|          J_4_11_val|        scalar|
+|J_4_12_val   |   in|   40|     ap_none|          J_4_12_val|        scalar|
+|J_4_13_val   |   in|   40|     ap_none|          J_4_13_val|        scalar|
+|J_4_14_val   |   in|   40|     ap_none|          J_4_14_val|        scalar|
+|J_4_15_val   |   in|   40|     ap_none|          J_4_15_val|        scalar|
+|J_4_16_val   |   in|   40|     ap_none|          J_4_16_val|        scalar|
+|J_5_0_val    |   in|   40|     ap_none|           J_5_0_val|        scalar|
+|J_5_1_val    |   in|   40|     ap_none|           J_5_1_val|        scalar|
+|J_5_2_val    |   in|   40|     ap_none|           J_5_2_val|        scalar|
+|J_5_3_val    |   in|   40|     ap_none|           J_5_3_val|        scalar|
+|J_5_4_val    |   in|   40|     ap_none|           J_5_4_val|        scalar|
+|J_5_6_val    |   in|   40|     ap_none|           J_5_6_val|        scalar|
+|J_5_7_val    |   in|   40|     ap_none|           J_5_7_val|        scalar|
+|J_5_8_val    |   in|   40|     ap_none|           J_5_8_val|        scalar|
+|J_5_9_val    |   in|   40|     ap_none|           J_5_9_val|        scalar|
+|J_5_10_val   |   in|   40|     ap_none|          J_5_10_val|        scalar|
+|J_5_11_val   |   in|   40|     ap_none|          J_5_11_val|        scalar|
+|J_5_12_val   |   in|   40|     ap_none|          J_5_12_val|        scalar|
+|J_5_13_val   |   in|   40|     ap_none|          J_5_13_val|        scalar|
+|J_5_14_val   |   in|   40|     ap_none|          J_5_14_val|        scalar|
+|J_5_15_val   |   in|   40|     ap_none|          J_5_15_val|        scalar|
+|J_5_16_val   |   in|   40|     ap_none|          J_5_16_val|        scalar|
+|J_6_0_val    |   in|   40|     ap_none|           J_6_0_val|        scalar|
+|J_6_1_val    |   in|   40|     ap_none|           J_6_1_val|        scalar|
+|J_6_2_val    |   in|   40|     ap_none|           J_6_2_val|        scalar|
+|J_6_3_val    |   in|   40|     ap_none|           J_6_3_val|        scalar|
+|J_6_4_val    |   in|   40|     ap_none|           J_6_4_val|        scalar|
+|J_6_5_val    |   in|   40|     ap_none|           J_6_5_val|        scalar|
+|J_6_7_val    |   in|   40|     ap_none|           J_6_7_val|        scalar|
+|J_6_8_val    |   in|   40|     ap_none|           J_6_8_val|        scalar|
+|J_6_9_val    |   in|   40|     ap_none|           J_6_9_val|        scalar|
+|J_6_10_val   |   in|   40|     ap_none|          J_6_10_val|        scalar|
+|J_6_11_val   |   in|   40|     ap_none|          J_6_11_val|        scalar|
+|J_6_12_val   |   in|   40|     ap_none|          J_6_12_val|        scalar|
+|J_6_13_val   |   in|   40|     ap_none|          J_6_13_val|        scalar|
+|J_6_14_val   |   in|   40|     ap_none|          J_6_14_val|        scalar|
+|J_6_15_val   |   in|   40|     ap_none|          J_6_15_val|        scalar|
+|J_6_16_val   |   in|   40|     ap_none|          J_6_16_val|        scalar|
+|J_7_0_val    |   in|   40|     ap_none|           J_7_0_val|        scalar|
+|J_7_1_val    |   in|   40|     ap_none|           J_7_1_val|        scalar|
+|J_7_2_val    |   in|   40|     ap_none|           J_7_2_val|        scalar|
+|J_7_3_val    |   in|   40|     ap_none|           J_7_3_val|        scalar|
+|J_7_4_val    |   in|   40|     ap_none|           J_7_4_val|        scalar|
+|J_7_5_val    |   in|   40|     ap_none|           J_7_5_val|        scalar|
+|J_7_6_val    |   in|   40|     ap_none|           J_7_6_val|        scalar|
+|J_7_8_val    |   in|   40|     ap_none|           J_7_8_val|        scalar|
+|J_7_9_val    |   in|   40|     ap_none|           J_7_9_val|        scalar|
+|J_7_10_val   |   in|   40|     ap_none|          J_7_10_val|        scalar|
+|J_7_11_val   |   in|   40|     ap_none|          J_7_11_val|        scalar|
+|J_7_12_val   |   in|   40|     ap_none|          J_7_12_val|        scalar|
+|J_7_13_val   |   in|   40|     ap_none|          J_7_13_val|        scalar|
+|J_7_14_val   |   in|   40|     ap_none|          J_7_14_val|        scalar|
+|J_7_15_val   |   in|   40|     ap_none|          J_7_15_val|        scalar|
+|J_7_16_val   |   in|   40|     ap_none|          J_7_16_val|        scalar|
+|J_8_0_val    |   in|   40|     ap_none|           J_8_0_val|        scalar|
+|J_8_1_val    |   in|   40|     ap_none|           J_8_1_val|        scalar|
+|J_8_2_val    |   in|   40|     ap_none|           J_8_2_val|        scalar|
+|J_8_3_val    |   in|   40|     ap_none|           J_8_3_val|        scalar|
+|J_8_4_val    |   in|   40|     ap_none|           J_8_4_val|        scalar|
+|J_8_5_val    |   in|   40|     ap_none|           J_8_5_val|        scalar|
+|J_8_6_val    |   in|   40|     ap_none|           J_8_6_val|        scalar|
+|J_8_7_val    |   in|   40|     ap_none|           J_8_7_val|        scalar|
+|J_8_9_val    |   in|   40|     ap_none|           J_8_9_val|        scalar|
+|J_8_10_val   |   in|   40|     ap_none|          J_8_10_val|        scalar|
+|J_8_11_val   |   in|   40|     ap_none|          J_8_11_val|        scalar|
+|J_8_12_val   |   in|   40|     ap_none|          J_8_12_val|        scalar|
+|J_8_13_val   |   in|   40|     ap_none|          J_8_13_val|        scalar|
+|J_8_14_val   |   in|   40|     ap_none|          J_8_14_val|        scalar|
+|J_8_15_val   |   in|   40|     ap_none|          J_8_15_val|        scalar|
+|J_8_16_val   |   in|   40|     ap_none|          J_8_16_val|        scalar|
+|J_9_0_val    |   in|   40|     ap_none|           J_9_0_val|        scalar|
+|J_9_1_val    |   in|   40|     ap_none|           J_9_1_val|        scalar|
+|J_9_2_val    |   in|   40|     ap_none|           J_9_2_val|        scalar|
+|J_9_3_val    |   in|   40|     ap_none|           J_9_3_val|        scalar|
+|J_9_4_val    |   in|   40|     ap_none|           J_9_4_val|        scalar|
+|J_9_5_val    |   in|   40|     ap_none|           J_9_5_val|        scalar|
+|J_9_6_val    |   in|   40|     ap_none|           J_9_6_val|        scalar|
+|J_9_7_val    |   in|   40|     ap_none|           J_9_7_val|        scalar|
+|J_9_8_val    |   in|   40|     ap_none|           J_9_8_val|        scalar|
+|J_9_10_val   |   in|   40|     ap_none|          J_9_10_val|        scalar|
+|J_9_11_val   |   in|   40|     ap_none|          J_9_11_val|        scalar|
+|J_9_12_val   |   in|   40|     ap_none|          J_9_12_val|        scalar|
+|J_9_13_val   |   in|   40|     ap_none|          J_9_13_val|        scalar|
+|J_9_14_val   |   in|   40|     ap_none|          J_9_14_val|        scalar|
+|J_9_15_val   |   in|   40|     ap_none|          J_9_15_val|        scalar|
+|J_9_16_val   |   in|   40|     ap_none|          J_9_16_val|        scalar|
+|J_10_0_val   |   in|   40|     ap_none|          J_10_0_val|        scalar|
+|J_10_1_val   |   in|   40|     ap_none|          J_10_1_val|        scalar|
+|J_10_2_val   |   in|   40|     ap_none|          J_10_2_val|        scalar|
+|J_10_3_val   |   in|   40|     ap_none|          J_10_3_val|        scalar|
+|J_10_4_val   |   in|   40|     ap_none|          J_10_4_val|        scalar|
+|J_10_5_val   |   in|   40|     ap_none|          J_10_5_val|        scalar|
+|J_10_6_val   |   in|   40|     ap_none|          J_10_6_val|        scalar|
+|J_10_7_val   |   in|   40|     ap_none|          J_10_7_val|        scalar|
+|J_10_8_val   |   in|   40|     ap_none|          J_10_8_val|        scalar|
+|J_10_9_val   |   in|   40|     ap_none|          J_10_9_val|        scalar|
+|J_10_11_val  |   in|   40|     ap_none|         J_10_11_val|        scalar|
+|J_10_12_val  |   in|   40|     ap_none|         J_10_12_val|        scalar|
+|J_10_13_val  |   in|   40|     ap_none|         J_10_13_val|        scalar|
+|J_10_14_val  |   in|   40|     ap_none|         J_10_14_val|        scalar|
+|J_10_15_val  |   in|   40|     ap_none|         J_10_15_val|        scalar|
+|J_10_16_val  |   in|   40|     ap_none|         J_10_16_val|        scalar|
+|J_11_0_val   |   in|   40|     ap_none|          J_11_0_val|        scalar|
+|J_11_1_val   |   in|   40|     ap_none|          J_11_1_val|        scalar|
+|J_11_2_val   |   in|   40|     ap_none|          J_11_2_val|        scalar|
+|J_11_3_val   |   in|   40|     ap_none|          J_11_3_val|        scalar|
+|J_11_4_val   |   in|   40|     ap_none|          J_11_4_val|        scalar|
+|J_11_5_val   |   in|   40|     ap_none|          J_11_5_val|        scalar|
+|J_11_6_val   |   in|   40|     ap_none|          J_11_6_val|        scalar|
+|J_11_7_val   |   in|   40|     ap_none|          J_11_7_val|        scalar|
+|J_11_8_val   |   in|   40|     ap_none|          J_11_8_val|        scalar|
+|J_11_9_val   |   in|   40|     ap_none|          J_11_9_val|        scalar|
+|J_11_10_val  |   in|   40|     ap_none|         J_11_10_val|        scalar|
+|J_11_12_val  |   in|   40|     ap_none|         J_11_12_val|        scalar|
+|J_11_13_val  |   in|   40|     ap_none|         J_11_13_val|        scalar|
+|J_11_14_val  |   in|   40|     ap_none|         J_11_14_val|        scalar|
+|J_11_15_val  |   in|   40|     ap_none|         J_11_15_val|        scalar|
+|J_11_16_val  |   in|   40|     ap_none|         J_11_16_val|        scalar|
+|J_12_0_val   |   in|   40|     ap_none|          J_12_0_val|        scalar|
+|J_12_1_val   |   in|   40|     ap_none|          J_12_1_val|        scalar|
+|J_12_2_val   |   in|   40|     ap_none|          J_12_2_val|        scalar|
+|J_12_3_val   |   in|   40|     ap_none|          J_12_3_val|        scalar|
+|J_12_4_val   |   in|   40|     ap_none|          J_12_4_val|        scalar|
+|J_12_5_val   |   in|   40|     ap_none|          J_12_5_val|        scalar|
+|J_12_6_val   |   in|   40|     ap_none|          J_12_6_val|        scalar|
+|J_12_7_val   |   in|   40|     ap_none|          J_12_7_val|        scalar|
+|J_12_8_val   |   in|   40|     ap_none|          J_12_8_val|        scalar|
+|J_12_9_val   |   in|   40|     ap_none|          J_12_9_val|        scalar|
+|J_12_10_val  |   in|   40|     ap_none|         J_12_10_val|        scalar|
+|J_12_11_val  |   in|   40|     ap_none|         J_12_11_val|        scalar|
+|J_12_13_val  |   in|   40|     ap_none|         J_12_13_val|        scalar|
+|J_12_14_val  |   in|   40|     ap_none|         J_12_14_val|        scalar|
+|J_12_15_val  |   in|   40|     ap_none|         J_12_15_val|        scalar|
+|J_12_16_val  |   in|   40|     ap_none|         J_12_16_val|        scalar|
+|J_13_0_val   |   in|   40|     ap_none|          J_13_0_val|        scalar|
+|J_13_1_val   |   in|   40|     ap_none|          J_13_1_val|        scalar|
+|J_13_2_val   |   in|   40|     ap_none|          J_13_2_val|        scalar|
+|J_13_3_val   |   in|   40|     ap_none|          J_13_3_val|        scalar|
+|J_13_4_val   |   in|   40|     ap_none|          J_13_4_val|        scalar|
+|J_13_5_val   |   in|   40|     ap_none|          J_13_5_val|        scalar|
+|J_13_6_val   |   in|   40|     ap_none|          J_13_6_val|        scalar|
+|J_13_7_val   |   in|   40|     ap_none|          J_13_7_val|        scalar|
+|J_13_8_val   |   in|   40|     ap_none|          J_13_8_val|        scalar|
+|J_13_9_val   |   in|   40|     ap_none|          J_13_9_val|        scalar|
+|J_13_10_val  |   in|   40|     ap_none|         J_13_10_val|        scalar|
+|J_13_11_val  |   in|   40|     ap_none|         J_13_11_val|        scalar|
+|J_13_12_val  |   in|   40|     ap_none|         J_13_12_val|        scalar|
+|J_13_14_val  |   in|   40|     ap_none|         J_13_14_val|        scalar|
+|J_13_15_val  |   in|   40|     ap_none|         J_13_15_val|        scalar|
+|J_13_16_val  |   in|   40|     ap_none|         J_13_16_val|        scalar|
+|J_14_0_val   |   in|   40|     ap_none|          J_14_0_val|        scalar|
+|J_14_1_val   |   in|   40|     ap_none|          J_14_1_val|        scalar|
+|J_14_2_val   |   in|   40|     ap_none|          J_14_2_val|        scalar|
+|J_14_3_val   |   in|   40|     ap_none|          J_14_3_val|        scalar|
+|J_14_4_val   |   in|   40|     ap_none|          J_14_4_val|        scalar|
+|J_14_5_val   |   in|   40|     ap_none|          J_14_5_val|        scalar|
+|J_14_6_val   |   in|   40|     ap_none|          J_14_6_val|        scalar|
+|J_14_7_val   |   in|   40|     ap_none|          J_14_7_val|        scalar|
+|J_14_8_val   |   in|   40|     ap_none|          J_14_8_val|        scalar|
+|J_14_9_val   |   in|   40|     ap_none|          J_14_9_val|        scalar|
+|J_14_10_val  |   in|   40|     ap_none|         J_14_10_val|        scalar|
+|J_14_11_val  |   in|   40|     ap_none|         J_14_11_val|        scalar|
+|J_14_12_val  |   in|   40|     ap_none|         J_14_12_val|        scalar|
+|J_14_13_val  |   in|   40|     ap_none|         J_14_13_val|        scalar|
+|J_14_15_val  |   in|   40|     ap_none|         J_14_15_val|        scalar|
+|J_14_16_val  |   in|   40|     ap_none|         J_14_16_val|        scalar|
+|J_15_0_val   |   in|   40|     ap_none|          J_15_0_val|        scalar|
+|J_15_1_val   |   in|   40|     ap_none|          J_15_1_val|        scalar|
+|J_15_2_val   |   in|   40|     ap_none|          J_15_2_val|        scalar|
+|J_15_3_val   |   in|   40|     ap_none|          J_15_3_val|        scalar|
+|J_15_4_val   |   in|   40|     ap_none|          J_15_4_val|        scalar|
+|J_15_5_val   |   in|   40|     ap_none|          J_15_5_val|        scalar|
+|J_15_6_val   |   in|   40|     ap_none|          J_15_6_val|        scalar|
+|J_15_7_val   |   in|   40|     ap_none|          J_15_7_val|        scalar|
+|J_15_8_val   |   in|   40|     ap_none|          J_15_8_val|        scalar|
+|J_15_9_val   |   in|   40|     ap_none|          J_15_9_val|        scalar|
+|J_15_10_val  |   in|   40|     ap_none|         J_15_10_val|        scalar|
+|J_15_11_val  |   in|   40|     ap_none|         J_15_11_val|        scalar|
+|J_15_12_val  |   in|   40|     ap_none|         J_15_12_val|        scalar|
+|J_15_13_val  |   in|   40|     ap_none|         J_15_13_val|        scalar|
+|J_15_14_val  |   in|   40|     ap_none|         J_15_14_val|        scalar|
+|J_15_16_val  |   in|   40|     ap_none|         J_15_16_val|        scalar|
+|J_16_0_val   |   in|   40|     ap_none|          J_16_0_val|        scalar|
+|J_16_1_val   |   in|   40|     ap_none|          J_16_1_val|        scalar|
+|J_16_2_val   |   in|   40|     ap_none|          J_16_2_val|        scalar|
+|J_16_3_val   |   in|   40|     ap_none|          J_16_3_val|        scalar|
+|J_16_4_val   |   in|   40|     ap_none|          J_16_4_val|        scalar|
+|J_16_5_val   |   in|   40|     ap_none|          J_16_5_val|        scalar|
+|J_16_6_val   |   in|   40|     ap_none|          J_16_6_val|        scalar|
+|J_16_7_val   |   in|   40|     ap_none|          J_16_7_val|        scalar|
+|J_16_8_val   |   in|   40|     ap_none|          J_16_8_val|        scalar|
+|J_16_9_val   |   in|   40|     ap_none|          J_16_9_val|        scalar|
+|J_16_10_val  |   in|   40|     ap_none|         J_16_10_val|        scalar|
+|J_16_11_val  |   in|   40|     ap_none|         J_16_11_val|        scalar|
+|J_16_12_val  |   in|   40|     ap_none|         J_16_12_val|        scalar|
+|J_16_13_val  |   in|   40|     ap_none|         J_16_13_val|        scalar|
+|J_16_14_val  |   in|   40|     ap_none|         J_16_14_val|        scalar|
+|J_16_15_val  |   in|   40|     ap_none|         J_16_15_val|        scalar|
+|h_0_val      |   in|   40|     ap_none|             h_0_val|        scalar|
+|h_1_val      |   in|   40|     ap_none|             h_1_val|        scalar|
+|h_2_val      |   in|   40|     ap_none|             h_2_val|        scalar|
+|h_3_val      |   in|   40|     ap_none|             h_3_val|        scalar|
+|h_4_val      |   in|   40|     ap_none|             h_4_val|        scalar|
+|h_5_val      |   in|   40|     ap_none|             h_5_val|        scalar|
+|h_6_val      |   in|   40|     ap_none|             h_6_val|        scalar|
+|h_7_val      |   in|   40|     ap_none|             h_7_val|        scalar|
+|h_8_val      |   in|   40|     ap_none|             h_8_val|        scalar|
+|h_9_val      |   in|   40|     ap_none|             h_9_val|        scalar|
+|h_10_val     |   in|   40|     ap_none|            h_10_val|        scalar|
+|h_11_val     |   in|   40|     ap_none|            h_11_val|        scalar|
+|h_12_val     |   in|   40|     ap_none|            h_12_val|        scalar|
+|h_13_val     |   in|   40|     ap_none|            h_13_val|        scalar|
+|h_14_val     |   in|   40|     ap_none|            h_14_val|        scalar|
+|h_15_val     |   in|   40|     ap_none|            h_15_val|        scalar|
+|h_16_val     |   in|   40|     ap_none|            h_16_val|        scalar|
+|s_0_val      |   in|    1|     ap_none|             s_0_val|        scalar|
+|s_1_val      |   in|    1|     ap_none|             s_1_val|        scalar|
+|s_2_val      |   in|    1|     ap_none|             s_2_val|        scalar|
+|s_3_val      |   in|    1|     ap_none|             s_3_val|        scalar|
+|s_4_val      |   in|    1|     ap_none|             s_4_val|        scalar|
+|s_5_val      |   in|    1|     ap_none|             s_5_val|        scalar|
+|s_6_val      |   in|    1|     ap_none|             s_6_val|        scalar|
+|s_7_val      |   in|    1|     ap_none|             s_7_val|        scalar|
+|s_8_val      |   in|    1|     ap_none|             s_8_val|        scalar|
+|s_9_val      |   in|    1|     ap_none|             s_9_val|        scalar|
+|s_10_val     |   in|    1|     ap_none|            s_10_val|        scalar|
+|s_11_val     |   in|    1|     ap_none|            s_11_val|        scalar|
+|s_12_val     |   in|    1|     ap_none|            s_12_val|        scalar|
+|s_13_val     |   in|    1|     ap_none|            s_13_val|        scalar|
+|s_14_val     |   in|    1|     ap_none|            s_14_val|        scalar|
+|s_15_val     |   in|    1|     ap_none|            s_15_val|        scalar|
+|s_16_val     |   in|    1|     ap_none|            s_16_val|        scalar|
+|i            |   in|   32|     ap_none|                   i|        scalar|
++-------------+-----+-----+------------+--------------------+--------------+
+

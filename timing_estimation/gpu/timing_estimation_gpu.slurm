@@ -21,8 +21,8 @@ module load cuda/12.1 || module load cuda
 
 SRC=timing_estimation_gpu.cu
 NS=(64 128 256 512)
-N_MODELS=10
-CHAINS_PER_MODEL=256
+N_MODELS=1
+CHAINS_PER_MODEL=1
 N_STEPS=1000000
 SEED=123456789
 BETA=1.0f

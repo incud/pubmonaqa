@@ -1,0 +1,1119 @@
+
+
+================================================================
+== Synthesis Summary Report of 'uniform_metropolis_step'
+================================================================
++ General Information: 
+    * Date:           Tue May 19 20:35:41 2026
+    * Version:        2025.2 (Build 6295257 on Nov 14 2025)
+    * Project:        hls_uniform_metropolis_step_N15
+    * Solution:       hls (Vivado IP Flow Target)
+    * Product family: virtexuplus
+    * Target device:  xcvu19p-fsva3824-2-e
+    
+
+* Performance & Resource Estimates: 
++---------------------------+------+---------------+----------+---------+------+----------+---------+---------+------+------+---------+------------+-------------+-----+
+|          Modules          | Issue|               | Iteration|         | Trip |          |      Latency      |      |      |         |            |             |     |
+|          & Loops          | Type | Violation Type|  Latency | Interval| Count| Pipelined| (cycles)|   (ns)  | Slack| BRAM |   DSP   |     FF     |     LUT     | URAM|
++---------------------------+------+---------------+----------+---------+------+----------+---------+---------+------+------+---------+------------+-------------+-----+
+|+ uniform_metropolis_step  |     -|              -|         -|       67|     -|        no|       66|  219.978|  0.04|     -|  7 (~0%)|  8301 (~0%)|  17472 (~0%)|    -|
+| + uniform_delta_energy    |     -|              -|         -|       54|     -|        no|       54|  179.982|  0.04|     -|        -|  2575 (~0%)|  16503 (~0%)|    -|
++---------------------------+------+---------------+----------+---------+------+----------+---------+---------+------+------+---------+------------+-------------+-----+
+    Name Prefix: '+' for module, 'o' for loop, '*' for dataflow
+
+
+================================================================
+== HW Interfaces
+================================================================
+* Other Ports
++--------------+---------+-----------+----------+
+| Port         | Mode    | Direction | Bitwidth |
++--------------+---------+-----------+----------+
+| J_0_0        | ap_none | in        | 40       |
+| J_0_1        | ap_none | in        | 40       |
+| J_0_10       | ap_none | in        | 40       |
+| J_0_11       | ap_none | in        | 40       |
+| J_0_12       | ap_none | in        | 40       |
+| J_0_13       | ap_none | in        | 40       |
+| J_0_14       | ap_none | in        | 40       |
+| J_0_2        | ap_none | in        | 40       |
+| J_0_3        | ap_none | in        | 40       |
+| J_0_4        | ap_none | in        | 40       |
+| J_0_5        | ap_none | in        | 40       |
+| J_0_6        | ap_none | in        | 40       |
+| J_0_7        | ap_none | in        | 40       |
+| J_0_8        | ap_none | in        | 40       |
+| J_0_9        | ap_none | in        | 40       |
+| J_10_0       | ap_none | in        | 40       |
+| J_10_1       | ap_none | in        | 40       |
+| J_10_10      | ap_none | in        | 40       |
+| J_10_11      | ap_none | in        | 40       |
+| J_10_12      | ap_none | in        | 40       |
+| J_10_13      | ap_none | in        | 40       |
+| J_10_14      | ap_none | in        | 40       |
+| J_10_2       | ap_none | in        | 40       |
+| J_10_3       | ap_none | in        | 40       |
+| J_10_4       | ap_none | in        | 40       |
+| J_10_5       | ap_none | in        | 40       |
+| J_10_6       | ap_none | in        | 40       |
+| J_10_7       | ap_none | in        | 40       |
+| J_10_8       | ap_none | in        | 40       |
+| J_10_9       | ap_none | in        | 40       |
+| J_11_0       | ap_none | in        | 40       |
+| J_11_1       | ap_none | in        | 40       |
+| J_11_10      | ap_none | in        | 40       |
+| J_11_11      | ap_none | in        | 40       |
+| J_11_12      | ap_none | in        | 40       |
+| J_11_13      | ap_none | in        | 40       |
+| J_11_14      | ap_none | in        | 40       |
+| J_11_2       | ap_none | in        | 40       |
+| J_11_3       | ap_none | in        | 40       |
+| J_11_4       | ap_none | in        | 40       |
+| J_11_5       | ap_none | in        | 40       |
+| J_11_6       | ap_none | in        | 40       |
+| J_11_7       | ap_none | in        | 40       |
+| J_11_8       | ap_none | in        | 40       |
+| J_11_9       | ap_none | in        | 40       |
+| J_12_0       | ap_none | in        | 40       |
+| J_12_1       | ap_none | in        | 40       |
+| J_12_10      | ap_none | in        | 40       |
+| J_12_11      | ap_none | in        | 40       |
+| J_12_12      | ap_none | in        | 40       |
+| J_12_13      | ap_none | in        | 40       |
+| J_12_14      | ap_none | in        | 40       |
+| J_12_2       | ap_none | in        | 40       |
+| J_12_3       | ap_none | in        | 40       |
+| J_12_4       | ap_none | in        | 40       |
+| J_12_5       | ap_none | in        | 40       |
+| J_12_6       | ap_none | in        | 40       |
+| J_12_7       | ap_none | in        | 40       |
+| J_12_8       | ap_none | in        | 40       |
+| J_12_9       | ap_none | in        | 40       |
+| J_13_0       | ap_none | in        | 40       |
+| J_13_1       | ap_none | in        | 40       |
+| J_13_10      | ap_none | in        | 40       |
+| J_13_11      | ap_none | in        | 40       |
+| J_13_12      | ap_none | in        | 40       |
+| J_13_13      | ap_none | in        | 40       |
+| J_13_14      | ap_none | in        | 40       |
+| J_13_2       | ap_none | in        | 40       |
+| J_13_3       | ap_none | in        | 40       |
+| J_13_4       | ap_none | in        | 40       |
+| J_13_5       | ap_none | in        | 40       |
+| J_13_6       | ap_none | in        | 40       |
+| J_13_7       | ap_none | in        | 40       |
+| J_13_8       | ap_none | in        | 40       |
+| J_13_9       | ap_none | in        | 40       |
+| J_14_0       | ap_none | in        | 40       |
+| J_14_1       | ap_none | in        | 40       |
+| J_14_10      | ap_none | in        | 40       |
+| J_14_11      | ap_none | in        | 40       |
+| J_14_12      | ap_none | in        | 40       |
+| J_14_13      | ap_none | in        | 40       |
+| J_14_14      | ap_none | in        | 40       |
+| J_14_2       | ap_none | in        | 40       |
+| J_14_3       | ap_none | in        | 40       |
+| J_14_4       | ap_none | in        | 40       |
+| J_14_5       | ap_none | in        | 40       |
+| J_14_6       | ap_none | in        | 40       |
+| J_14_7       | ap_none | in        | 40       |
+| J_14_8       | ap_none | in        | 40       |
+| J_14_9       | ap_none | in        | 40       |
+| J_1_0        | ap_none | in        | 40       |
+| J_1_1        | ap_none | in        | 40       |
+| J_1_10       | ap_none | in        | 40       |
+| J_1_11       | ap_none | in        | 40       |
+| J_1_12       | ap_none | in        | 40       |
+| J_1_13       | ap_none | in        | 40       |
+| J_1_14       | ap_none | in        | 40       |
+| J_1_2        | ap_none | in        | 40       |
+| J_1_3        | ap_none | in        | 40       |
+| J_1_4        | ap_none | in        | 40       |
+| J_1_5        | ap_none | in        | 40       |
+| J_1_6        | ap_none | in        | 40       |
+| J_1_7        | ap_none | in        | 40       |
+| J_1_8        | ap_none | in        | 40       |
+| J_1_9        | ap_none | in        | 40       |
+| J_2_0        | ap_none | in        | 40       |
+| J_2_1        | ap_none | in        | 40       |
+| J_2_10       | ap_none | in        | 40       |
+| J_2_11       | ap_none | in        | 40       |
+| J_2_12       | ap_none | in        | 40       |
+| J_2_13       | ap_none | in        | 40       |
+| J_2_14       | ap_none | in        | 40       |
+| J_2_2        | ap_none | in        | 40       |
+| J_2_3        | ap_none | in        | 40       |
+| J_2_4        | ap_none | in        | 40       |
+| J_2_5        | ap_none | in        | 40       |
+| J_2_6        | ap_none | in        | 40       |
+| J_2_7        | ap_none | in        | 40       |
+| J_2_8        | ap_none | in        | 40       |
+| J_2_9        | ap_none | in        | 40       |
+| J_3_0        | ap_none | in        | 40       |
+| J_3_1        | ap_none | in        | 40       |
+| J_3_10       | ap_none | in        | 40       |
+| J_3_11       | ap_none | in        | 40       |
+| J_3_12       | ap_none | in        | 40       |
+| J_3_13       | ap_none | in        | 40       |
+| J_3_14       | ap_none | in        | 40       |
+| J_3_2        | ap_none | in        | 40       |
+| J_3_3        | ap_none | in        | 40       |
+| J_3_4        | ap_none | in        | 40       |
+| J_3_5        | ap_none | in        | 40       |
+| J_3_6        | ap_none | in        | 40       |
+| J_3_7        | ap_none | in        | 40       |
+| J_3_8        | ap_none | in        | 40       |
+| J_3_9        | ap_none | in        | 40       |
+| J_4_0        | ap_none | in        | 40       |
+| J_4_1        | ap_none | in        | 40       |
+| J_4_10       | ap_none | in        | 40       |
+| J_4_11       | ap_none | in        | 40       |
+| J_4_12       | ap_none | in        | 40       |
+| J_4_13       | ap_none | in        | 40       |
+| J_4_14       | ap_none | in        | 40       |
+| J_4_2        | ap_none | in        | 40       |
+| J_4_3        | ap_none | in        | 40       |
+| J_4_4        | ap_none | in        | 40       |
+| J_4_5        | ap_none | in        | 40       |
+| J_4_6        | ap_none | in        | 40       |
+| J_4_7        | ap_none | in        | 40       |
+| J_4_8        | ap_none | in        | 40       |
+| J_4_9        | ap_none | in        | 40       |
+| J_5_0        | ap_none | in        | 40       |
+| J_5_1        | ap_none | in        | 40       |
+| J_5_10       | ap_none | in        | 40       |
+| J_5_11       | ap_none | in        | 40       |
+| J_5_12       | ap_none | in        | 40       |
+| J_5_13       | ap_none | in        | 40       |
+| J_5_14       | ap_none | in        | 40       |
+| J_5_2        | ap_none | in        | 40       |
+| J_5_3        | ap_none | in        | 40       |
+| J_5_4        | ap_none | in        | 40       |
+| J_5_5        | ap_none | in        | 40       |
+| J_5_6        | ap_none | in        | 40       |
+| J_5_7        | ap_none | in        | 40       |
+| J_5_8        | ap_none | in        | 40       |
+| J_5_9        | ap_none | in        | 40       |
+| J_6_0        | ap_none | in        | 40       |
+| J_6_1        | ap_none | in        | 40       |
+| J_6_10       | ap_none | in        | 40       |
+| J_6_11       | ap_none | in        | 40       |
+| J_6_12       | ap_none | in        | 40       |
+| J_6_13       | ap_none | in        | 40       |
+| J_6_14       | ap_none | in        | 40       |
+| J_6_2        | ap_none | in        | 40       |
+| J_6_3        | ap_none | in        | 40       |
+| J_6_4        | ap_none | in        | 40       |
+| J_6_5        | ap_none | in        | 40       |
+| J_6_6        | ap_none | in        | 40       |
+| J_6_7        | ap_none | in        | 40       |
+| J_6_8        | ap_none | in        | 40       |
+| J_6_9        | ap_none | in        | 40       |
+| J_7_0        | ap_none | in        | 40       |
+| J_7_1        | ap_none | in        | 40       |
+| J_7_10       | ap_none | in        | 40       |
+| J_7_11       | ap_none | in        | 40       |
+| J_7_12       | ap_none | in        | 40       |
+| J_7_13       | ap_none | in        | 40       |
+| J_7_14       | ap_none | in        | 40       |
+| J_7_2        | ap_none | in        | 40       |
+| J_7_3        | ap_none | in        | 40       |
+| J_7_4        | ap_none | in        | 40       |
+| J_7_5        | ap_none | in        | 40       |
+| J_7_6        | ap_none | in        | 40       |
+| J_7_7        | ap_none | in        | 40       |
+| J_7_8        | ap_none | in        | 40       |
+| J_7_9        | ap_none | in        | 40       |
+| J_8_0        | ap_none | in        | 40       |
+| J_8_1        | ap_none | in        | 40       |
+| J_8_10       | ap_none | in        | 40       |
+| J_8_11       | ap_none | in        | 40       |
+| J_8_12       | ap_none | in        | 40       |
+| J_8_13       | ap_none | in        | 40       |
+| J_8_14       | ap_none | in        | 40       |
+| J_8_2        | ap_none | in        | 40       |
+| J_8_3        | ap_none | in        | 40       |
+| J_8_4        | ap_none | in        | 40       |
+| J_8_5        | ap_none | in        | 40       |
+| J_8_6        | ap_none | in        | 40       |
+| J_8_7        | ap_none | in        | 40       |
+| J_8_8        | ap_none | in        | 40       |
+| J_8_9        | ap_none | in        | 40       |
+| J_9_0        | ap_none | in        | 40       |
+| J_9_1        | ap_none | in        | 40       |
+| J_9_10       | ap_none | in        | 40       |
+| J_9_11       | ap_none | in        | 40       |
+| J_9_12       | ap_none | in        | 40       |
+| J_9_13       | ap_none | in        | 40       |
+| J_9_14       | ap_none | in        | 40       |
+| J_9_2        | ap_none | in        | 40       |
+| J_9_3        | ap_none | in        | 40       |
+| J_9_4        | ap_none | in        | 40       |
+| J_9_5        | ap_none | in        | 40       |
+| J_9_6        | ap_none | in        | 40       |
+| J_9_7        | ap_none | in        | 40       |
+| J_9_8        | ap_none | in        | 40       |
+| J_9_9        | ap_none | in        | 40       |
+| accepted     | ap_vld  | out       | 1        |
+| beta         | ap_none | in        | 40       |
+| delta_energy | ap_vld  | out       | 40       |
+| h_0          | ap_none | in        | 40       |
+| h_1          | ap_none | in        | 40       |
+| h_10         | ap_none | in        | 40       |
+| h_11         | ap_none | in        | 40       |
+| h_12         | ap_none | in        | 40       |
+| h_13         | ap_none | in        | 40       |
+| h_14         | ap_none | in        | 40       |
+| h_2          | ap_none | in        | 40       |
+| h_3          | ap_none | in        | 40       |
+| h_4          | ap_none | in        | 40       |
+| h_5          | ap_none | in        | 40       |
+| h_6          | ap_none | in        | 40       |
+| h_7          | ap_none | in        | 40       |
+| h_8          | ap_none | in        | 40       |
+| h_9          | ap_none | in        | 40       |
+| new_energy   | ap_vld  | out       | 40       |
+| old_energy   | ap_none | in        | 40       |
+| u            | ap_none | in        | 40       |
+| y_0          | ap_none | in        | 1        |
+| y_1          | ap_none | in        | 1        |
+| y_10         | ap_none | in        | 1        |
+| y_11         | ap_none | in        | 1        |
+| y_12         | ap_none | in        | 1        |
+| y_13         | ap_none | in        | 1        |
+| y_14         | ap_none | in        | 1        |
+| y_2          | ap_none | in        | 1        |
+| y_3          | ap_none | in        | 1        |
+| y_4          | ap_none | in        | 1        |
+| y_5          | ap_none | in        | 1        |
+| y_6          | ap_none | in        | 1        |
+| y_7          | ap_none | in        | 1        |
+| y_8          | ap_none | in        | 1        |
+| y_9          | ap_none | in        | 1        |
++--------------+---------+-----------+----------+
+
+* TOP LEVEL CONTROL
++-----------+------------+-----------------------------------+
+| Interface | Type       | Ports                             |
++-----------+------------+-----------------------------------+
+| ap_clk    | clock      | ap_clk                            |
+| ap_rst    | reset      | ap_rst                            |
+| ap_ctrl   | ap_ctrl_hs | ap_done ap_idle ap_ready ap_start |
++-----------+------------+-----------------------------------+
+
+
+================================================================
+== SW I/O Information
+================================================================
+* Top Function Arguments
++--------------+-----------+---------------------------------------------------------+
+| Argument     | Direction | Datatype                                                |
++--------------+-----------+---------------------------------------------------------+
+| J            | in        | ap_fixed<40, 16, (ap_q_mode)5, (ap_o_mode)3, 0> const * |
+| h            | in        | ap_fixed<40, 16, (ap_q_mode)5, (ap_o_mode)3, 0> const * |
+| y            | in        | bool const *                                            |
+| old_energy   | in        | ap_fixed<40, 16, (ap_q_mode)5, (ap_o_mode)3, 0>         |
+| beta         | in        | ap_fixed<40, 16, (ap_q_mode)5, (ap_o_mode)3, 0>         |
+| u            | in        | ap_ufixed<40, 1, (ap_q_mode)5, (ap_o_mode)3, 0>         |
+| accepted     | out       | bool*                                                   |
+| delta_energy | out       | ap_fixed<40, 16, (ap_q_mode)5, (ap_o_mode)3, 0>*        |
+| new_energy   | out       | ap_fixed<40, 16, (ap_q_mode)5, (ap_o_mode)3, 0>*        |
++--------------+-----------+---------------------------------------------------------+
+
+* SW-to-HW Mapping
++--------------+---------------------+---------+
+| Argument     | HW Interface        | HW Type |
++--------------+---------------------+---------+
+| J            | J_0_0               | port    |
+| J            | J_0_1               | port    |
+| J            | J_0_2               | port    |
+| J            | J_0_3               | port    |
+| J            | J_0_4               | port    |
+| J            | J_0_5               | port    |
+| J            | J_0_6               | port    |
+| J            | J_0_7               | port    |
+| J            | J_0_8               | port    |
+| J            | J_0_9               | port    |
+| J            | J_0_10              | port    |
+| J            | J_0_11              | port    |
+| J            | J_0_12              | port    |
+| J            | J_0_13              | port    |
+| J            | J_0_14              | port    |
+| J            | J_1_0               | port    |
+| J            | J_1_1               | port    |
+| J            | J_1_2               | port    |
+| J            | J_1_3               | port    |
+| J            | J_1_4               | port    |
+| J            | J_1_5               | port    |
+| J            | J_1_6               | port    |
+| J            | J_1_7               | port    |
+| J            | J_1_8               | port    |
+| J            | J_1_9               | port    |
+| J            | J_1_10              | port    |
+| J            | J_1_11              | port    |
+| J            | J_1_12              | port    |
+| J            | J_1_13              | port    |
+| J            | J_1_14              | port    |
+| J            | J_2_0               | port    |
+| J            | J_2_1               | port    |
+| J            | J_2_2               | port    |
+| J            | J_2_3               | port    |
+| J            | J_2_4               | port    |
+| J            | J_2_5               | port    |
+| J            | J_2_6               | port    |
+| J            | J_2_7               | port    |
+| J            | J_2_8               | port    |
+| J            | J_2_9               | port    |
+| J            | J_2_10              | port    |
+| J            | J_2_11              | port    |
+| J            | J_2_12              | port    |
+| J            | J_2_13              | port    |
+| J            | J_2_14              | port    |
+| J            | J_3_0               | port    |
+| J            | J_3_1               | port    |
+| J            | J_3_2               | port    |
+| J            | J_3_3               | port    |
+| J            | J_3_4               | port    |
+| J            | J_3_5               | port    |
+| J            | J_3_6               | port    |
+| J            | J_3_7               | port    |
+| J            | J_3_8               | port    |
+| J            | J_3_9               | port    |
+| J            | J_3_10              | port    |
+| J            | J_3_11              | port    |
+| J            | J_3_12              | port    |
+| J            | J_3_13              | port    |
+| J            | J_3_14              | port    |
+| J            | J_4_0               | port    |
+| J            | J_4_1               | port    |
+| J            | J_4_2               | port    |
+| J            | J_4_3               | port    |
+| J            | J_4_4               | port    |
+| J            | J_4_5               | port    |
+| J            | J_4_6               | port    |
+| J            | J_4_7               | port    |
+| J            | J_4_8               | port    |
+| J            | J_4_9               | port    |
+| J            | J_4_10              | port    |
+| J            | J_4_11              | port    |
+| J            | J_4_12              | port    |
+| J            | J_4_13              | port    |
+| J            | J_4_14              | port    |
+| J            | J_5_0               | port    |
+| J            | J_5_1               | port    |
+| J            | J_5_2               | port    |
+| J            | J_5_3               | port    |
+| J            | J_5_4               | port    |
+| J            | J_5_5               | port    |
+| J            | J_5_6               | port    |
+| J            | J_5_7               | port    |
+| J            | J_5_8               | port    |
+| J            | J_5_9               | port    |
+| J            | J_5_10              | port    |
+| J            | J_5_11              | port    |
+| J            | J_5_12              | port    |
+| J            | J_5_13              | port    |
+| J            | J_5_14              | port    |
+| J            | J_6_0               | port    |
+| J            | J_6_1               | port    |
+| J            | J_6_2               | port    |
+| J            | J_6_3               | port    |
+| J            | J_6_4               | port    |
+| J            | J_6_5               | port    |
+| J            | J_6_6               | port    |
+| J            | J_6_7               | port    |
+| J            | J_6_8               | port    |
+| J            | J_6_9               | port    |
+| J            | J_6_10              | port    |
+| J            | J_6_11              | port    |
+| J            | J_6_12              | port    |
+| J            | J_6_13              | port    |
+| J            | J_6_14              | port    |
+| J            | J_7_0               | port    |
+| J            | J_7_1               | port    |
+| J            | J_7_2               | port    |
+| J            | J_7_3               | port    |
+| J            | J_7_4               | port    |
+| J            | J_7_5               | port    |
+| J            | J_7_6               | port    |
+| J            | J_7_7               | port    |
+| J            | J_7_8               | port    |
+| J            | J_7_9               | port    |
+| J            | J_7_10              | port    |
+| J            | J_7_11              | port    |
+| J            | J_7_12              | port    |
+| J            | J_7_13              | port    |
+| J            | J_7_14              | port    |
+| J            | J_8_0               | port    |
+| J            | J_8_1               | port    |
+| J            | J_8_2               | port    |
+| J            | J_8_3               | port    |
+| J            | J_8_4               | port    |
+| J            | J_8_5               | port    |
+| J            | J_8_6               | port    |
+| J            | J_8_7               | port    |
+| J            | J_8_8               | port    |
+| J            | J_8_9               | port    |
+| J            | J_8_10              | port    |
+| J            | J_8_11              | port    |
+| J            | J_8_12              | port    |
+| J            | J_8_13              | port    |
+| J            | J_8_14              | port    |
+| J            | J_9_0               | port    |
+| J            | J_9_1               | port    |
+| J            | J_9_2               | port    |
+| J            | J_9_3               | port    |
+| J            | J_9_4               | port    |
+| J            | J_9_5               | port    |
+| J            | J_9_6               | port    |
+| J            | J_9_7               | port    |
+| J            | J_9_8               | port    |
+| J            | J_9_9               | port    |
+| J            | J_9_10              | port    |
+| J            | J_9_11              | port    |
+| J            | J_9_12              | port    |
+| J            | J_9_13              | port    |
+| J            | J_9_14              | port    |
+| J            | J_10_0              | port    |
+| J            | J_10_1              | port    |
+| J            | J_10_2              | port    |
+| J            | J_10_3              | port    |
+| J            | J_10_4              | port    |
+| J            | J_10_5              | port    |
+| J            | J_10_6              | port    |
+| J            | J_10_7              | port    |
+| J            | J_10_8              | port    |
+| J            | J_10_9              | port    |
+| J            | J_10_10             | port    |
+| J            | J_10_11             | port    |
+| J            | J_10_12             | port    |
+| J            | J_10_13             | port    |
+| J            | J_10_14             | port    |
+| J            | J_11_0              | port    |
+| J            | J_11_1              | port    |
+| J            | J_11_2              | port    |
+| J            | J_11_3              | port    |
+| J            | J_11_4              | port    |
+| J            | J_11_5              | port    |
+| J            | J_11_6              | port    |
+| J            | J_11_7              | port    |
+| J            | J_11_8              | port    |
+| J            | J_11_9              | port    |
+| J            | J_11_10             | port    |
+| J            | J_11_11             | port    |
+| J            | J_11_12             | port    |
+| J            | J_11_13             | port    |
+| J            | J_11_14             | port    |
+| J            | J_12_0              | port    |
+| J            | J_12_1              | port    |
+| J            | J_12_2              | port    |
+| J            | J_12_3              | port    |
+| J            | J_12_4              | port    |
+| J            | J_12_5              | port    |
+| J            | J_12_6              | port    |
+| J            | J_12_7              | port    |
+| J            | J_12_8              | port    |
+| J            | J_12_9              | port    |
+| J            | J_12_10             | port    |
+| J            | J_12_11             | port    |
+| J            | J_12_12             | port    |
+| J            | J_12_13             | port    |
+| J            | J_12_14             | port    |
+| J            | J_13_0              | port    |
+| J            | J_13_1              | port    |
+| J            | J_13_2              | port    |
+| J            | J_13_3              | port    |
+| J            | J_13_4              | port    |
+| J            | J_13_5              | port    |
+| J            | J_13_6              | port    |
+| J            | J_13_7              | port    |
+| J            | J_13_8              | port    |
+| J            | J_13_9              | port    |
+| J            | J_13_10             | port    |
+| J            | J_13_11             | port    |
+| J            | J_13_12             | port    |
+| J            | J_13_13             | port    |
+| J            | J_13_14             | port    |
+| J            | J_14_0              | port    |
+| J            | J_14_1              | port    |
+| J            | J_14_2              | port    |
+| J            | J_14_3              | port    |
+| J            | J_14_4              | port    |
+| J            | J_14_5              | port    |
+| J            | J_14_6              | port    |
+| J            | J_14_7              | port    |
+| J            | J_14_8              | port    |
+| J            | J_14_9              | port    |
+| J            | J_14_10             | port    |
+| J            | J_14_11             | port    |
+| J            | J_14_12             | port    |
+| J            | J_14_13             | port    |
+| J            | J_14_14             | port    |
+| h            | h_0                 | port    |
+| h            | h_1                 | port    |
+| h            | h_2                 | port    |
+| h            | h_3                 | port    |
+| h            | h_4                 | port    |
+| h            | h_5                 | port    |
+| h            | h_6                 | port    |
+| h            | h_7                 | port    |
+| h            | h_8                 | port    |
+| h            | h_9                 | port    |
+| h            | h_10                | port    |
+| h            | h_11                | port    |
+| h            | h_12                | port    |
+| h            | h_13                | port    |
+| h            | h_14                | port    |
+| y            | y_0                 | port    |
+| y            | y_1                 | port    |
+| y            | y_2                 | port    |
+| y            | y_3                 | port    |
+| y            | y_4                 | port    |
+| y            | y_5                 | port    |
+| y            | y_6                 | port    |
+| y            | y_7                 | port    |
+| y            | y_8                 | port    |
+| y            | y_9                 | port    |
+| y            | y_10                | port    |
+| y            | y_11                | port    |
+| y            | y_12                | port    |
+| y            | y_13                | port    |
+| y            | y_14                | port    |
+| old_energy   | old_energy          | port    |
+| beta         | beta                | port    |
+| u            | u                   | port    |
+| accepted     | accepted            | port    |
+| accepted     | accepted_ap_vld     | port    |
+| delta_energy | delta_energy        | port    |
+| delta_energy | delta_energy_ap_vld | port    |
+| new_energy   | new_energy          | port    |
+| new_energy   | new_energy_ap_vld   | port    |
++--------------+---------------------+---------+
+
+
+================================================================
+== Bind Op Report
+================================================================
++-----------------------------+-----+--------+---------------+-----------+------------------------+---------+
+| Name                        | DSP | Pragma | Variable      | Op        | Impl                   | Latency |
++-----------------------------+-----+--------+---------------+-----------+------------------------+---------+
+| + uniform_metropolis_step   | 7   |        |               |           |                        |         |
+|   icmp_ln116_fu_1819_p2     |     |        | icmp_ln116    | setlt     | auto                   | 0       |
+|   mul_40ns_40s_64_2_1_U138  | 5   |        | mul_ln120     | mul       | auto                   | 1       |
+|   icmp_ln59_fu_1871_p2      |     |        | icmp_ln59     | setlt     | auto                   | 0       |
+|   sub_ln75_fu_1883_p2       |     |        | sub_ln75      | sub       | fabric                 | 0       |
+|   sub_ln75_1_fu_1904_p2     |     |        | sub_ln75_1    | sub       | fabric                 | 0       |
+|   select_ln75_fu_1916_p3    |     |        | select_ln75   | select    | auto_sel               | 0       |
+|   sub_ln84_fu_1957_p2       |     |        | sub_ln84      | sub       | fabric                 | 0       |
+|   add_ln87_fu_1967_p2       |     |        | add_ln87      | add       | fabric                 | 0       |
+|   sub_ln89_fu_2003_p2       |     |        | sub_ln89      | sub       | fabric                 | 0       |
+|   mul_26s_36s_60_2_1_U137   | 2   |        | mul_ln89      | mul       | auto                   | 1       |
+|   add_ln89_fu_2039_p2       |     |        | add_ln89      | add       | fabric                 | 0       |
+|   icmp_ln95_fu_2065_p2      |     |        | icmp_ln95     | setgt     | auto                   | 0       |
+|   p_fu_2123_p4              |     |        | select_ln95   | select    | auto_sel               | 0       |
+|   xor_ln59_fu_2101_p2       |     |        | xor_ln59      | xor       | auto                   | 0       |
+|   icmp_ln63_fu_1899_p2      |     |        | icmp_ln63     | setlt     | auto                   | 0       |
+|   icmp_ln91_fu_2071_p2      |     |        | icmp_ln91     | setgt     | auto                   | 0       |
+|   and_ln91_fu_2106_p2       |     |        | and_ln91      | and       | auto                   | 0       |
+|   and_ln91_1_fu_2111_p2     |     |        | and_ln91_1    | and       | auto                   | 0       |
+|   sparsemux_7_2_40_1_1_U139 |     |        | p             | sparsemux | onehotencoding_realdef | 0       |
+|   icmp_ln123_fu_2143_p2     |     |        | icmp_ln123    | setlt     | auto                   | 0       |
+|   xor_ln123_fu_2148_p2      |     |        | xor_ln123     | xor       | auto                   | 0       |
+|   add_ln280_fu_2155_p2      |     |        | add_ln280     | add       | fabric                 | 0       |
+|  + uniform_delta_energy     | 0   |        |               |           |                        |         |
+|    sub_ln42_fu_1094_p2      |     |        | sub_ln42      | sub       | fabric                 | 0       |
+|    term_fu_1100_p3          |     |        | term          | select    | auto_sel               | 0       |
+|    sub_ln42_1_fu_1108_p2    |     |        | sub_ln42_1    | sub       | fabric                 | 0       |
+|    term_1_fu_1114_p3        |     |        | term_1        | select    | auto_sel               | 0       |
+|    sub_ln42_2_fu_1122_p2    |     |        | sub_ln42_2    | sub       | fabric                 | 0       |
+|    term_2_fu_1128_p3        |     |        | term_2        | select    | auto_sel               | 0       |
+|    sub_ln42_3_fu_1136_p2    |     |        | sub_ln42_3    | sub       | fabric                 | 0       |
+|    term_3_fu_1142_p3        |     |        | term_3        | select    | auto_sel               | 0       |
+|    sub_ln42_4_fu_1150_p2    |     |        | sub_ln42_4    | sub       | fabric                 | 0       |
+|    term_4_fu_1156_p3        |     |        | term_4        | select    | auto_sel               | 0       |
+|    sub_ln42_5_fu_1164_p2    |     |        | sub_ln42_5    | sub       | fabric                 | 0       |
+|    term_5_fu_1170_p3        |     |        | term_5        | select    | auto_sel               | 0       |
+|    sub_ln42_6_fu_1178_p2    |     |        | sub_ln42_6    | sub       | fabric                 | 0       |
+|    term_6_fu_1184_p3        |     |        | term_6        | select    | auto_sel               | 0       |
+|    sub_ln42_7_fu_1192_p2    |     |        | sub_ln42_7    | sub       | fabric                 | 0       |
+|    term_7_fu_1198_p3        |     |        | term_7        | select    | auto_sel               | 0       |
+|    sub_ln42_8_fu_1206_p2    |     |        | sub_ln42_8    | sub       | fabric                 | 0       |
+|    term_8_fu_1212_p3        |     |        | term_8        | select    | auto_sel               | 0       |
+|    sub_ln42_9_fu_1220_p2    |     |        | sub_ln42_9    | sub       | fabric                 | 0       |
+|    term_9_fu_1226_p3        |     |        | term_9        | select    | auto_sel               | 0       |
+|    sub_ln42_10_fu_1234_p2   |     |        | sub_ln42_10   | sub       | fabric                 | 0       |
+|    term_10_fu_1240_p3       |     |        | term_10       | select    | auto_sel               | 0       |
+|    sub_ln42_11_fu_1248_p2   |     |        | sub_ln42_11   | sub       | fabric                 | 0       |
+|    term_11_fu_1254_p3       |     |        | term_11       | select    | auto_sel               | 0       |
+|    sub_ln42_12_fu_1262_p2   |     |        | sub_ln42_12   | sub       | fabric                 | 0       |
+|    term_12_fu_1268_p3       |     |        | term_12       | select    | auto_sel               | 0       |
+|    sub_ln42_13_fu_1276_p2   |     |        | sub_ln42_13   | sub       | fabric                 | 0       |
+|    term_13_fu_1282_p3       |     |        | term_13       | select    | auto_sel               | 0       |
+|    sub_ln42_14_fu_1290_p2   |     |        | sub_ln42_14   | sub       | fabric                 | 0       |
+|    term_14_fu_1296_p3       |     |        | term_14       | select    | auto_sel               | 0       |
+|    add_ln183_3_fu_1316_p2   |     |        | add_ln183_3   | add       | fabric                 | 0       |
+|    add_ln183_6_fu_1322_p2   |     |        | add_ln183_6   | add       | fabric                 | 0       |
+|    add_ln183_7_fu_1328_p2   |     |        | add_ln183_7   | add       | fabric                 | 0       |
+|    add_ln183_10_fu_1334_p2  |     |        | add_ln183_10  | add       | fabric                 | 0       |
+|    xor_ln194_fu_1379_p2     |     |        | xor_ln194     | xor       | auto                   | 0       |
+|    e_1_fu_1394_p2           |     |        | e_1           | sub       | fabric                 | 0       |
+|    e_2_fu_1399_p3           |     |        | e_2           | select    | auto_sel               | 0       |
+|    xor_ln194_1_fu_1407_p2   |     |        | xor_ln194_1   | xor       | auto                   | 0       |
+|    e_3_fu_1411_p2           |     |        | e_3           | sub       | fabric                 | 0       |
+|    e_4_fu_1417_p2           |     |        | e_4           | add       | fabric                 | 0       |
+|    e_5_fu_1423_p3           |     |        | e_5           | select    | auto_sel               | 0       |
+|    xor_ln194_2_fu_1431_p2   |     |        | xor_ln194_2   | xor       | auto                   | 0       |
+|    e_6_fu_1435_p2           |     |        | e_6           | sub       | fabric                 | 0       |
+|    e_7_fu_1440_p2           |     |        | e_7           | add       | fabric                 | 0       |
+|    e_8_fu_1445_p3           |     |        | e_8           | select    | auto_sel               | 0       |
+|    xor_ln194_3_fu_1453_p2   |     |        | xor_ln194_3   | xor       | auto                   | 0       |
+|    e_9_fu_1457_p2           |     |        | e_9           | sub       | fabric                 | 0       |
+|    e_10_fu_1463_p2          |     |        | e_10          | add       | fabric                 | 0       |
+|    e_11_fu_1469_p3          |     |        | e_11          | select    | auto_sel               | 0       |
+|    xor_ln194_4_fu_1477_p2   |     |        | xor_ln194_4   | xor       | auto                   | 0       |
+|    e_12_fu_1481_p2          |     |        | e_12          | sub       | fabric                 | 0       |
+|    e_13_fu_1486_p2          |     |        | e_13          | add       | fabric                 | 0       |
+|    e_14_fu_1491_p3          |     |        | e_14          | select    | auto_sel               | 0       |
+|    xor_ln194_5_fu_1499_p2   |     |        | xor_ln194_5   | xor       | auto                   | 0       |
+|    e_15_fu_1503_p2          |     |        | e_15          | sub       | fabric                 | 0       |
+|    e_16_fu_1509_p2          |     |        | e_16          | add       | fabric                 | 0       |
+|    e_17_fu_1515_p3          |     |        | e_17          | select    | auto_sel               | 0       |
+|    xor_ln194_6_fu_1523_p2   |     |        | xor_ln194_6   | xor       | auto                   | 0       |
+|    e_18_fu_1527_p2          |     |        | e_18          | sub       | fabric                 | 0       |
+|    e_19_fu_1532_p2          |     |        | e_19          | add       | fabric                 | 0       |
+|    e_20_fu_1537_p3          |     |        | e_20          | select    | auto_sel               | 0       |
+|    xor_ln194_7_fu_1545_p2   |     |        | xor_ln194_7   | xor       | auto                   | 0       |
+|    e_21_fu_1549_p2          |     |        | e_21          | sub       | fabric                 | 0       |
+|    e_22_fu_1555_p2          |     |        | e_22          | add       | fabric                 | 0       |
+|    e_23_fu_1561_p3          |     |        | e_23          | select    | auto_sel               | 0       |
+|    xor_ln194_8_fu_1569_p2   |     |        | xor_ln194_8   | xor       | auto                   | 0       |
+|    e_24_fu_1573_p2          |     |        | e_24          | sub       | fabric                 | 0       |
+|    e_25_fu_1578_p2          |     |        | e_25          | add       | fabric                 | 0       |
+|    e_26_fu_1583_p3          |     |        | e_26          | select    | auto_sel               | 0       |
+|    xor_ln194_9_fu_1591_p2   |     |        | xor_ln194_9   | xor       | auto                   | 0       |
+|    e_27_fu_1595_p2          |     |        | e_27          | sub       | fabric                 | 0       |
+|    e_28_fu_1601_p2          |     |        | e_28          | add       | fabric                 | 0       |
+|    e_29_fu_1607_p3          |     |        | e_29          | select    | auto_sel               | 0       |
+|    xor_ln194_10_fu_1615_p2  |     |        | xor_ln194_10  | xor       | auto                   | 0       |
+|    e_30_fu_1619_p2          |     |        | e_30          | sub       | fabric                 | 0       |
+|    e_31_fu_1624_p2          |     |        | e_31          | add       | fabric                 | 0       |
+|    e_32_fu_1629_p3          |     |        | e_32          | select    | auto_sel               | 0       |
+|    xor_ln194_11_fu_1637_p2  |     |        | xor_ln194_11  | xor       | auto                   | 0       |
+|    e_33_fu_1641_p2          |     |        | e_33          | sub       | fabric                 | 0       |
+|    e_34_fu_1647_p2          |     |        | e_34          | add       | fabric                 | 0       |
+|    e_35_fu_1653_p3          |     |        | e_35          | select    | auto_sel               | 0       |
+|    xor_ln194_12_fu_1661_p2  |     |        | xor_ln194_12  | xor       | auto                   | 0       |
+|    e_36_fu_1665_p2          |     |        | e_36          | sub       | fabric                 | 0       |
+|    e_37_fu_1670_p2          |     |        | e_37          | add       | fabric                 | 0       |
+|    e_38_fu_1675_p3          |     |        | e_38          | select    | auto_sel               | 0       |
+|    xor_ln194_13_fu_1683_p2  |     |        | xor_ln194_13  | xor       | auto                   | 0       |
+|    e_39_fu_1687_p2          |     |        | e_39          | sub       | fabric                 | 0       |
+|    e_40_fu_1693_p2          |     |        | e_40          | add       | fabric                 | 0       |
+|    e_41_fu_1699_p3          |     |        | e_41          | select    | auto_sel               | 0       |
+|    xor_ln194_14_fu_1707_p2  |     |        | xor_ln194_14  | xor       | auto                   | 0       |
+|    e_42_fu_1711_p2          |     |        | e_42          | sub       | fabric                 | 0       |
+|    e_43_fu_1716_p2          |     |        | e_43          | add       | fabric                 | 0       |
+|    e_44_fu_1721_p3          |     |        | e_44          | select    | auto_sel               | 0       |
+|    xor_ln194_15_fu_1729_p2  |     |        | xor_ln194_15  | xor       | auto                   | 0       |
+|    e_45_fu_1733_p2          |     |        | e_45          | sub       | fabric                 | 0       |
+|    e_46_fu_1739_p2          |     |        | e_46          | add       | fabric                 | 0       |
+|    e_47_fu_1745_p3          |     |        | e_47          | select    | auto_sel               | 0       |
+|    xor_ln194_16_fu_1753_p2  |     |        | xor_ln194_16  | xor       | auto                   | 0       |
+|    e_48_fu_1757_p2          |     |        | e_48          | sub       | fabric                 | 0       |
+|    e_49_fu_1762_p2          |     |        | e_49          | add       | fabric                 | 0       |
+|    e_50_fu_1767_p3          |     |        | e_50          | select    | auto_sel               | 0       |
+|    xor_ln194_17_fu_1775_p2  |     |        | xor_ln194_17  | xor       | auto                   | 0       |
+|    e_51_fu_1779_p2          |     |        | e_51          | sub       | fabric                 | 0       |
+|    e_52_fu_1785_p2          |     |        | e_52          | add       | fabric                 | 0       |
+|    e_53_fu_1791_p3          |     |        | e_53          | select    | auto_sel               | 0       |
+|    xor_ln194_18_fu_1799_p2  |     |        | xor_ln194_18  | xor       | auto                   | 0       |
+|    e_54_fu_1803_p2          |     |        | e_54          | sub       | fabric                 | 0       |
+|    e_55_fu_1808_p2          |     |        | e_55          | add       | fabric                 | 0       |
+|    e_56_fu_1813_p3          |     |        | e_56          | select    | auto_sel               | 0       |
+|    xor_ln194_19_fu_1821_p2  |     |        | xor_ln194_19  | xor       | auto                   | 0       |
+|    e_57_fu_1825_p2          |     |        | e_57          | sub       | fabric                 | 0       |
+|    e_58_fu_1831_p2          |     |        | e_58          | add       | fabric                 | 0       |
+|    e_59_fu_1837_p3          |     |        | e_59          | select    | auto_sel               | 0       |
+|    xor_ln194_20_fu_1845_p2  |     |        | xor_ln194_20  | xor       | auto                   | 0       |
+|    e_60_fu_1849_p2          |     |        | e_60          | sub       | fabric                 | 0       |
+|    e_61_fu_1854_p2          |     |        | e_61          | add       | fabric                 | 0       |
+|    e_62_fu_1859_p3          |     |        | e_62          | select    | auto_sel               | 0       |
+|    xor_ln194_21_fu_1867_p2  |     |        | xor_ln194_21  | xor       | auto                   | 0       |
+|    e_63_fu_1871_p2          |     |        | e_63          | sub       | fabric                 | 0       |
+|    e_64_fu_1877_p2          |     |        | e_64          | add       | fabric                 | 0       |
+|    e_65_fu_1883_p3          |     |        | e_65          | select    | auto_sel               | 0       |
+|    xor_ln194_22_fu_1891_p2  |     |        | xor_ln194_22  | xor       | auto                   | 0       |
+|    e_66_fu_1895_p2          |     |        | e_66          | sub       | fabric                 | 0       |
+|    e_67_fu_1900_p2          |     |        | e_67          | add       | fabric                 | 0       |
+|    e_68_fu_1905_p3          |     |        | e_68          | select    | auto_sel               | 0       |
+|    xor_ln194_23_fu_1913_p2  |     |        | xor_ln194_23  | xor       | auto                   | 0       |
+|    e_69_fu_1917_p2          |     |        | e_69          | sub       | fabric                 | 0       |
+|    e_70_fu_1923_p2          |     |        | e_70          | add       | fabric                 | 0       |
+|    e_71_fu_1929_p3          |     |        | e_71          | select    | auto_sel               | 0       |
+|    xor_ln194_24_fu_1937_p2  |     |        | xor_ln194_24  | xor       | auto                   | 0       |
+|    e_72_fu_1941_p2          |     |        | e_72          | sub       | fabric                 | 0       |
+|    e_73_fu_1946_p2          |     |        | e_73          | add       | fabric                 | 0       |
+|    e_74_fu_1951_p3          |     |        | e_74          | select    | auto_sel               | 0       |
+|    xor_ln194_25_fu_1959_p2  |     |        | xor_ln194_25  | xor       | auto                   | 0       |
+|    e_75_fu_1963_p2          |     |        | e_75          | sub       | fabric                 | 0       |
+|    e_76_fu_1969_p2          |     |        | e_76          | add       | fabric                 | 0       |
+|    e_77_fu_1975_p3          |     |        | e_77          | select    | auto_sel               | 0       |
+|    xor_ln194_26_fu_1983_p2  |     |        | xor_ln194_26  | xor       | auto                   | 0       |
+|    e_78_fu_1987_p2          |     |        | e_78          | sub       | fabric                 | 0       |
+|    e_79_fu_1992_p2          |     |        | e_79          | add       | fabric                 | 0       |
+|    e_80_fu_1997_p3          |     |        | e_80          | select    | auto_sel               | 0       |
+|    xor_ln194_27_fu_2005_p2  |     |        | xor_ln194_27  | xor       | auto                   | 0       |
+|    e_81_fu_2009_p2          |     |        | e_81          | sub       | fabric                 | 0       |
+|    e_82_fu_2015_p2          |     |        | e_82          | add       | fabric                 | 0       |
+|    e_83_fu_2021_p3          |     |        | e_83          | select    | auto_sel               | 0       |
+|    xor_ln194_28_fu_2029_p2  |     |        | xor_ln194_28  | xor       | auto                   | 0       |
+|    e_84_fu_2033_p2          |     |        | e_84          | sub       | fabric                 | 0       |
+|    e_85_fu_2038_p2          |     |        | e_85          | add       | fabric                 | 0       |
+|    e_86_fu_2043_p3          |     |        | e_86          | select    | auto_sel               | 0       |
+|    xor_ln194_29_fu_2051_p2  |     |        | xor_ln194_29  | xor       | auto                   | 0       |
+|    e_87_fu_2055_p2          |     |        | e_87          | sub       | fabric                 | 0       |
+|    e_88_fu_2061_p2          |     |        | e_88          | add       | fabric                 | 0       |
+|    e_89_fu_2067_p3          |     |        | e_89          | select    | auto_sel               | 0       |
+|    xor_ln194_30_fu_2075_p2  |     |        | xor_ln194_30  | xor       | auto                   | 0       |
+|    e_90_fu_2079_p2          |     |        | e_90          | sub       | fabric                 | 0       |
+|    e_91_fu_2084_p2          |     |        | e_91          | add       | fabric                 | 0       |
+|    e_92_fu_2089_p3          |     |        | e_92          | select    | auto_sel               | 0       |
+|    xor_ln194_31_fu_2097_p2  |     |        | xor_ln194_31  | xor       | auto                   | 0       |
+|    e_93_fu_2101_p2          |     |        | e_93          | sub       | fabric                 | 0       |
+|    e_94_fu_2107_p2          |     |        | e_94          | add       | fabric                 | 0       |
+|    e_95_fu_2113_p3          |     |        | e_95          | select    | auto_sel               | 0       |
+|    xor_ln194_32_fu_2121_p2  |     |        | xor_ln194_32  | xor       | auto                   | 0       |
+|    e_96_fu_2125_p2          |     |        | e_96          | sub       | fabric                 | 0       |
+|    e_97_fu_2130_p2          |     |        | e_97          | add       | fabric                 | 0       |
+|    e_98_fu_2135_p3          |     |        | e_98          | select    | auto_sel               | 0       |
+|    xor_ln194_33_fu_2143_p2  |     |        | xor_ln194_33  | xor       | auto                   | 0       |
+|    e_99_fu_2147_p2          |     |        | e_99          | sub       | fabric                 | 0       |
+|    e_100_fu_2153_p2         |     |        | e_100         | add       | fabric                 | 0       |
+|    e_101_fu_2159_p3         |     |        | e_101         | select    | auto_sel               | 0       |
+|    xor_ln194_34_fu_2167_p2  |     |        | xor_ln194_34  | xor       | auto                   | 0       |
+|    e_102_fu_2171_p2         |     |        | e_102         | sub       | fabric                 | 0       |
+|    e_103_fu_2176_p2         |     |        | e_103         | add       | fabric                 | 0       |
+|    e_104_fu_2181_p3         |     |        | e_104         | select    | auto_sel               | 0       |
+|    xor_ln194_35_fu_2189_p2  |     |        | xor_ln194_35  | xor       | auto                   | 0       |
+|    e_105_fu_2193_p2         |     |        | e_105         | sub       | fabric                 | 0       |
+|    e_106_fu_2199_p2         |     |        | e_106         | add       | fabric                 | 0       |
+|    e_107_fu_2205_p3         |     |        | e_107         | select    | auto_sel               | 0       |
+|    xor_ln194_36_fu_2213_p2  |     |        | xor_ln194_36  | xor       | auto                   | 0       |
+|    e_108_fu_2217_p2         |     |        | e_108         | sub       | fabric                 | 0       |
+|    e_109_fu_2222_p2         |     |        | e_109         | add       | fabric                 | 0       |
+|    e_110_fu_2227_p3         |     |        | e_110         | select    | auto_sel               | 0       |
+|    xor_ln194_37_fu_2235_p2  |     |        | xor_ln194_37  | xor       | auto                   | 0       |
+|    e_111_fu_2239_p2         |     |        | e_111         | sub       | fabric                 | 0       |
+|    e_112_fu_2245_p2         |     |        | e_112         | add       | fabric                 | 0       |
+|    e_113_fu_2251_p3         |     |        | e_113         | select    | auto_sel               | 0       |
+|    xor_ln194_38_fu_2259_p2  |     |        | xor_ln194_38  | xor       | auto                   | 0       |
+|    e_114_fu_2263_p2         |     |        | e_114         | sub       | fabric                 | 0       |
+|    e_115_fu_2268_p2         |     |        | e_115         | add       | fabric                 | 0       |
+|    e_116_fu_2273_p3         |     |        | e_116         | select    | auto_sel               | 0       |
+|    xor_ln194_39_fu_2281_p2  |     |        | xor_ln194_39  | xor       | auto                   | 0       |
+|    e_117_fu_2285_p2         |     |        | e_117         | sub       | fabric                 | 0       |
+|    e_118_fu_2291_p2         |     |        | e_118         | add       | fabric                 | 0       |
+|    e_119_fu_2297_p3         |     |        | e_119         | select    | auto_sel               | 0       |
+|    xor_ln194_40_fu_2305_p2  |     |        | xor_ln194_40  | xor       | auto                   | 0       |
+|    e_120_fu_2309_p2         |     |        | e_120         | sub       | fabric                 | 0       |
+|    e_121_fu_2314_p2         |     |        | e_121         | add       | fabric                 | 0       |
+|    e_122_fu_2319_p3         |     |        | e_122         | select    | auto_sel               | 0       |
+|    xor_ln194_41_fu_2327_p2  |     |        | xor_ln194_41  | xor       | auto                   | 0       |
+|    e_123_fu_2331_p2         |     |        | e_123         | sub       | fabric                 | 0       |
+|    e_124_fu_2337_p2         |     |        | e_124         | add       | fabric                 | 0       |
+|    e_125_fu_2343_p3         |     |        | e_125         | select    | auto_sel               | 0       |
+|    xor_ln194_42_fu_2351_p2  |     |        | xor_ln194_42  | xor       | auto                   | 0       |
+|    e_126_fu_2355_p2         |     |        | e_126         | sub       | fabric                 | 0       |
+|    e_127_fu_2360_p2         |     |        | e_127         | add       | fabric                 | 0       |
+|    e_128_fu_2365_p3         |     |        | e_128         | select    | auto_sel               | 0       |
+|    xor_ln194_43_fu_2373_p2  |     |        | xor_ln194_43  | xor       | auto                   | 0       |
+|    e_129_fu_2377_p2         |     |        | e_129         | sub       | fabric                 | 0       |
+|    e_130_fu_2383_p2         |     |        | e_130         | add       | fabric                 | 0       |
+|    e_131_fu_2389_p3         |     |        | e_131         | select    | auto_sel               | 0       |
+|    xor_ln194_44_fu_2397_p2  |     |        | xor_ln194_44  | xor       | auto                   | 0       |
+|    e_132_fu_2401_p2         |     |        | e_132         | sub       | fabric                 | 0       |
+|    e_133_fu_2406_p2         |     |        | e_133         | add       | fabric                 | 0       |
+|    e_134_fu_2411_p3         |     |        | e_134         | select    | auto_sel               | 0       |
+|    xor_ln194_45_fu_2419_p2  |     |        | xor_ln194_45  | xor       | auto                   | 0       |
+|    e_135_fu_2423_p2         |     |        | e_135         | sub       | fabric                 | 0       |
+|    e_136_fu_2429_p2         |     |        | e_136         | add       | fabric                 | 0       |
+|    e_137_fu_2435_p3         |     |        | e_137         | select    | auto_sel               | 0       |
+|    xor_ln194_46_fu_2443_p2  |     |        | xor_ln194_46  | xor       | auto                   | 0       |
+|    e_138_fu_2447_p2         |     |        | e_138         | sub       | fabric                 | 0       |
+|    e_139_fu_2452_p2         |     |        | e_139         | add       | fabric                 | 0       |
+|    e_140_fu_2457_p3         |     |        | e_140         | select    | auto_sel               | 0       |
+|    xor_ln194_47_fu_2465_p2  |     |        | xor_ln194_47  | xor       | auto                   | 0       |
+|    e_141_fu_2469_p2         |     |        | e_141         | sub       | fabric                 | 0       |
+|    e_142_fu_2475_p2         |     |        | e_142         | add       | fabric                 | 0       |
+|    e_143_fu_2481_p3         |     |        | e_143         | select    | auto_sel               | 0       |
+|    xor_ln194_48_fu_2489_p2  |     |        | xor_ln194_48  | xor       | auto                   | 0       |
+|    e_144_fu_2493_p2         |     |        | e_144         | sub       | fabric                 | 0       |
+|    e_145_fu_2498_p2         |     |        | e_145         | add       | fabric                 | 0       |
+|    e_146_fu_2503_p3         |     |        | e_146         | select    | auto_sel               | 0       |
+|    xor_ln194_49_fu_2511_p2  |     |        | xor_ln194_49  | xor       | auto                   | 0       |
+|    e_147_fu_2515_p2         |     |        | e_147         | sub       | fabric                 | 0       |
+|    e_148_fu_2521_p2         |     |        | e_148         | add       | fabric                 | 0       |
+|    e_149_fu_2527_p3         |     |        | e_149         | select    | auto_sel               | 0       |
+|    xor_ln194_50_fu_2535_p2  |     |        | xor_ln194_50  | xor       | auto                   | 0       |
+|    e_150_fu_2539_p2         |     |        | e_150         | sub       | fabric                 | 0       |
+|    e_151_fu_2544_p2         |     |        | e_151         | add       | fabric                 | 0       |
+|    e_152_fu_2549_p3         |     |        | e_152         | select    | auto_sel               | 0       |
+|    xor_ln194_51_fu_2557_p2  |     |        | xor_ln194_51  | xor       | auto                   | 0       |
+|    e_153_fu_2561_p2         |     |        | e_153         | sub       | fabric                 | 0       |
+|    e_154_fu_2567_p2         |     |        | e_154         | add       | fabric                 | 0       |
+|    e_155_fu_2573_p3         |     |        | e_155         | select    | auto_sel               | 0       |
+|    xor_ln194_52_fu_2581_p2  |     |        | xor_ln194_52  | xor       | auto                   | 0       |
+|    e_156_fu_2585_p2         |     |        | e_156         | sub       | fabric                 | 0       |
+|    e_157_fu_2590_p2         |     |        | e_157         | add       | fabric                 | 0       |
+|    e_158_fu_2595_p3         |     |        | e_158         | select    | auto_sel               | 0       |
+|    xor_ln194_53_fu_2603_p2  |     |        | xor_ln194_53  | xor       | auto                   | 0       |
+|    e_159_fu_2607_p2         |     |        | e_159         | sub       | fabric                 | 0       |
+|    e_160_fu_2613_p2         |     |        | e_160         | add       | fabric                 | 0       |
+|    e_161_fu_2619_p3         |     |        | e_161         | select    | auto_sel               | 0       |
+|    xor_ln194_54_fu_2627_p2  |     |        | xor_ln194_54  | xor       | auto                   | 0       |
+|    e_162_fu_2631_p2         |     |        | e_162         | sub       | fabric                 | 0       |
+|    e_163_fu_2636_p2         |     |        | e_163         | add       | fabric                 | 0       |
+|    e_164_fu_2641_p3         |     |        | e_164         | select    | auto_sel               | 0       |
+|    xor_ln194_55_fu_2649_p2  |     |        | xor_ln194_55  | xor       | auto                   | 0       |
+|    e_165_fu_2653_p2         |     |        | e_165         | sub       | fabric                 | 0       |
+|    e_166_fu_2659_p2         |     |        | e_166         | add       | fabric                 | 0       |
+|    e_167_fu_2665_p3         |     |        | e_167         | select    | auto_sel               | 0       |
+|    xor_ln194_56_fu_2673_p2  |     |        | xor_ln194_56  | xor       | auto                   | 0       |
+|    e_168_fu_2677_p2         |     |        | e_168         | sub       | fabric                 | 0       |
+|    e_169_fu_2682_p2         |     |        | e_169         | add       | fabric                 | 0       |
+|    e_170_fu_2687_p3         |     |        | e_170         | select    | auto_sel               | 0       |
+|    xor_ln194_57_fu_2695_p2  |     |        | xor_ln194_57  | xor       | auto                   | 0       |
+|    e_171_fu_2699_p2         |     |        | e_171         | sub       | fabric                 | 0       |
+|    e_172_fu_2705_p2         |     |        | e_172         | add       | fabric                 | 0       |
+|    e_173_fu_2711_p3         |     |        | e_173         | select    | auto_sel               | 0       |
+|    xor_ln194_58_fu_2719_p2  |     |        | xor_ln194_58  | xor       | auto                   | 0       |
+|    e_174_fu_2723_p2         |     |        | e_174         | sub       | fabric                 | 0       |
+|    e_175_fu_2728_p2         |     |        | e_175         | add       | fabric                 | 0       |
+|    e_176_fu_2733_p3         |     |        | e_176         | select    | auto_sel               | 0       |
+|    xor_ln194_59_fu_2741_p2  |     |        | xor_ln194_59  | xor       | auto                   | 0       |
+|    e_177_fu_2745_p2         |     |        | e_177         | sub       | fabric                 | 0       |
+|    e_178_fu_2751_p2         |     |        | e_178         | add       | fabric                 | 0       |
+|    e_179_fu_2757_p3         |     |        | e_179         | select    | auto_sel               | 0       |
+|    xor_ln194_60_fu_2765_p2  |     |        | xor_ln194_60  | xor       | auto                   | 0       |
+|    e_180_fu_2769_p2         |     |        | e_180         | sub       | fabric                 | 0       |
+|    e_181_fu_2774_p2         |     |        | e_181         | add       | fabric                 | 0       |
+|    e_182_fu_2779_p3         |     |        | e_182         | select    | auto_sel               | 0       |
+|    xor_ln194_61_fu_2787_p2  |     |        | xor_ln194_61  | xor       | auto                   | 0       |
+|    e_183_fu_2791_p2         |     |        | e_183         | sub       | fabric                 | 0       |
+|    e_184_fu_2797_p2         |     |        | e_184         | add       | fabric                 | 0       |
+|    e_185_fu_2803_p3         |     |        | e_185         | select    | auto_sel               | 0       |
+|    xor_ln194_62_fu_2811_p2  |     |        | xor_ln194_62  | xor       | auto                   | 0       |
+|    e_186_fu_2815_p2         |     |        | e_186         | sub       | fabric                 | 0       |
+|    e_187_fu_2820_p2         |     |        | e_187         | add       | fabric                 | 0       |
+|    e_188_fu_2825_p3         |     |        | e_188         | select    | auto_sel               | 0       |
+|    xor_ln194_63_fu_2833_p2  |     |        | xor_ln194_63  | xor       | auto                   | 0       |
+|    e_189_fu_2837_p2         |     |        | e_189         | sub       | fabric                 | 0       |
+|    e_190_fu_2843_p2         |     |        | e_190         | add       | fabric                 | 0       |
+|    e_191_fu_2849_p3         |     |        | e_191         | select    | auto_sel               | 0       |
+|    xor_ln194_64_fu_2857_p2  |     |        | xor_ln194_64  | xor       | auto                   | 0       |
+|    e_192_fu_2861_p2         |     |        | e_192         | sub       | fabric                 | 0       |
+|    e_193_fu_2866_p2         |     |        | e_193         | add       | fabric                 | 0       |
+|    e_194_fu_2871_p3         |     |        | e_194         | select    | auto_sel               | 0       |
+|    xor_ln194_65_fu_2879_p2  |     |        | xor_ln194_65  | xor       | auto                   | 0       |
+|    e_195_fu_2883_p2         |     |        | e_195         | sub       | fabric                 | 0       |
+|    e_196_fu_2889_p2         |     |        | e_196         | add       | fabric                 | 0       |
+|    e_197_fu_2895_p3         |     |        | e_197         | select    | auto_sel               | 0       |
+|    xor_ln194_66_fu_2903_p2  |     |        | xor_ln194_66  | xor       | auto                   | 0       |
+|    e_198_fu_2907_p2         |     |        | e_198         | sub       | fabric                 | 0       |
+|    e_199_fu_2912_p2         |     |        | e_199         | add       | fabric                 | 0       |
+|    e_200_fu_2917_p3         |     |        | e_200         | select    | auto_sel               | 0       |
+|    xor_ln194_67_fu_2925_p2  |     |        | xor_ln194_67  | xor       | auto                   | 0       |
+|    e_201_fu_2929_p2         |     |        | e_201         | sub       | fabric                 | 0       |
+|    e_202_fu_2935_p2         |     |        | e_202         | add       | fabric                 | 0       |
+|    e_203_fu_2941_p3         |     |        | e_203         | select    | auto_sel               | 0       |
+|    xor_ln194_68_fu_2949_p2  |     |        | xor_ln194_68  | xor       | auto                   | 0       |
+|    e_204_fu_2953_p2         |     |        | e_204         | sub       | fabric                 | 0       |
+|    e_205_fu_2958_p2         |     |        | e_205         | add       | fabric                 | 0       |
+|    e_206_fu_2963_p3         |     |        | e_206         | select    | auto_sel               | 0       |
+|    xor_ln194_69_fu_2971_p2  |     |        | xor_ln194_69  | xor       | auto                   | 0       |
+|    e_207_fu_2975_p2         |     |        | e_207         | sub       | fabric                 | 0       |
+|    e_208_fu_2981_p2         |     |        | e_208         | add       | fabric                 | 0       |
+|    e_209_fu_2987_p3         |     |        | e_209         | select    | auto_sel               | 0       |
+|    xor_ln194_70_fu_2995_p2  |     |        | xor_ln194_70  | xor       | auto                   | 0       |
+|    e_210_fu_2999_p2         |     |        | e_210         | sub       | fabric                 | 0       |
+|    e_211_fu_3004_p2         |     |        | e_211         | add       | fabric                 | 0       |
+|    e_212_fu_3009_p3         |     |        | e_212         | select    | auto_sel               | 0       |
+|    xor_ln194_71_fu_3017_p2  |     |        | xor_ln194_71  | xor       | auto                   | 0       |
+|    e_213_fu_3021_p2         |     |        | e_213         | sub       | fabric                 | 0       |
+|    e_214_fu_3027_p2         |     |        | e_214         | add       | fabric                 | 0       |
+|    e_215_fu_3033_p3         |     |        | e_215         | select    | auto_sel               | 0       |
+|    xor_ln194_72_fu_3041_p2  |     |        | xor_ln194_72  | xor       | auto                   | 0       |
+|    e_216_fu_3045_p2         |     |        | e_216         | sub       | fabric                 | 0       |
+|    e_217_fu_3050_p2         |     |        | e_217         | add       | fabric                 | 0       |
+|    e_218_fu_3055_p3         |     |        | e_218         | select    | auto_sel               | 0       |
+|    xor_ln194_73_fu_3063_p2  |     |        | xor_ln194_73  | xor       | auto                   | 0       |
+|    e_219_fu_3067_p2         |     |        | e_219         | sub       | fabric                 | 0       |
+|    e_220_fu_3073_p2         |     |        | e_220         | add       | fabric                 | 0       |
+|    e_221_fu_3079_p3         |     |        | e_221         | select    | auto_sel               | 0       |
+|    xor_ln194_74_fu_3087_p2  |     |        | xor_ln194_74  | xor       | auto                   | 0       |
+|    e_222_fu_3091_p2         |     |        | e_222         | sub       | fabric                 | 0       |
+|    e_223_fu_3096_p2         |     |        | e_223         | add       | fabric                 | 0       |
+|    e_224_fu_3101_p3         |     |        | e_224         | select    | auto_sel               | 0       |
+|    xor_ln194_75_fu_3109_p2  |     |        | xor_ln194_75  | xor       | auto                   | 0       |
+|    e_225_fu_3113_p2         |     |        | e_225         | sub       | fabric                 | 0       |
+|    e_226_fu_3119_p2         |     |        | e_226         | add       | fabric                 | 0       |
+|    e_227_fu_3125_p3         |     |        | e_227         | select    | auto_sel               | 0       |
+|    xor_ln194_76_fu_3133_p2  |     |        | xor_ln194_76  | xor       | auto                   | 0       |
+|    e_228_fu_3137_p2         |     |        | e_228         | sub       | fabric                 | 0       |
+|    e_229_fu_3142_p2         |     |        | e_229         | add       | fabric                 | 0       |
+|    e_230_fu_3147_p3         |     |        | e_230         | select    | auto_sel               | 0       |
+|    xor_ln194_77_fu_3155_p2  |     |        | xor_ln194_77  | xor       | auto                   | 0       |
+|    e_231_fu_3159_p2         |     |        | e_231         | sub       | fabric                 | 0       |
+|    e_232_fu_3165_p2         |     |        | e_232         | add       | fabric                 | 0       |
+|    e_233_fu_3171_p3         |     |        | e_233         | select    | auto_sel               | 0       |
+|    xor_ln194_78_fu_3179_p2  |     |        | xor_ln194_78  | xor       | auto                   | 0       |
+|    e_234_fu_3183_p2         |     |        | e_234         | sub       | fabric                 | 0       |
+|    e_235_fu_3188_p2         |     |        | e_235         | add       | fabric                 | 0       |
+|    e_236_fu_3193_p3         |     |        | e_236         | select    | auto_sel               | 0       |
+|    xor_ln194_79_fu_3201_p2  |     |        | xor_ln194_79  | xor       | auto                   | 0       |
+|    e_237_fu_3205_p2         |     |        | e_237         | sub       | fabric                 | 0       |
+|    e_238_fu_3211_p2         |     |        | e_238         | add       | fabric                 | 0       |
+|    e_239_fu_3217_p3         |     |        | e_239         | select    | auto_sel               | 0       |
+|    xor_ln194_80_fu_3225_p2  |     |        | xor_ln194_80  | xor       | auto                   | 0       |
+|    e_240_fu_3229_p2         |     |        | e_240         | sub       | fabric                 | 0       |
+|    e_241_fu_3234_p2         |     |        | e_241         | add       | fabric                 | 0       |
+|    e_242_fu_3239_p3         |     |        | e_242         | select    | auto_sel               | 0       |
+|    xor_ln194_81_fu_3247_p2  |     |        | xor_ln194_81  | xor       | auto                   | 0       |
+|    e_243_fu_3251_p2         |     |        | e_243         | sub       | fabric                 | 0       |
+|    e_244_fu_3257_p2         |     |        | e_244         | add       | fabric                 | 0       |
+|    e_245_fu_3263_p3         |     |        | e_245         | select    | auto_sel               | 0       |
+|    xor_ln194_82_fu_3271_p2  |     |        | xor_ln194_82  | xor       | auto                   | 0       |
+|    e_246_fu_3275_p2         |     |        | e_246         | sub       | fabric                 | 0       |
+|    e_247_fu_3280_p2         |     |        | e_247         | add       | fabric                 | 0       |
+|    e_248_fu_3285_p3         |     |        | e_248         | select    | auto_sel               | 0       |
+|    xor_ln194_83_fu_3293_p2  |     |        | xor_ln194_83  | xor       | auto                   | 0       |
+|    e_249_fu_3297_p2         |     |        | e_249         | sub       | fabric                 | 0       |
+|    e_250_fu_3303_p2         |     |        | e_250         | add       | fabric                 | 0       |
+|    e_251_fu_3309_p3         |     |        | e_251         | select    | auto_sel               | 0       |
+|    xor_ln194_84_fu_3317_p2  |     |        | xor_ln194_84  | xor       | auto                   | 0       |
+|    e_252_fu_3321_p2         |     |        | e_252         | sub       | fabric                 | 0       |
+|    e_253_fu_3326_p2         |     |        | e_253         | add       | fabric                 | 0       |
+|    e_254_fu_3331_p3         |     |        | e_254         | select    | auto_sel               | 0       |
+|    xor_ln194_85_fu_3339_p2  |     |        | xor_ln194_85  | xor       | auto                   | 0       |
+|    e_255_fu_3343_p2         |     |        | e_255         | sub       | fabric                 | 0       |
+|    e_256_fu_3349_p2         |     |        | e_256         | add       | fabric                 | 0       |
+|    e_257_fu_3355_p3         |     |        | e_257         | select    | auto_sel               | 0       |
+|    xor_ln194_86_fu_3363_p2  |     |        | xor_ln194_86  | xor       | auto                   | 0       |
+|    e_258_fu_3367_p2         |     |        | e_258         | sub       | fabric                 | 0       |
+|    e_259_fu_3372_p2         |     |        | e_259         | add       | fabric                 | 0       |
+|    e_260_fu_3377_p3         |     |        | e_260         | select    | auto_sel               | 0       |
+|    xor_ln194_87_fu_3385_p2  |     |        | xor_ln194_87  | xor       | auto                   | 0       |
+|    e_261_fu_3389_p2         |     |        | e_261         | sub       | fabric                 | 0       |
+|    e_262_fu_3395_p2         |     |        | e_262         | add       | fabric                 | 0       |
+|    e_263_fu_3401_p3         |     |        | e_263         | select    | auto_sel               | 0       |
+|    xor_ln194_88_fu_3409_p2  |     |        | xor_ln194_88  | xor       | auto                   | 0       |
+|    e_264_fu_3413_p2         |     |        | e_264         | sub       | fabric                 | 0       |
+|    e_265_fu_3418_p2         |     |        | e_265         | add       | fabric                 | 0       |
+|    e_266_fu_3423_p3         |     |        | e_266         | select    | auto_sel               | 0       |
+|    xor_ln194_89_fu_3431_p2  |     |        | xor_ln194_89  | xor       | auto                   | 0       |
+|    e_267_fu_3435_p2         |     |        | e_267         | sub       | fabric                 | 0       |
+|    e_268_fu_3441_p2         |     |        | e_268         | add       | fabric                 | 0       |
+|    e_269_fu_3447_p3         |     |        | e_269         | select    | auto_sel               | 0       |
+|    xor_ln194_90_fu_3455_p2  |     |        | xor_ln194_90  | xor       | auto                   | 0       |
+|    e_270_fu_3459_p2         |     |        | e_270         | sub       | fabric                 | 0       |
+|    e_271_fu_3464_p2         |     |        | e_271         | add       | fabric                 | 0       |
+|    e_272_fu_3469_p3         |     |        | e_272         | select    | auto_sel               | 0       |
+|    xor_ln194_91_fu_3477_p2  |     |        | xor_ln194_91  | xor       | auto                   | 0       |
+|    e_273_fu_3481_p2         |     |        | e_273         | sub       | fabric                 | 0       |
+|    e_274_fu_3487_p2         |     |        | e_274         | add       | fabric                 | 0       |
+|    e_275_fu_3493_p3         |     |        | e_275         | select    | auto_sel               | 0       |
+|    xor_ln194_92_fu_3501_p2  |     |        | xor_ln194_92  | xor       | auto                   | 0       |
+|    e_276_fu_3505_p2         |     |        | e_276         | sub       | fabric                 | 0       |
+|    e_277_fu_3510_p2         |     |        | e_277         | add       | fabric                 | 0       |
+|    e_278_fu_3515_p3         |     |        | e_278         | select    | auto_sel               | 0       |
+|    xor_ln194_93_fu_3523_p2  |     |        | xor_ln194_93  | xor       | auto                   | 0       |
+|    e_279_fu_3527_p2         |     |        | e_279         | sub       | fabric                 | 0       |
+|    e_280_fu_3533_p2         |     |        | e_280         | add       | fabric                 | 0       |
+|    e_281_fu_3539_p3         |     |        | e_281         | select    | auto_sel               | 0       |
+|    xor_ln194_94_fu_3547_p2  |     |        | xor_ln194_94  | xor       | auto                   | 0       |
+|    e_282_fu_3551_p2         |     |        | e_282         | sub       | fabric                 | 0       |
+|    e_283_fu_3556_p2         |     |        | e_283         | add       | fabric                 | 0       |
+|    e_284_fu_3561_p3         |     |        | e_284         | select    | auto_sel               | 0       |
+|    xor_ln194_95_fu_3569_p2  |     |        | xor_ln194_95  | xor       | auto                   | 0       |
+|    e_285_fu_3573_p2         |     |        | e_285         | sub       | fabric                 | 0       |
+|    e_286_fu_3579_p2         |     |        | e_286         | add       | fabric                 | 0       |
+|    e_287_fu_3585_p3         |     |        | e_287         | select    | auto_sel               | 0       |
+|    xor_ln194_96_fu_3593_p2  |     |        | xor_ln194_96  | xor       | auto                   | 0       |
+|    e_288_fu_3597_p2         |     |        | e_288         | sub       | fabric                 | 0       |
+|    e_289_fu_3602_p2         |     |        | e_289         | add       | fabric                 | 0       |
+|    e_290_fu_3607_p3         |     |        | e_290         | select    | auto_sel               | 0       |
+|    xor_ln194_97_fu_3615_p2  |     |        | xor_ln194_97  | xor       | auto                   | 0       |
+|    e_291_fu_3619_p2         |     |        | e_291         | sub       | fabric                 | 0       |
+|    e_292_fu_3625_p2         |     |        | e_292         | add       | fabric                 | 0       |
+|    e_293_fu_3631_p3         |     |        | e_293         | select    | auto_sel               | 0       |
+|    xor_ln194_98_fu_3639_p2  |     |        | xor_ln194_98  | xor       | auto                   | 0       |
+|    e_294_fu_3643_p2         |     |        | e_294         | sub       | fabric                 | 0       |
+|    e_295_fu_3648_p2         |     |        | e_295         | add       | fabric                 | 0       |
+|    e_296_fu_3653_p3         |     |        | e_296         | select    | auto_sel               | 0       |
+|    xor_ln194_99_fu_3661_p2  |     |        | xor_ln194_99  | xor       | auto                   | 0       |
+|    e_297_fu_3665_p2         |     |        | e_297         | sub       | fabric                 | 0       |
+|    e_298_fu_3671_p2         |     |        | e_298         | add       | fabric                 | 0       |
+|    e_299_fu_3677_p3         |     |        | e_299         | select    | auto_sel               | 0       |
+|    xor_ln194_100_fu_3685_p2 |     |        | xor_ln194_100 | xor       | auto                   | 0       |
+|    e_300_fu_3689_p2         |     |        | e_300         | sub       | fabric                 | 0       |
+|    e_301_fu_3694_p2         |     |        | e_301         | add       | fabric                 | 0       |
+|    e_302_fu_3699_p3         |     |        | e_302         | select    | auto_sel               | 0       |
+|    xor_ln194_101_fu_3707_p2 |     |        | xor_ln194_101 | xor       | auto                   | 0       |
+|    e_303_fu_3711_p2         |     |        | e_303         | sub       | fabric                 | 0       |
+|    e_304_fu_3717_p2         |     |        | e_304         | add       | fabric                 | 0       |
+|    e_305_fu_3723_p3         |     |        | e_305         | select    | auto_sel               | 0       |
+|    xor_ln194_102_fu_3731_p2 |     |        | xor_ln194_102 | xor       | auto                   | 0       |
+|    e_306_fu_3735_p2         |     |        | e_306         | sub       | fabric                 | 0       |
+|    e_307_fu_3740_p2         |     |        | e_307         | add       | fabric                 | 0       |
+|    e_308_fu_3745_p3         |     |        | e_308         | select    | auto_sel               | 0       |
+|    xor_ln194_103_fu_3753_p2 |     |        | xor_ln194_103 | xor       | auto                   | 0       |
+|    e_309_fu_3757_p2         |     |        | e_309         | sub       | fabric                 | 0       |
+|    e_310_fu_3763_p2         |     |        | e_310         | add       | fabric                 | 0       |
+|    e_311_fu_3769_p3         |     |        | e_311         | select    | auto_sel               | 0       |
+|    xor_ln194_104_fu_3777_p2 |     |        | xor_ln194_104 | xor       | auto                   | 0       |
+|    e_312_fu_3781_p2         |     |        | e_312         | sub       | fabric                 | 0       |
+|    e_313_fu_3786_p2         |     |        | e_313         | add       | fabric                 | 0       |
+|    e_314_fu_3791_p3         |     |        | e_314         | select    | auto_sel               | 0       |
+|    out_fu_3799_p2           |     |        | out           | sub       | fabric                 | 0       |
++-----------------------------+-----+--------+---------------+-----------+------------------------+---------+
+
+
+================================================================
+== Storage Report
+================================================================
++---------------------------+--------+------+------+------+--------+-------------+------+---------+------------------+
+| Name                      | Usage  | Type | BRAM | URAM | Pragma | Variable    | Impl | Latency | Bitwidth, Depth, |
+|                           |        |      |      |      |        |             |      |         | Banks            |
++---------------------------+--------+------+------+------+--------+-------------+------+---------+------------------+
+| + uniform_metropolis_step |        |      | 0    | 0    |        |             |      |         |                  |
+|   EXP_NEG_LUT_U           | rom_2p |      |      |      |        | EXP_NEG_LUT | auto | 1       | 40, 1025, 1      |
++---------------------------+--------+------+------+------+--------+-------------+------+---------+------------------+
+
+
+================================================================
+== Pragma Report
+================================================================
+* Valid Pragma Syntax
++-----------------+---------------------------+--------------------------------------------------+
+| Type            | Options                   | Location                                         |
++-----------------+---------------------------+--------------------------------------------------+
+| ARRAY_PARTITION | variable=J complete dim=0 | in local_delta_energy (src/sk_step.cpp:139)      |
+| ARRAY_PARTITION | variable=h complete dim=1 | in local_delta_energy (src/sk_step.cpp:140)      |
+| ARRAY_PARTITION | variable=s complete dim=1 | in local_delta_energy (src/sk_step.cpp:141)      |
+| UNROLL          |                           | in local_delta_energy (src/sk_step.cpp:146)      |
+| ARRAY_PARTITION | variable=J complete dim=0 | in uniform_delta_energy (src/sk_step.cpp:174)    |
+| ARRAY_PARTITION | variable=h complete dim=1 | in uniform_delta_energy (src/sk_step.cpp:175)    |
+| ARRAY_PARTITION | variable=y complete dim=1 | in uniform_delta_energy (src/sk_step.cpp:176)    |
+| UNROLL          |                           | in uniform_delta_energy (src/sk_step.cpp:181)    |
+| UNROLL          |                           | in uniform_delta_energy (src/sk_step.cpp:187)    |
+| UNROLL          |                           | in uniform_delta_energy (src/sk_step.cpp:189)    |
+| ARRAY_PARTITION | variable=J complete dim=0 | in local_metropolis_step (src/sk_step.cpp:229)   |
+| ARRAY_PARTITION | variable=h complete dim=1 | in local_metropolis_step (src/sk_step.cpp:230)   |
+| ARRAY_PARTITION | variable=s complete dim=1 | in local_metropolis_step (src/sk_step.cpp:231)   |
+| ARRAY_PARTITION | variable=J complete dim=0 | in uniform_metropolis_step (src/sk_step.cpp:269) |
+| ARRAY_PARTITION | variable=h complete dim=1 | in uniform_metropolis_step (src/sk_step.cpp:270) |
+| ARRAY_PARTITION | variable=y complete dim=1 | in uniform_metropolis_step (src/sk_step.cpp:271) |
++-----------------+---------------------------+--------------------------------------------------+
+
+
