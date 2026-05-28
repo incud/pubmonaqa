@@ -5,19 +5,19 @@
 //   g(x)=1 for x<=0,
 //   g(x)=p_d(2*x/x_cut-1) for 0<x<x_cut,
 //   g(x)=0 for x>=x_cut.
-// n = 10
+// n = 32
 // beta = 4
 // degree = 12
 // eps_op = 1.00000000000000005e-04
 // eps_tail = eps_op/2 = 5.00000000000000024e-05
-// alpha = (2/sqrt(pi))*n^(3/2) = 3.56824823230554244e+01
-// lambda = beta*alpha = 1.42729929292221698e+02
+// alpha = (2/sqrt(pi))*n^(3/2) = 2.04258447565533544e+02
+// lambda = beta*alpha = 8.17033790262134175e+02
 // tau = log(1/eps_tail) = 9.90348755253612723e+00
-// x_cut = tau/lambda = 6.93862009295890120e-02
+// x_cut = tau/lambda = 1.21212704671109471e-02
 
 static const int POLY_DEGREE = 12;
-static const delta_t EXP_X_CUT = delta_t(6.93862009295890120e-02);
-static const scale_t EXP_INV_X_CUT = scale_t(1.44120875131176192e+01);
+static const delta_t EXP_X_CUT = delta_t(1.21212704671109471e-02);
+static const scale_t EXP_INV_X_CUT = scale_t(8.24996028851376337e+01);
 
 // Coefficients approximate exp(-u) on u in [0,tau], with y=2u/tau-1.
 static const poly_t CHEB_COEFFS[POLY_DEGREE + 1] = {
@@ -26,7 +26,7 @@ static const poly_t CHEB_COEFFS[POLY_DEGREE + 1] = {
     poly_t(2.36010689689690217e-01), // c[2]
     poly_t(-1.38579143326048482e-01), // c[3]
     poly_t(6.80951234721382526e-02), // c[4]
-    poly_t(-2.85651740274045080e-02), // c[5]
+    poly_t(-2.85651740274045114e-02), // c[5]
     poly_t(1.04080230928594083e-02), // c[6]
     poly_t(-3.34248829134197985e-03), // c[7]
     poly_t(9.57849943138168350e-04), // c[8]
