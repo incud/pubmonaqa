@@ -1,3 +1,34 @@
+/*
+ * Testbench for the local single-spin-flip HLS kernel.
+ *
+ * This testbench fixes SK_N=10 and exhaustively scans all 2^10 spin
+ * configurations. For each configuration, it tests all SK_N possible
+ * one-hot local spin flips. Therefore the total number of checked moves is
+ * 2^10 * 10.
+ *
+ * For each move, the testbench calls local_spin_flip_operation(...), which
+ * computes x=max(Delta E_i/alpha,0) and the corresponding Metropolis
+ * acceptance probability. The reference value of Delta E_i/alpha is computed
+ * independently in double precision from
+ *
+ *     Delta E_i/alpha = 2 s_i (h_i/alpha + sum_{j != i} (J_ij/alpha) s_j).
+ *
+ * The testbench then compares:
+ *
+ *     1. the HLS output delta_x against the double-precision reference;
+ *     2. the HLS output accept_prob against std::exp(-TEST_LAMBDA * delta_x),
+ *        where TEST_LAMBDA = beta * alpha.
+ *
+ * The coefficients h and J_edges are deterministic small normalized values,
+ * chosen so that all intermediate normalized energy differences remain safely
+ * inside the intended fixed-point range. The packed upper-triangular indexing
+ * of J_edges is also checked implicitly, since every spin index is flipped
+ * across all spin configurations.
+ *
+ * The test prints all failing cases and a few sample of passing cases.
+ */
+
+
 #include <ap_fixed.h>
 #include <ap_int.h>
 #include <cmath>
@@ -17,7 +48,7 @@
 #endif
 
 #ifndef TEST_LAMBDA
-#error "TEST_LAMBDA is not defined. Compile with -DTEST_LAMBDA=<beta_times_alpha>."
+#error "TEST_LAMBDA is not defined (lambda is meant to be 'beta' * 'alpha'). Compile with -DTEST_LAMBDA=<beta_times_alpha>."
 #endif
 
 static const int NUM_J = SK_N * (SK_N - 1) / 2;
@@ -26,6 +57,7 @@ static const int NUM_CONFIGS = 1024;
 using coeff_t = ap_fixed<FRAC + 1, 1, AP_RND, AP_SAT>;
 using delta_t = ap_fixed<FRAC + 1, 1, AP_RND, AP_SAT>;
 using prob_t  = ap_ufixed<32, 1, AP_RND, AP_SAT>;
+
 
 void local_spin_flip_operation(
     const coeff_t h[SK_N],
@@ -36,11 +68,13 @@ void local_spin_flip_operation(
     prob_t* accept_prob
 );
 
+
 static int edge_index_ref(int i, int j) {
     int a = i < j ? i : j;
     int b = i < j ? j : i;
     return a * (2 * SK_N - a - 1) / 2 + (b - a - 1);
 }
+
 
 static double spin_ref(bool b) {
     return b ? 1.0 : -1.0;
@@ -63,8 +97,6 @@ static ap_uint<SK_N> spin_config(int config_id) {
 
     return spins;
 }
-
-
 
 
 static void fill_inputs(coeff_t h[SK_N], coeff_t J_edges[NUM_J]) {
