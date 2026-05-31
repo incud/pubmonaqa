@@ -1,0 +1,296 @@
+documentclass[tikz,border=6pt]{standalone}
+
+usepackage{amsmath}
+usepackage{array}
+usepackage{multirow}
+usepackage[table]{xcolor}
+usepackage[scaled=0.92]{helvet}
+renewcommand{familydefault}{sfdefault}
+usepackage{booktabs}
+
+usetikzlibrary{arrows.meta}
+
+definecolor{topblue}{RGB}{232,240,254}
+definecolor{helpergreen}{RGB}{230,244,234}
+definecolor{mainred}{RGB}{252,232,230}
+definecolor{headergray}{RGB}{248,248,248}
+definecolor{linegray}{RGB}{80,80,80}
+
+newcommand{sfixed}[2]{signed fixed point $langle #1.#2rangle$}
+newcommand{ufixed}[2]{unsigned fixed point $langle #1.#2rangle$}
+newcommand{bitstring}[1]{bitstring $langle #1rangle$}
+
+tikzset{
+  flow.style={
+    -{Latex[length=2.0mm]},
+    draw=linegray,
+    line width=0.45pt
+  },
+  box.style={
+    draw=linegray,
+    rounded corners=1pt,
+    inner sep=0pt,
+    outer sep=0pt,
+    align=center,
+    font=scriptsize
+  }
+}
+
+begin{document}
+begin{tikzpicture}[x=1cm,y=1cm]
+
+% ---------------------------------------------------------------------------
+% Top-level input and output boxes
+% ---------------------------------------------------------------------------
+
+node[box, fill=topblue] (inputs) at (-3,0) {
+begin{tabular}{{raggedrightarraybackslash}p{4.6cm}}
+multicolumn{1}{c}{cellcolor{topblue}textbf{Top-level inputs}}
+hline
+$h$  vector of $8$ sfixed{1}{8}
+$J$  vector of $28$ sfixed{1}{8}
+$mathrm{spins}$  bitstring{8}
+$mathrm{mask}$  bitstring{8}
+end{tabular}
+};
+
+node[box, fill=topblue] (outputs) at (31,0) {
+begin{tabular}{{raggedrightarraybackslash}p{4.8cm}}
+multicolumn{1}{c}{cellcolor{topblue}textbf{Top-level outputs}}
+hline
+$delta_x$  pointer to sfixed{1}{8}
+$mathrm{accept_prob}$  pointer to ufixed{1}{31}
+end{tabular}
+};
+
+% ---------------------------------------------------------------------------
+% Helper blocks selection and spin conversion
+% ---------------------------------------------------------------------------
+
+node[box] (selected_field) at (6.2,2) {
+begin{tabular}{{raggedrightarraybackslash}p{3.4cm}{centeringarraybackslash}p{3.8cm}{raggedrightarraybackslash}p{3.6cm}}
+hline
+cellcolor{headergray}textbf{Inputs} &
+cellcolor{helpergreen}textbf{Helper selected_field} &
+cellcolor{headergray}textbf{Outputs}
+hline
+$h$  vector of $8$ sfixed{1}{8} &
+multirow{2}{=}{centering one-hot multiplexer selecting the field of the flipped spin} &
+$h_i$  sfixed{1}{8}
+cline{1-1}cline{3-3}
+$mathrm{mask}$  bitstring{8} & & 
+hline
+end{tabular}
+};
+
+node[box] (selected_couplings) at (6.2,0.4) {
+begin{tabular}{{raggedrightarraybackslash}p{3.4cm}{centeringarraybackslash}p{3.8cm}{raggedrightarraybackslash}p{3.6cm}}
+hline
+cellcolor{headergray}textbf{Inputs} &
+cellcolor{helpergreen}textbf{Helper selected_coupling_for_j} &
+cellcolor{headergray}textbf{Outputs}
+hline
+$J$  vector of $28$ sfixed{1}{8} &
+multirow{3}{=}{centering $8$ parallel one-hot multiplexers using packed upper-triangular indexing} &
+$J_{ij}$  vector of $8$ sfixed{1}{8}
+cline{1-1}cline{3-3}
+$mathrm{mask}$  bitstring{8} & & 
+cline{1-1}cline{3-3}
+$j$  integer, $0,ldots,7$ & & 
+hline
+end{tabular}
+};
+
+node[box] (spin_values) at (6.2,-1.1) {
+begin{tabular}{{raggedrightarraybackslash}p{3.4cm}{centeringarraybackslash}p{3.8cm}{raggedrightarraybackslash}p{3.6cm}}
+hline
+cellcolor{headergray}textbf{Inputs} &
+cellcolor{helpergreen}textbf{Helper spin_value} &
+cellcolor{headergray}textbf{Outputs}
+hline
+$mathrm{spins}$  bitstring{8} &
+bit-to-Ising conversion $0mapsto -1$, $1mapsto +1$ &
+$s_j$  vector of $8$ sfixed{1}{8}
+hline
+end{tabular}
+};
+
+node[box] (selected_spin) at (6.2,-2.3) {
+begin{tabular}{{raggedrightarraybackslash}p{3.4cm}{centeringarraybackslash}p{3.8cm}{raggedrightarraybackslash}p{3.6cm}}
+hline
+cellcolor{headergray}textbf{Inputs} &
+cellcolor{helpergreen}textbf{Helper selected_spin} &
+cellcolor{headergray}textbf{Outputs}
+hline
+$mathrm{spins}$  bitstring{8} &
+multirow{2}{=}{centering bit selection using the one-hot mask} &
+$s_i$  sfixed{1}{8}
+cline{1-1}cline{3-3}
+$mathrm{mask}$  bitstring{8} & & 
+hline
+end{tabular}
+};
+
+% ---------------------------------------------------------------------------
+% Main arithmetic path
+% ---------------------------------------------------------------------------
+
+node[box] (terms) at (20.0,2.0) {
+begin{tabular}{{raggedrightarraybackslash}p{3.4cm}{centeringarraybackslash}p{4.2cm}{raggedrightarraybackslash}p{3.7cm}}
+hline
+cellcolor{headergray}textbf{Inputs} &
+cellcolor{mainred}textbf{Main block local field terms} &
+cellcolor{headergray}textbf{Outputs}
+hline
+$h_i$  sfixed{1}{8} &
+multirow{3}{=}{centering forms local-field inputs $mathrm{terms}[0]=h_i$ and $mathrm{terms}[j+1]=J_{ij}s_j$} &
+$mathrm{terms}$  vector of $9$ sfixed{1}{8}
+cline{1-1}cline{3-3}
+$J_{ij}$  vector of $8$ sfixed{1}{8} & & 
+cline{1-1}cline{3-3}
+$s_j$  vector of $8$ sfixed{1}{8} & & 
+hline
+end{tabular}
+};
+
+node[box] (tree) at (20,0.0) {
+begin{tabular}{{raggedrightarraybackslash}p{3.4cm}{centeringarraybackslash}p{3.6cm}{raggedrightarraybackslash}p{3.8cm}}
+hline
+cellcolor{headergray}textbf{Inputs} &
+cellcolor{mainred}textbf{Main block tree_sum$langle 9rangle$} &
+cellcolor{headergray}textbf{Outputs}
+hline
+$mathrm{terms}$  vector of $9$ sfixed{1}{8} &
+fully unrolled binary adder tree &
+$mathrm{field_over_alpha}$  sfixed{1}{8}
+hline
+end{tabular}
+};
+
+node[box] (delta) at (20,-1.5) {
+begin{tabular}{{raggedrightarraybackslash}p{3.5cm}{centeringarraybackslash}p{4.2cm}{raggedrightarraybackslash}p{3.7cm}}
+hline
+cellcolor{headergray}textbf{Inputs} &
+cellcolor{mainred}textbf{Main block local_delta_over_alpha} &
+cellcolor{headergray}textbf{Outputs}
+hline
+$mathrm{field_over_alpha}$  sfixed{1}{8} &
+multirow{2}{=}{centering applies the selected spin sign and computes $2s_i,mathrm{field}_ialpha$; doubling is implemented by addition} &
+$mathrm{delta_over_alpha}$  sfixed{1}{8}
+cline{1-1}cline{3-3}
+$s_i$  sfixed{1}{8} & & 
+hline
+end{tabular}
+};
+
+node[box] (positive) at (20,-3.0) {
+begin{tabular}{{raggedrightarraybackslash}p{3.5cm}{centeringarraybackslash}p{3.6cm}{raggedrightarraybackslash}p{3.2cm}}
+hline
+cellcolor{headergray}textbf{Inputs} &
+cellcolor{helpergreen}textbf{Helper positive_part} &
+cellcolor{headergray}textbf{Outputs}
+hline
+$mathrm{delta_over_alpha}$  sfixed{1}{8} &
+Metropolis clipping $x=max(delta,0)$ &
+$x$  sfixed{1}{8}
+hline
+end{tabular}
+};
+
+% ---------------------------------------------------------------------------
+% Probability path
+% ---------------------------------------------------------------------------
+
+node[box] (cutoff) at (20.0,-4.5) {
+begin{tabular}{{raggedrightarraybackslash}p{3.5cm}{centeringarraybackslash}p{4.2cm}{raggedrightarraybackslash}p{3.6cm}}
+hline
+cellcolor{headergray}textbf{Inputs} &
+cellcolor{mainred}textbf{Main block piecewise cutoff} &
+cellcolor{headergray}textbf{Outputs}
+hline
+$x$  sfixed{1}{8} &
+multirow{2}{=}{centering returns $1$ at $x=0$, returns $0$ at $xge x_{rm cut}$, otherwise enables the polynomial path} &
+$mathrm{early_prob}$  ufixed{1}{31}
+cline{1-1}cline{3-3}
+$X_{rm cut}$  sfixed{1}{8} & & $mathrm{poly_enable}$  boolean
+hline
+end{tabular}
+};
+
+node[box] (rescale) at (20,-6.5) {
+begin{tabular}{{raggedrightarraybackslash}p{3.5cm}{centeringarraybackslash}p{3.8cm}{raggedrightarraybackslash}p{3.4cm}}
+hline
+cellcolor{headergray}textbf{Inputs} &
+cellcolor{mainred}textbf{Main block Chebyshev rescaling} &
+cellcolor{headergray}textbf{Outputs}
+hline
+$x$  sfixed{1}{8} &
+multirow{2}{=}{centering computes $z=xx_{rm cut}$ and then $y=2z-1$} &
+$y$  sfixed{4}{36}
+cline{1-1}cline{3-3}
+$X_{rm cut}^{-1}$  ufixed{16}{32} & & 
+hline
+end{tabular}
+};
+
+node[box] (clenshaw) at (20,-8.5) {
+begin{tabular}{{raggedrightarraybackslash}p{3.5cm}{centeringarraybackslash}p{4.0cm}{raggedrightarraybackslash}p{3.4cm}}
+hline
+cellcolor{headergray}textbf{Inputs} &
+cellcolor{mainred}textbf{Main block chebyshev_g  Clenshaw} &
+cellcolor{headergray}textbf{Outputs}
+hline
+$y$  sfixed{4}{36} &
+multirow{2}{=}{centering evaluates $p(y)=sum_k c_k T_k(y)$ using offline-generated coefficients} &
+$p$  sfixed{4}{36}
+cline{1-1}cline{3-3}
+$c_k$  vector of $d+1$ sfixed{4}{36} & & 
+hline
+end{tabular}
+};
+
+node[box] (probclip) at (33,-5.8) {
+begin{tabular}{{raggedrightarraybackslash}p{3.5cm}{centeringarraybackslash}p{3.8cm}{raggedrightarraybackslash}p{3.6cm}}
+hline
+cellcolor{headergray}textbf{Inputs} &
+cellcolor{helpergreen}textbf{Helper probability clipping} &
+cellcolor{headergray}textbf{Outputs}
+hline
+$p$  sfixed{4}{36} &
+multirow{2}{=}{centering clips to $[0,1]$ and selects early or polynomial path} &
+$mathrm{accept_prob}$  ufixed{1}{31}
+cline{1-1}cline{3-3}
+$mathrm{early_prob}$  ufixed{1}{31} & & 
+hline
+end{tabular}
+};
+
+% ---------------------------------------------------------------------------
+% Straight arrows only
+% ---------------------------------------------------------------------------
+
+draw[flow] (inputs.east) -- (selected_field.west);
+draw[flow] (inputs.east) -- (selected_couplings.west);
+draw[flow] (inputs.east) -- (spin_values.west);
+draw[flow] (inputs.east) -- (selected_spin.west);
+
+draw[flow] (selected_field.east) -- (terms.west);
+draw[flow] (selected_couplings.east) -- (terms.west);
+draw[flow] (spin_values.east) -- (terms.west);
+
+draw[flow] (terms.south) -- (tree.north);
+draw[flow] (tree.south) -- (delta.north);
+draw[flow] (selected_spin.east) -- (delta.west);
+
+draw[flow] (delta.south) -- (positive.north);
+draw[flow] (positive.east) -- (outputs.west);
+draw[flow] (positive.south) -- (cutoff.north);
+
+draw[flow] (cutoff.south) -- (rescale.north);
+draw[flow] (rescale.south) -- (clenshaw.north);
+draw[flow] (clenshaw.east) -- (probclip.west);
+draw[flow] (cutoff.east) -- (probclip.west);
+draw[flow] (probclip.north) -- (outputs.south);
+
+end{tikzpicture}
+end{document}

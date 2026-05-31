@@ -13,9 +13,11 @@ copy_reports() {
     echo "Copied ${folder}/${RPT_PATH} -> ${dst}"
 }
 
-copy_reports hls_local_spin_flip_operation_N8_FRAC58
-copy_reports hls_local_spin_flip_operation_N16_FRAC61
-copy_reports hls_local_spin_flip_operation_N32_FRAC65
-copy_reports hls_uniform_move_operation_N8_FRAC58
-copy_reports hls_uniform_move_operation_N16_FRAC61
-copy_reports hls_uniform_move_operation_N32_FRAC65
+copy_reports hls_local_spin_flip_operation_N8_FRAC24
+copy_reports hls_local_spin_flip_operation_N16_FRAC28
+copy_reports hls_local_spin_flip_operation_N32_FRAC31
+copy_reports hls_local_spin_flip_operation_N64_FRAC35
+copy_reports hls_uniform_move_operation_N8_FRAC24
+copy_reports hls_uniform_move_operation_N16_FRAC28
+copy_reports hls_uniform_move_operation_N32_FRAC31
+copy_reports hls_uniform_move_operation_N64_FRAC35

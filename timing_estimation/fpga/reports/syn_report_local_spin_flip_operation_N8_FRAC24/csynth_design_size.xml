@@ -1,0 +1,65 @@
+<design_size title="Design Size Report">
+    <item name="Total Instructions per Compilation Phase">
+        <table>
+            <keys size="4">Phase, Step, Instructions, Description</keys>
+            <column name="Compile/Link">, 12578, After all functions are compiled and linked into a single design</column>
+            <column name="">, , </column>
+            <column name="Unroll/Inline">, , After user unroll and inline pragmas are applied</column>
+            <column name="">(1) unroll,  5464, user unroll pragmas are applied</column>
+            <column name="">(2) simplification,  1610, simplification of applied user unroll pragmas</column>
+            <column name="">(3) inline,  1578, user inline pragmas are applied</column>
+            <column name="">(4) simplification,  1515, simplification of applied user inline pragmas</column>
+            <column name="">, , </column>
+            <column name="Array/Struct">, , After user array partition and struct aggregate/disaggregate pragmas are applied</column>
+            <column name="">(1) array partition,  1228, user array partition pragmas are applied</column>
+            <column name="">(2) simplification,  1228, simplification of applied user array partition &amp; struct aggregate/disaggregate pragmas</column>
+            <column name="">(3) aggregate/disaggregate,  1228, user struct aggregate/disaggregate pragmas are applied</column>
+            <column name="">(4) array reshape,  1228, apply array reshape pragmas</column>
+            <column name="">(5) access patterns,  1228, array access pattern optmizations</column>
+            <column name="">, , </column>
+            <column name="Performance">, , After transformations are applied to meet performance pragma targets</column>
+            <column name="">(1) loop simplification,  1228, loop and instruction simplification</column>
+            <column name="">(2) parallelization,  1228, loops are unrolled or pipelined to meet performance targets</column>
+            <column name="">(3) array partition,  1228, arrays are partitioned to meet performance targets</column>
+            <column name="">(4) simplification,  1228, simplification of design after performance transformations</column>
+            <column name="">, , </column>
+            <column name="HW Transforms">, , After hardware transfomations</column>
+            <column name="">(1) lowering,  1302, initial conversion to HW specific instructions</column>
+            <column name="">(2) optimizations,  1304, high level synthesis optimizations</column>
+        </table>
+    </item>
+    <item name="Instructions per Function for each Compilation Phase">
+        <hiertable>
+            <header size="7" col0="Function" col1="Location" col2="Compile/Link" col3="Unroll/Inline" col4="Array/Struct" col5="Performance" col6="HW Transforms"/>
+            <rows>
+                <row id="0" col0="local_spin_flip_operation" col1="local_move_hls.cpp:311" col2="12578" col3="1515" col4="1228" col5="1228" col6="1304">
+                    <row id="10" col0="local_delta_over_alpha" col1="local_move_hls.cpp:173" col2="4272" col3="" col4="" col5="" col6="">
+                        <row id="6" col0="selected_field" col1="local_move_hls.cpp:127" col2="346" col3="" col4="" col5="" col6=""/>
+                        <row id="5" col0="selected_coupling_for_j" col1="local_move_hls.cpp:145" col2="369" col3="" col4="" col5="" col6="">
+                            <row id="3" col0="edge_index" col1="local_move_hls.cpp:66" col2="18" col3="" col4="" col5="" col6=""/>
+                        </row>
+                        <row id="4" col0="spin_value" col1="local_move_hls.cpp:56" col2="610" col3="" col4="" col5="" col6=""/>
+                        <row id="11" col0="tree_sum&lt;9&gt;" col1="local_move_hls.cpp:78" col2="1469" col3="" col4="" col5="" col6="">
+                            <row id="2" col0="tree_sum&lt;5&gt;" col1="local_move_hls.cpp:78" col2="1103" col3="" col4="" col5="" col6="">
+                                <row id="12" col0="tree_sum&lt;3&gt;" col1="local_move_hls.cpp:78" col2="737" col3="" col4="" col5="" col6="">
+                                    <row id="9" col0="tree_sum&lt;2&gt;" col1="local_move_hls.cpp:78" col2="371" col3="" col4="" col5="" col6="">
+                                        <row id="7" col0="tree_sum&lt;1&gt;" col1="local_move_hls.cpp:78" col2="5" col3="" col4="" col5="" col6=""/>
+                                    </row>
+                                </row>
+                            </row>
+                        </row>
+                    </row>
+                    <row id="8" col0="positive_part" col1="local_move_hls.cpp:220" col2="630" col3="" col4="" col5="" col6=""/>
+                    <row id="1" col0="chebyshev_g" col1="local_move_hls.cpp:233" col2="7637" col3="" col4="" col5="" col6=""/>
+                </row>
+            </rows>
+            <notes/>
+        </hiertable>
+    </item>
+    <item name="Design Size Message Settings">
+        <table>
+            <keys size="3">Message Setting, Value, Description</keys>
+            <column name="config_compile -design_size_maximum_warning">100000, Show a warning when total design instructions exceeds this value</column>
+        </table>
+    </item>
+</design_size>

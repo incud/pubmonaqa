@@ -1,0 +1,917 @@
+Sourcing Vitis...
+Done sourcing Vitis
+Start running make_exp_cheby.py
+Start Python patch on the C++ files
+Start Python patch on the TCL file
+Now move to visualization/out and start synthesis
+
+****** vitis-run v2025.2 (64-bit)
+  **** SW Build 6295257 on 2025-11-13-01:29:13
+  **** Start of session at: Fri May 29 07:38:16 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+
+  **** HLS Build v2025.2 6295257
+Sourcing Tcl script '/u/m/mincudin/Documents/fpga/visualization/out/../temp/run_synthesis_move.tcl'
+============================================================
+Top function : local_spin_flip_operation
+Source       : ../temp/local_move_hls.cpp
+Header       : src/exp_cheby.hpp
+SK_N         : 8
+FRAC         : 8
+Part         : xcvu19p-fsva3824-2-e
+Clock ns     : 3.333
+Component    : hls_local_spin_flip_operation_N8_FRAC8
+============================================================
+INFO: [HLS 200-1510] Running: open_component -reset hls_local_spin_flip_operation_N8_FRAC8 -flow_target vivado 
+INFO: [HLS 200-10] Creating and opening component '/u/m/mincudin/Documents/fpga/visualization/out/hls_local_spin_flip_operation_N8_FRAC8'.
+INFO: [HLS 200-10] Cleaning up the component database.
+INFO: [HLS 200-1505] Using flow_target 'vivado'
+Resolution: For help on HLS 200-1505 see docs.amd.com/access/sources/dita/topic?Doc_Version=2025.2%20English&url=ug1448-hls-guidance&resourceid=200-1505.html
+INFO: [HLS 200-2176] Writing Vitis IDE component file /u/m/mincudin/Documents/fpga/visualization/out/hls_local_spin_flip_operation_N8_FRAC8/vitis-comp.json
+INFO: [HLS 200-1915] Writing HLS config ini file /u/m/mincudin/Documents/fpga/visualization/out/hls_local_spin_flip_operation_N8_FRAC8/hls_config.cfg
+INFO: [HLS 200-1510] Running: add_files ../temp/local_move_hls.cpp -cflags -std=c++17 -I../temp -DSK_N=8 -DFRAC=8 
+INFO: [HLS 200-10] Adding design file '../temp/local_move_hls.cpp' to the project
+INFO: [HLS 200-1510] Running: set_top local_spin_flip_operation 
+INFO: [HLS 200-1510] Running: set_part xcvu19p-fsva3824-2-e 
+INFO: [HLS 200-1611] Setting target device to 'xcvu19p-fsva3824-2-e'
+INFO: [HLS 200-1510] Running: create_clock -period 3.333 -name default 
+INFO: [SYN 201-201] Setting up clock 'default' with a period of 3.333ns.
+INFO: [HLS 200-1510] Running: csynth_design 
+INFO: [HLS 200-1915] Writing HLS config ini file /u/m/mincudin/Documents/fpga/visualization/out/hls_local_spin_flip_operation_N8_FRAC8/hls_config.cfg
+INFO: [HLS 200-111] Finished File checks and directory preparation: CPU user time: 0.64 seconds. CPU system time: 0.07 seconds. Elapsed time: 3.31 seconds; current allocated memory: 255.551 MB.
+INFO: [HLS 200-2191] C-Synthesis will use clang-16 as the compiler
+INFO: [HLS 200-10] Analyzing design file '../temp/local_move_hls.cpp' ... 
+INFO: [HLS 200-111] Finished Source Code Analysis and Preprocessing: CPU user time: 4.66 seconds. CPU system time: 0.39 seconds. Elapsed time: 5.37 seconds; current allocated memory: 258.000 MB.
+INFO: [HLS 200-777] Using interface defaults for 'Vivado' flow target.
+INFO: [HLS 200-1995] There were 12,571 instructions in the design after the 'Compile/Link' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_local_spin_flip_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 200-1995] There were 5,224 instructions in the design after the 'Unroll/Inline (step 1)' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_local_spin_flip_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 200-1995] There were 2,532 instructions in the design after the 'Unroll/Inline (step 2)' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_local_spin_flip_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 200-1995] There were 2,481 instructions in the design after the 'Unroll/Inline (step 3)' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_local_spin_flip_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 200-1995] There were 2,442 instructions in the design after the 'Unroll/Inline (step 4)' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_local_spin_flip_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 200-1995] There were 4,115 instructions in the design after the 'Array/Struct (step 1)' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_local_spin_flip_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 200-1995] There were 4,051 instructions in the design after the 'Array/Struct (step 2)' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_local_spin_flip_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 200-1995] There were 4,051 instructions in the design after the 'Array/Struct (step 3)' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_local_spin_flip_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 200-1995] There were 4,051 instructions in the design after the 'Array/Struct (step 4)' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_local_spin_flip_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 200-1995] There were 4,051 instructions in the design after the 'Array/Struct (step 5)' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_local_spin_flip_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 200-1995] There were 2,227 instructions in the design after the 'Performance (step 1)' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_local_spin_flip_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 200-1995] There were 2,211 instructions in the design after the 'Performance (step 2)' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_local_spin_flip_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 200-1995] There were 2,211 instructions in the design after the 'Performance (step 3)' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_local_spin_flip_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 200-1995] There were 2,211 instructions in the design after the 'Performance (step 4)' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_local_spin_flip_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 200-1995] There were 2,285 instructions in the design after the 'HW Transforms (step 1)' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_local_spin_flip_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 200-1995] There were 2,336 instructions in the design after the 'HW Transforms (step 2)' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_local_spin_flip_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 214-186] Unrolling loop 'VITIS_LOOP_260_1' (../temp/local_move_hls.cpp:260:23) in function 'chebyshev_g' completely with a factor of 4 (../temp/local_move_hls.cpp:233:0)
+INFO: [HLS 214-186] Unrolling loop 'VITIS_LOOP_197_1' (../temp/local_move_hls.cpp:197:23) in function 'local_delta_over_alpha' completely with a factor of 8 (../temp/local_move_hls.cpp:178:0)
+INFO: [HLS 214-186] Unrolling loop 'VITIS_LOOP_98_1' (../temp/local_move_hls.cpp:98:26) in function 'tree_sum<9>' completely with a factor of 5 (../temp/local_move_hls.cpp:78:0)
+INFO: [HLS 214-186] Unrolling loop 'VITIS_LOOP_98_1' (../temp/local_move_hls.cpp:98:26) in function 'tree_sum<5>' completely with a factor of 3 (../temp/local_move_hls.cpp:78:0)
+INFO: [HLS 214-186] Unrolling loop 'VITIS_LOOP_98_1' (../temp/local_move_hls.cpp:98:26) in function 'tree_sum<3>' completely with a factor of 2 (../temp/local_move_hls.cpp:78:0)
+INFO: [HLS 214-186] Unrolling loop 'VITIS_LOOP_98_1' (../temp/local_move_hls.cpp:98:26) in function 'tree_sum<2>' completely with a factor of 1 (../temp/local_move_hls.cpp:78:0)
+INFO: [HLS 214-186] Unrolling loop 'VITIS_LOOP_155_1' (../temp/local_move_hls.cpp:155:23) in function 'selected_coupling_for_j' completely with a factor of 8 (../temp/local_move_hls.cpp:149:0)
+INFO: [HLS 214-186] Unrolling loop 'VITIS_LOOP_133_1' (../temp/local_move_hls.cpp:133:23) in function 'selected_field' completely with a factor of 8 (../temp/local_move_hls.cpp:127:0)
+INFO: [HLS 214-248] Applying array_partition to 'y': Complete partitioning on dimension 1. (../temp/local_move_hls.cpp:93:17)
+INFO: [HLS 214-248] Applying array_partition to 'terms': Complete partitioning on dimension 1. (../temp/local_move_hls.cpp:189:13)
+INFO: [HLS 214-248] Applying array_partition to 'h': Complete partitioning on dimension 1. (../temp/local_move_hls.cpp:318:0)
+INFO: [HLS 214-248] Applying array_partition to 'J_edges': Complete partitioning on dimension 1. (../temp/local_move_hls.cpp:318:0)
+INFO: [HLS 200-111] Finished Compiling Optimization and Transform: CPU user time: 3.72 seconds. CPU system time: 0.47 seconds. Elapsed time: 8.4 seconds; current allocated memory: 268.633 MB.
+INFO: [HLS 200-111] Finished Checking Pragmas: CPU user time: 0 seconds. CPU system time: 0 seconds. Elapsed time: 0 seconds; current allocated memory: 268.633 MB.
+INFO: [HLS 200-10] Starting code transformations ...
+INFO: [HLS 200-111] Finished Standard Transforms: CPU user time: 0.04 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.07 seconds; current allocated memory: 269.527 MB.
+INFO: [HLS 200-10] Checking synthesizability ...
+INFO: [HLS 200-111] Finished Checking Synthesizability: CPU user time: 0.06 seconds. CPU system time: 0 seconds. Elapsed time: 0.07 seconds; current allocated memory: 270.438 MB.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock from (../temp/local_move_hls.cpp:180:1) to (../temp/local_move_hls.cpp:215:1) in function 'local_delta_over_alpha'... converting 3 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock from (../temp/local_move_hls.cpp:234:1) to (../temp/local_move_hls.cpp:281:1) in function 'chebyshev_g'... converting 11 basic blocks.
+INFO: [XFORM 203-11] Balancing expressions in function 'chebyshev_g' (../temp/local_move_hls.cpp:238:1)...3 expression(s) balanced.
+INFO: [HLS 200-111] Finished Loop, function and other optimizations: CPU user time: 0.2 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.23 seconds; current allocated memory: 293.258 MB.
+INFO: [HLS 200-111] Finished Architecture Synthesis: CPU user time: 0.19 seconds. CPU system time: 0.02 seconds. Elapsed time: 0.22 seconds; current allocated memory: 390.570 MB.
+INFO: [HLS 200-10] Starting hardware synthesis ...
+INFO: [HLS 200-10] Synthesizing 'local_spin_flip_operation' ...
+WARNING: [SYN 201-103] Legalizing function name 'tree_sum<2>' to 'tree_sum_2_s'.
+WARNING: [SYN 201-103] Legalizing function name 'tree_sum<3>' to 'tree_sum_3_s'.
+WARNING: [SYN 201-103] Legalizing function name 'tree_sum<5>' to 'tree_sum_5_s'.
+WARNING: [SYN 201-103] Legalizing function name 'tree_sum<9>' to 'tree_sum_9_s'.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'selected_field' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.03 seconds. CPU system time: 0.02 seconds. Elapsed time: 0.09 seconds; current allocated memory: 390.934 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.01 seconds. CPU system time: 0 seconds. Elapsed time: 0.02 seconds; current allocated memory: 390.996 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'edge_index' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.02 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.04 seconds; current allocated memory: 391.207 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0 seconds. CPU system time: 0 seconds. Elapsed time: 0.02 seconds; current allocated memory: 391.262 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'selected_coupling_for_j' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.05 seconds. CPU system time: 0 seconds. Elapsed time: 0.06 seconds; current allocated memory: 394.801 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.02 seconds. CPU system time: 0 seconds. Elapsed time: 0.05 seconds; current allocated memory: 394.801 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'spin_value' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.02 seconds. CPU system time: 0 seconds. Elapsed time: 0.05 seconds; current allocated memory: 394.801 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.01 seconds. CPU system time: 0 seconds. Elapsed time: 0.02 seconds; current allocated memory: 394.801 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'tree_sum_2_s' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.01 seconds. CPU system time: 0 seconds. Elapsed time: 0.02 seconds; current allocated memory: 394.801 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.01 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.02 seconds; current allocated memory: 394.801 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'tree_sum_3_s' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.01 seconds. CPU system time: 0 seconds. Elapsed time: 0.03 seconds; current allocated memory: 394.801 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.01 seconds. CPU system time: 0 seconds. Elapsed time: 0.02 seconds; current allocated memory: 394.801 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'tree_sum_5_s' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.02 seconds. CPU system time: 0 seconds. Elapsed time: 0.04 seconds; current allocated memory: 394.801 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.01 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.02 seconds; current allocated memory: 394.801 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'tree_sum_9_s' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.03 seconds. CPU system time: 0 seconds. Elapsed time: 0.05 seconds; current allocated memory: 394.805 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.01 seconds. CPU system time: 0 seconds. Elapsed time: 0.03 seconds; current allocated memory: 394.805 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'local_delta_over_alpha' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.08 seconds. CPU system time: 0 seconds. Elapsed time: 0.11 seconds; current allocated memory: 398.418 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.04 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.06 seconds; current allocated memory: 398.418 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'positive_part' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.05 seconds. CPU system time: 0 seconds. Elapsed time: 0.09 seconds; current allocated memory: 398.418 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.01 seconds. CPU system time: 0 seconds. Elapsed time: 0.02 seconds; current allocated memory: 398.418 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'chebyshev_g' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.07 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.09 seconds; current allocated memory: 400.836 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.03 seconds. CPU system time: 0 seconds. Elapsed time: 0.06 seconds; current allocated memory: 400.836 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'local_spin_flip_operation' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.03 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.06 seconds; current allocated memory: 401.574 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.02 seconds. CPU system time: 0 seconds. Elapsed time: 0.04 seconds; current allocated memory: 401.574 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'selected_field' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-100] Finished creating RTL model for 'selected_field'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.03 seconds. CPU system time: 0 seconds. Elapsed time: 0.06 seconds; current allocated memory: 401.574 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'edge_index' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-100] Generating core module 'mul_4ns_3ns_6_1_1': 1 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'edge_index'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.02 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.09 seconds; current allocated memory: 402.188 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'selected_coupling_for_j' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-100] Generating core module 'sparsemux_57_5_9_1_1': 1 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'selected_coupling_for_j'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.06 seconds. CPU system time: 0 seconds. Elapsed time: 0.12 seconds; current allocated memory: 403.660 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'spin_value' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-100] Finished creating RTL model for 'spin_value'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.08 seconds. CPU system time: 0.02 seconds. Elapsed time: 0.16 seconds; current allocated memory: 408.039 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'tree_sum_2_s' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-100] Finished creating RTL model for 'tree_sum_2_s'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.02 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.08 seconds; current allocated memory: 408.039 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'tree_sum_3_s' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-100] Finished creating RTL model for 'tree_sum_3_s'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.04 seconds. CPU system time: 0 seconds. Elapsed time: 0.09 seconds; current allocated memory: 408.039 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'tree_sum_5_s' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-100] Finished creating RTL model for 'tree_sum_5_s'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.04 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.1 seconds; current allocated memory: 408.039 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'tree_sum_9_s' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-100] Finished creating RTL model for 'tree_sum_9_s'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.05 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.12 seconds; current allocated memory: 408.582 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'local_delta_over_alpha' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-100] Generating core module 'mul_9s_9s_18_1_1': 8 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'local_delta_over_alpha'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.1 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.17 seconds; current allocated memory: 412.902 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'positive_part' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-100] Finished creating RTL model for 'positive_part'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.11 seconds. CPU system time: 0.02 seconds. Elapsed time: 0.23 seconds; current allocated memory: 422.039 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'chebyshev_g' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-100] Generating core module 'mul_32ns_37ns_68_2_1': 1 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'mul_40s_40s_80_2_1': 1 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'mul_77s_34ns_110_5_1': 1 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'mul_77s_40s_117_5_1': 1 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'sparsemux_9_3_32_1_1': 1 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'chebyshev_g'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.06 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.14 seconds; current allocated memory: 422.039 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'local_spin_flip_operation' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/h_0' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/h_1' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/h_2' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/h_3' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/h_4' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/h_5' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/h_6' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/h_7' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/J_edges_0' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/J_edges_1' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/J_edges_2' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/J_edges_3' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/J_edges_4' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/J_edges_5' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/J_edges_6' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/J_edges_7' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/J_edges_8' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/J_edges_9' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/J_edges_10' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/J_edges_11' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/J_edges_12' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/J_edges_13' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/J_edges_14' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/J_edges_15' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/J_edges_16' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/J_edges_17' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/J_edges_18' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/J_edges_19' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/J_edges_20' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/J_edges_21' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/J_edges_22' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/J_edges_23' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/J_edges_24' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/J_edges_25' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/J_edges_26' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/J_edges_27' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/spins' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/flip_mask' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/delta_x' to 'ap_none'.
+WARNING: [RTGEN 206-101] Port 'delta_x' with mode 'ap_none' may require an associated data valid signal to correctly communicate with other blocks or a test bench; automatic C/RTL co-simulation may not be able to verify such a port.
+INFO: [RTGEN 206-500] Setting interface mode on port 'local_spin_flip_operation/accept_prob' to 'ap_none'.
+WARNING: [RTGEN 206-101] Port 'accept_prob' with mode 'ap_none' may require an associated data valid signal to correctly communicate with other blocks or a test bench; automatic C/RTL co-simulation may not be able to verify such a port.
+INFO: [RTGEN 206-500] Setting interface mode on function 'local_spin_flip_operation' to 'ap_ctrl_none'.
+INFO: [RTGEN 206-100] Finished creating RTL model for 'local_spin_flip_operation'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.1 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.18 seconds; current allocated memory: 426.316 MB.
+INFO: [HLS 200-111] Finished Generating all RTL models: CPU user time: 0.2 seconds. CPU system time: 0.06 seconds. Elapsed time: 0.95 seconds; current allocated memory: 428.492 MB.
+INFO: [HLS 200-2225] Wrote inferred directives to file /u/m/mincudin/Documents/fpga/visualization/out/hls_local_spin_flip_operation_N8_FRAC8/hls/syn/inferred_directives.ini
+INFO: [HLS 200-111] Finished Updating report files: CPU user time: 0.53 seconds. CPU system time: 0.09 seconds. Elapsed time: 1.05 seconds; current allocated memory: 438.820 MB.
+INFO: [VHDL 208-304] Generating VHDL RTL for local_spin_flip_operation.
+INFO: [VLOG 209-307] Generating Verilog RTL for local_spin_flip_operation.
+INFO: [HLS 200-789] **** Estimated Fmax: 417.97 MHz
+INFO: [HLS 200-2161] Finished Command csynth_design Elapsed time: 00:00:22; Allocated memory: 200.164 MB.
+INFO: [HLS 200-1510] Running: export_design -format ip 
+INFO: [HLS 200-1915] Writing HLS config ini file /u/m/mincudin/Documents/fpga/visualization/out/hls_local_spin_flip_operation_N8_FRAC8/hls_config.cfg
+WARNING: [HLS 200-483] The 'config_export -format ip' command is deprecated and will be removed in a future release. Use 'config_export -format ip_catalog' as its replacement.
+INFO: [IMPL 213-8] Exporting RTL as a Vivado IP.
+
+****** Vivado v2025.2 (64-bit)
+  **** SW Build 6299465 on Fri Nov 14 12:34:56 MST 2025
+  **** IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+  **** SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+  **** Start of session at: Fri May 29 07:38:45 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source run_ippack.tcl -notrace
+INFO: calling package_hls_ip ip_types=vitis sysgen json_file=/u/m/mincudin/Documents/fpga/visualization/out/hls_local_spin_flip_operation_N8_FRAC8/hls/hls_data.json outdir=/u/m/mincudin/Documents/fpga/visualization/out/hls_local_spin_flip_operation_N8_FRAC8/hls/impl/ip srcdir=/u/m/mincudin/Documents/fpga/visualization/out/hls_local_spin_flip_operation_N8_FRAC8/hls ippack_options_dict= ippack_options_dict=
+INFO: Copied 1 ipmisc file(s) to /u/m/mincudin/Documents/fpga/visualization/out/hls_local_spin_flip_operation_N8_FRAC8/hls/impl/ip/misc
+INFO: Copied 20 verilog file(s) to /u/m/mincudin/Documents/fpga/visualization/out/hls_local_spin_flip_operation_N8_FRAC8/hls/impl/ip/hdl/verilog
+INFO: Copied 20 vhdl file(s) to /u/m/mincudin/Documents/fpga/visualization/out/hls_local_spin_flip_operation_N8_FRAC8/hls/impl/ip/hdl/vhdl
+WARNING: [Common 17-1496] Vivado tclapp support version doesn't have install/uninstall hooks. Please update support using ::tclapp::update_support command.
+WARNING: [Common 17-1496] Vivado tclapp support version doesn't have install/uninstall hooks. Please update support using ::tclapp::update_support command.
+WARNING: [Common 17-1496] Vivado tclapp support version doesn't have install/uninstall hooks. Please update support using ::tclapp::update_support command.
+WARNING: [Common 17-1496] Vivado tclapp support version doesn't have install/uninstall hooks. Please update support using ::tclapp::update_support command.
+WARNING: [Common 17-1496] Vivado tclapp support version doesn't have install/uninstall hooks. Please update support using ::tclapp::update_support command.
+WARNING: [Common 17-1496] Vivado tclapp support version doesn't have install/uninstall hooks. Please update support using ::tclapp::update_support command.
+INFO: Import ports from HDL: /u/m/mincudin/Documents/fpga/visualization/out/hls_local_spin_flip_operation_N8_FRAC8/hls/impl/ip/hdl/vhdl/local_spin_flip_operation.vhd (local_spin_flip_operation)
+INFO: Add clock interface ap_clk
+INFO: Add reset interface ap_rst
+INFO: Add data interface h_0
+INFO: Add data interface h_1
+INFO: Add data interface h_2
+INFO: Add data interface h_3
+INFO: Add data interface h_4
+INFO: Add data interface h_5
+INFO: Add data interface h_6
+INFO: Add data interface h_7
+INFO: Add data interface J_edges_0
+INFO: Add data interface J_edges_1
+INFO: Add data interface J_edges_2
+INFO: Add data interface J_edges_3
+INFO: Add data interface J_edges_4
+INFO: Add data interface J_edges_5
+INFO: Add data interface J_edges_6
+INFO: Add data interface J_edges_7
+INFO: Add data interface J_edges_8
+INFO: Add data interface J_edges_9
+INFO: Add data interface J_edges_10
+INFO: Add data interface J_edges_11
+INFO: Add data interface J_edges_12
+INFO: Add data interface J_edges_13
+INFO: Add data interface J_edges_14
+INFO: Add data interface J_edges_15
+INFO: Add data interface J_edges_16
+INFO: Add data interface J_edges_17
+INFO: Add data interface J_edges_18
+INFO: Add data interface J_edges_19
+INFO: Add data interface J_edges_20
+INFO: Add data interface J_edges_21
+INFO: Add data interface J_edges_22
+INFO: Add data interface J_edges_23
+INFO: Add data interface J_edges_24
+INFO: Add data interface J_edges_25
+INFO: Add data interface J_edges_26
+INFO: Add data interface J_edges_27
+INFO: Add data interface spins
+INFO: Add data interface flip_mask
+INFO: Add data interface delta_x
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/scratch/mincudin/xlnx/2025.2/data/ip'.
+INFO: Add data interface accept_prob
+INFO: Calling post_process_vitis to specialize IP
+INFO: Calling post_process_sysgen to specialize IP
+Generating sysgen info xml from json file
+INFO: Created IP /u/m/mincudin/Documents/fpga/visualization/out/hls_local_spin_flip_operation_N8_FRAC8/hls/impl/ip/component.xml
+INFO: Created IP archive /u/m/mincudin/Documents/fpga/visualization/out/hls_local_spin_flip_operation_N8_FRAC8/hls/impl/ip/xilinx_com_hls_local_spin_flip_operation_1_0.zip
+INFO: [Common 17-206] Exiting Vivado at Fri May 29 07:38:51 2026...
+INFO: [HLS 200-802] Generated output file hls_local_spin_flip_operation_N8_FRAC8/hls/impl/export.zip
+INFO: [HLS 200-2161] Finished Command export_design Elapsed time: 00:00:11; Allocated memory: 20.520 MB.
+INFO: [HLS 200-112] Total CPU user time: 31.35 seconds. Total CPU system time: 4.69 seconds. Total elapsed time: 34.85 seconds; peak allocated memory: 459.340 MB.
+INFO: [vitis-run 60-791] Total elapsed time: 0h 0m 35s
+INFO: [vitis-run 60-1662] Stopping dispatch session having empty uuid.
+
+****** vitis-run v2025.2 (64-bit)
+  **** SW Build 6295257 on 2025-11-13-01:29:13
+  **** Start of session at: Fri May 29 07:38:53 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+
+  **** HLS Build v2025.2 6295257
+Sourcing Tcl script '/u/m/mincudin/Documents/fpga/visualization/out/../temp/run_synthesis_move.tcl'
+============================================================
+Top function : uniform_move_operation
+Source       : ../temp/uniform_move_hls.cpp
+Header       : src/exp_cheby.hpp
+SK_N         : 8
+FRAC         : 8
+Part         : xcvu19p-fsva3824-2-e
+Clock ns     : 3.333
+Component    : hls_uniform_move_operation_N8_FRAC8
+============================================================
+INFO: [HLS 200-1510] Running: open_component -reset hls_uniform_move_operation_N8_FRAC8 -flow_target vivado 
+INFO: [HLS 200-10] Creating and opening component '/u/m/mincudin/Documents/fpga/visualization/out/hls_uniform_move_operation_N8_FRAC8'.
+INFO: [HLS 200-10] Cleaning up the component database.
+INFO: [HLS 200-1505] Using flow_target 'vivado'
+Resolution: For help on HLS 200-1505 see docs.amd.com/access/sources/dita/topic?Doc_Version=2025.2%20English&url=ug1448-hls-guidance&resourceid=200-1505.html
+INFO: [HLS 200-2176] Writing Vitis IDE component file /u/m/mincudin/Documents/fpga/visualization/out/hls_uniform_move_operation_N8_FRAC8/vitis-comp.json
+INFO: [HLS 200-1915] Writing HLS config ini file /u/m/mincudin/Documents/fpga/visualization/out/hls_uniform_move_operation_N8_FRAC8/hls_config.cfg
+INFO: [HLS 200-1510] Running: add_files ../temp/uniform_move_hls.cpp -cflags -std=c++17 -I../temp -DSK_N=8 -DFRAC=8 
+INFO: [HLS 200-10] Adding design file '../temp/uniform_move_hls.cpp' to the project
+INFO: [HLS 200-1510] Running: set_top uniform_move_operation 
+INFO: [HLS 200-1510] Running: set_part xcvu19p-fsva3824-2-e 
+INFO: [HLS 200-1611] Setting target device to 'xcvu19p-fsva3824-2-e'
+INFO: [HLS 200-1510] Running: create_clock -period 3.333 -name default 
+INFO: [SYN 201-201] Setting up clock 'default' with a period of 3.333ns.
+INFO: [HLS 200-1510] Running: csynth_design 
+INFO: [HLS 200-1915] Writing HLS config ini file /u/m/mincudin/Documents/fpga/visualization/out/hls_uniform_move_operation_N8_FRAC8/hls_config.cfg
+INFO: [HLS 200-111] Finished File checks and directory preparation: CPU user time: 1.02 seconds. CPU system time: 0.11 seconds. Elapsed time: 3.71 seconds; current allocated memory: 255.562 MB.
+INFO: [HLS 200-2191] C-Synthesis will use clang-16 as the compiler
+INFO: [HLS 200-10] Analyzing design file '../temp/uniform_move_hls.cpp' ... 
+INFO: [HLS 200-111] Finished Source Code Analysis and Preprocessing: CPU user time: 6.16 seconds. CPU system time: 0.53 seconds. Elapsed time: 7.18 seconds; current allocated memory: 257.996 MB.
+INFO: [HLS 200-777] Using interface defaults for 'Vivado' flow target.
+INFO: [HLS 200-1995] There were 12,304 instructions in the design after the 'Compile/Link' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_uniform_move_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 200-1995] There were 8,451 instructions in the design after the 'Unroll/Inline (step 1)' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_uniform_move_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 200-1995] There were 3,435 instructions in the design after the 'Unroll/Inline (step 2)' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_uniform_move_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 200-1995] There were 3,354 instructions in the design after the 'Unroll/Inline (step 3)' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_uniform_move_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 200-1995] There were 3,339 instructions in the design after the 'Unroll/Inline (step 4)' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_uniform_move_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 200-1995] There were 5,711 instructions in the design after the 'Array/Struct (step 1)' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_uniform_move_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 200-1995] There were 4,779 instructions in the design after the 'Array/Struct (step 2)' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_uniform_move_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 200-1995] There were 4,779 instructions in the design after the 'Array/Struct (step 3)' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_uniform_move_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 200-1995] There were 4,779 instructions in the design after the 'Array/Struct (step 4)' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_uniform_move_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 200-1995] There were 4,779 instructions in the design after the 'Array/Struct (step 5)' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_uniform_move_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 200-1995] There were 4,557 instructions in the design after the 'Performance (step 1)' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_uniform_move_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 200-1995] There were 4,529 instructions in the design after the 'Performance (step 2)' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_uniform_move_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 200-1995] There were 4,529 instructions in the design after the 'Performance (step 3)' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_uniform_move_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 200-1995] There were 4,529 instructions in the design after the 'Performance (step 4)' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_uniform_move_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 200-1995] There were 4,604 instructions in the design after the 'HW Transforms (step 1)' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_uniform_move_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 200-1995] There were 4,606 instructions in the design after the 'HW Transforms (step 2)' phase of compilation. See the Design Size Report for more details (/u/m/mincudin/Documents/fpga/visualization/out/hls_uniform_move_operation_N8_FRAC8/hls/syn/report/csynth_design_size.rpt:2)
+INFO: [HLS 214-186] Unrolling loop 'VITIS_LOOP_189_1' (../temp/uniform_move_hls.cpp:189:23) in function 'chebyshev_g' completely with a factor of 4 (../temp/uniform_move_hls.cpp:169:0)
+INFO: [HLS 214-186] Unrolling loop 'VITIS_LOOP_140_2' (../temp/uniform_move_hls.cpp:140:23) in function 'dense_energy_over_alpha' completely with a factor of 8 (../temp/uniform_move_hls.cpp:125:0)
+INFO: [HLS 214-186] Unrolling loop 'VITIS_LOOP_142_3' (../temp/uniform_move_hls.cpp:142:27) in function 'dense_energy_over_alpha' completely with a factor of 1 (../temp/uniform_move_hls.cpp:125:0)
+INFO: [HLS 214-186] Unrolling loop 'VITIS_LOOP_142_3' (../temp/uniform_move_hls.cpp:142:27) in function 'dense_energy_over_alpha' completely with a factor of 2 (../temp/uniform_move_hls.cpp:125:0)
+INFO: [HLS 214-186] Unrolling loop 'VITIS_LOOP_142_3' (../temp/uniform_move_hls.cpp:142:27) in function 'dense_energy_over_alpha' completely with a factor of 3 (../temp/uniform_move_hls.cpp:125:0)
+INFO: [HLS 214-186] Unrolling loop 'VITIS_LOOP_142_3' (../temp/uniform_move_hls.cpp:142:27) in function 'dense_energy_over_alpha' completely with a factor of 4 (../temp/uniform_move_hls.cpp:125:0)
+INFO: [HLS 214-186] Unrolling loop 'VITIS_LOOP_142_3' (../temp/uniform_move_hls.cpp:142:27) in function 'dense_energy_over_alpha' completely with a factor of 5 (../temp/uniform_move_hls.cpp:125:0)
+INFO: [HLS 214-186] Unrolling loop 'VITIS_LOOP_142_3' (../temp/uniform_move_hls.cpp:142:27) in function 'dense_energy_over_alpha' completely with a factor of 6 (../temp/uniform_move_hls.cpp:125:0)
+INFO: [HLS 214-186] Unrolling loop 'VITIS_LOOP_142_3' (../temp/uniform_move_hls.cpp:142:27) in function 'dense_energy_over_alpha' completely with a factor of 7 (../temp/uniform_move_hls.cpp:125:0)
+INFO: [HLS 214-186] Unrolling loop 'VITIS_LOOP_134_1' (../temp/uniform_move_hls.cpp:134:23) in function 'dense_energy_over_alpha' completely with a factor of 8 (../temp/uniform_move_hls.cpp:125:0)
+INFO: [HLS 214-186] Unrolling loop 'VITIS_LOOP_87_1' (../temp/uniform_move_hls.cpp:87:26) in function 'tree_sum<36>' completely with a factor of 18 (../temp/uniform_move_hls.cpp:76:0)
+INFO: [HLS 214-186] Unrolling loop 'VITIS_LOOP_87_1' (../temp/uniform_move_hls.cpp:87:26) in function 'tree_sum<18>' completely with a factor of 9 (../temp/uniform_move_hls.cpp:76:0)
+INFO: [HLS 214-186] Unrolling loop 'VITIS_LOOP_87_1' (../temp/uniform_move_hls.cpp:87:26) in function 'tree_sum<9>' completely with a factor of 5 (../temp/uniform_move_hls.cpp:76:0)
+INFO: [HLS 214-186] Unrolling loop 'VITIS_LOOP_87_1' (../temp/uniform_move_hls.cpp:87:26) in function 'tree_sum<5>' completely with a factor of 3 (../temp/uniform_move_hls.cpp:76:0)
+INFO: [HLS 214-186] Unrolling loop 'VITIS_LOOP_87_1' (../temp/uniform_move_hls.cpp:87:26) in function 'tree_sum<3>' completely with a factor of 2 (../temp/uniform_move_hls.cpp:76:0)
+INFO: [HLS 214-186] Unrolling loop 'VITIS_LOOP_87_1' (../temp/uniform_move_hls.cpp:87:26) in function 'tree_sum<2>' completely with a factor of 1 (../temp/uniform_move_hls.cpp:76:0)
+WARNING: [HLS 214-464] Skipping array undecay on variable length array 'agg.result'. (../temp/uniform_move_hls.cpp:125:0)
+WARNING: [HLS 214-464] Skipping array undecay on variable length array 'agg.result'. (../temp/uniform_move_hls.cpp:76:0)
+INFO: [HLS 214-248] Applying array_partition to 'y': Complete partitioning on dimension 1. (../temp/uniform_move_hls.cpp:84:17)
+INFO: [HLS 214-248] Applying array_partition to 'terms': Complete partitioning on dimension 1. (../temp/uniform_move_hls.cpp:130:13)
+INFO: [HLS 214-248] Applying array_partition to 'h': Complete partitioning on dimension 1. (../temp/uniform_move_hls.cpp:245:0)
+INFO: [HLS 214-248] Applying array_partition to 'J_edges': Complete partitioning on dimension 1. (../temp/uniform_move_hls.cpp:245:0)
+INFO: [HLS 200-111] Finished Compiling Optimization and Transform: CPU user time: 4.39 seconds. CPU system time: 0.45 seconds. Elapsed time: 7.96 seconds; current allocated memory: 268.992 MB.
+INFO: [HLS 200-111] Finished Checking Pragmas: CPU user time: 0.01 seconds. CPU system time: 0 seconds. Elapsed time: 0 seconds; current allocated memory: 268.992 MB.
+INFO: [HLS 200-10] Starting code transformations ...
+INFO: [HLS 200-111] Finished Standard Transforms: CPU user time: 0.14 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.19 seconds; current allocated memory: 272.828 MB.
+INFO: [HLS 200-10] Checking synthesizability ...
+INFO: [HLS 200-111] Finished Checking Synthesizability: CPU user time: 0.21 seconds. CPU system time: 0 seconds. Elapsed time: 0.23 seconds; current allocated memory: 278.055 MB.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock from (../temp/uniform_move_hls.cpp:126:1) to (../temp/uniform_move_hls.cpp:145:26) in function 'dense_energy_over_alpha'... converting 10 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock from (../temp/uniform_move_hls.cpp:170:1) to (../temp/uniform_move_hls.cpp:207:1) in function 'chebyshev_g'... converting 11 basic blocks.
+INFO: [XFORM 203-11] Balancing expressions in function 'chebyshev_g' (../temp/uniform_move_hls.cpp:173:1)...3 expression(s) balanced.
+INFO: [HLS 200-111] Finished Loop, function and other optimizations: CPU user time: 0.98 seconds. CPU system time: 0.01 seconds. Elapsed time: 1.01 seconds; current allocated memory: 305.906 MB.
+INFO: [HLS 200-111] Finished Architecture Synthesis: CPU user time: 1.63 seconds. CPU system time: 0.05 seconds. Elapsed time: 1.71 seconds; current allocated memory: 509.613 MB.
+INFO: [HLS 200-10] Starting hardware synthesis ...
+INFO: [HLS 200-10] Synthesizing 'uniform_move_operation' ...
+WARNING: [SYN 201-103] Legalizing function name 'tree_sum<1>' to 'tree_sum_1_s'.
+WARNING: [SYN 201-103] Legalizing function name 'tree_sum<2>' to 'tree_sum_2_s'.
+WARNING: [SYN 201-103] Legalizing function name 'tree_sum<3>' to 'tree_sum_3_s'.
+WARNING: [SYN 201-103] Legalizing function name 'tree_sum<5>' to 'tree_sum_5_s'.
+WARNING: [SYN 201-103] Legalizing function name 'tree_sum<9>' to 'tree_sum_9_s'.
+WARNING: [SYN 201-103] Legalizing function name 'tree_sum<18>' to 'tree_sum_18_s'.
+WARNING: [SYN 201-103] Legalizing function name 'tree_sum<36>' to 'tree_sum_36_s'.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'field_delta_term' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.4 seconds. CPU system time: 0.03 seconds. Elapsed time: 0.48 seconds; current allocated memory: 513.594 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.01 seconds. CPU system time: 0 seconds. Elapsed time: 0.02 seconds; current allocated memory: 513.594 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'edge_index' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.03 seconds. CPU system time: 0 seconds. Elapsed time: 0.04 seconds; current allocated memory: 514.730 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.01 seconds. CPU system time: 0 seconds. Elapsed time: 0.03 seconds; current allocated memory: 514.730 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'pair_delta_term' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.02 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.03 seconds; current allocated memory: 514.730 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.01 seconds. CPU system time: 0 seconds. Elapsed time: 0.02 seconds; current allocated memory: 514.730 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'tree_sum_1_s' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.01 seconds. CPU system time: 0 seconds. Elapsed time: 0.03 seconds; current allocated memory: 514.730 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.01 seconds. CPU system time: 0 seconds. Elapsed time: 0.02 seconds; current allocated memory: 514.730 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'tree_sum_2_s' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.02 seconds. CPU system time: 0 seconds. Elapsed time: 0.03 seconds; current allocated memory: 514.730 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.01 seconds. CPU system time: 0 seconds. Elapsed time: 0.05 seconds; current allocated memory: 514.730 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'tree_sum_3_s' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.01 seconds. CPU system time: 0 seconds. Elapsed time: 0.02 seconds; current allocated memory: 514.730 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0 seconds. CPU system time: 0 seconds. Elapsed time: 0.02 seconds; current allocated memory: 514.730 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'tree_sum_5_s' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.02 seconds. CPU system time: 0 seconds. Elapsed time: 0.03 seconds; current allocated memory: 515.762 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.01 seconds. CPU system time: 0 seconds. Elapsed time: 0.03 seconds; current allocated memory: 515.762 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'tree_sum_9_s' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.03 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.04 seconds; current allocated memory: 516.250 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.01 seconds. CPU system time: 0 seconds. Elapsed time: 0.02 seconds; current allocated memory: 516.250 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'tree_sum_18_s' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.03 seconds. CPU system time: 0 seconds. Elapsed time: 0.06 seconds; current allocated memory: 517.266 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.01 seconds. CPU system time: 0 seconds. Elapsed time: 0.03 seconds; current allocated memory: 517.266 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'tree_sum_36_s' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.08 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.1 seconds; current allocated memory: 519.359 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.03 seconds. CPU system time: 0 seconds. Elapsed time: 0.05 seconds; current allocated memory: 519.359 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'dense_energy_over_alpha' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 83 seconds. CPU system time: 0.08 seconds. Elapsed time: 83.38 seconds; current allocated memory: 748.512 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 1.1 seconds. CPU system time: 0.02 seconds. Elapsed time: 1.38 seconds; current allocated memory: 748.512 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'positive_part' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 1.63 seconds. CPU system time: 0.02 seconds. Elapsed time: 2.08 seconds; current allocated memory: 748.512 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0 seconds. CPU system time: 0 seconds. Elapsed time: 0.02 seconds; current allocated memory: 748.512 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'chebyshev_g' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.06 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.08 seconds; current allocated memory: 748.512 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.02 seconds. CPU system time: 0 seconds. Elapsed time: 0.04 seconds; current allocated memory: 748.512 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'uniform_move_operation' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.04 seconds. CPU system time: 0 seconds. Elapsed time: 0.07 seconds; current allocated memory: 748.512 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.03 seconds. CPU system time: 0 seconds. Elapsed time: 0.04 seconds; current allocated memory: 748.512 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'field_delta_term' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-100] Finished creating RTL model for 'field_delta_term'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.06 seconds. CPU system time: 0 seconds. Elapsed time: 0.1 seconds; current allocated memory: 748.512 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'edge_index' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-100] Generating core module 'mul_4ns_3ns_7_1_1': 1 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'edge_index'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.05 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.11 seconds; current allocated memory: 748.512 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'pair_delta_term' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-100] Finished creating RTL model for 'pair_delta_term'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.03 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.09 seconds; current allocated memory: 748.512 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'tree_sum_1_s' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-100] Finished creating RTL model for 'tree_sum_1_s'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.04 seconds. CPU system time: 0 seconds. Elapsed time: 0.1 seconds; current allocated memory: 748.512 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'tree_sum_2_s' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-100] Finished creating RTL model for 'tree_sum_2_s'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.02 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.08 seconds; current allocated memory: 748.512 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'tree_sum_3_s' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-100] Finished creating RTL model for 'tree_sum_3_s'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.03 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.1 seconds; current allocated memory: 748.512 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'tree_sum_5_s' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-100] Finished creating RTL model for 'tree_sum_5_s'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.04 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.09 seconds; current allocated memory: 748.512 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'tree_sum_9_s' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-100] Finished creating RTL model for 'tree_sum_9_s'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.04 seconds. CPU system time: 0 seconds. Elapsed time: 0.09 seconds; current allocated memory: 748.512 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'tree_sum_18_s' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-100] Finished creating RTL model for 'tree_sum_18_s'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.06 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.12 seconds; current allocated memory: 748.512 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'tree_sum_36_s' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-100] Finished creating RTL model for 'tree_sum_36_s'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.08 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.16 seconds; current allocated memory: 748.512 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'dense_energy_over_alpha' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-100] Generating core module 'sparsemux_57_5_9_1_1': 28 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'dense_energy_over_alpha'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 5.21 seconds. CPU system time: 0.01 seconds. Elapsed time: 5.32 seconds; current allocated memory: 748.512 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'positive_part' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-100] Finished creating RTL model for 'positive_part'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 3.14 seconds. CPU system time: 0.14 seconds. Elapsed time: 4.11 seconds; current allocated memory: 844.973 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'chebyshev_g' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-100] Generating core module 'mul_32ns_37ns_68_2_1': 1 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'mul_40s_40s_80_2_1': 1 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'mul_77s_34ns_110_5_1': 1 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'mul_77s_40s_117_5_1': 1 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'sparsemux_9_3_32_1_1': 1 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'chebyshev_g'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.04 seconds. CPU system time: 0 seconds. Elapsed time: 0.12 seconds; current allocated memory: 845.172 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'uniform_move_operation' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/h_0' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/h_1' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/h_2' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/h_3' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/h_4' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/h_5' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/h_6' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/h_7' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/J_edges_0' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/J_edges_1' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/J_edges_2' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/J_edges_3' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/J_edges_4' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/J_edges_5' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/J_edges_6' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/J_edges_7' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/J_edges_8' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/J_edges_9' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/J_edges_10' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/J_edges_11' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/J_edges_12' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/J_edges_13' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/J_edges_14' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/J_edges_15' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/J_edges_16' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/J_edges_17' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/J_edges_18' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/J_edges_19' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/J_edges_20' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/J_edges_21' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/J_edges_22' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/J_edges_23' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/J_edges_24' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/J_edges_25' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/J_edges_26' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/J_edges_27' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/new_spins' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/old_energy' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/new_energy' to 'ap_none'.
+WARNING: [RTGEN 206-101] Port 'new_energy' with mode 'ap_none' may require an associated data valid signal to correctly communicate with other blocks or a test bench; automatic C/RTL co-simulation may not be able to verify such a port.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/delta_x' to 'ap_none'.
+WARNING: [RTGEN 206-101] Port 'delta_x' with mode 'ap_none' may require an associated data valid signal to correctly communicate with other blocks or a test bench; automatic C/RTL co-simulation may not be able to verify such a port.
+INFO: [RTGEN 206-500] Setting interface mode on port 'uniform_move_operation/accept_prob' to 'ap_none'.
+WARNING: [RTGEN 206-101] Port 'accept_prob' with mode 'ap_none' may require an associated data valid signal to correctly communicate with other blocks or a test bench; automatic C/RTL co-simulation may not be able to verify such a port.
+INFO: [RTGEN 206-500] Setting interface mode on function 'uniform_move_operation' to 'ap_ctrl_none'.
+INFO: [RTGEN 206-100] Finished creating RTL model for 'uniform_move_operation'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.09 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.18 seconds; current allocated memory: 850.969 MB.
+INFO: [HLS 200-111] Finished Generating all RTL models: CPU user time: 0.29 seconds. CPU system time: 0.06 seconds. Elapsed time: 1.09 seconds; current allocated memory: 853.574 MB.
+INFO: [HLS 200-2225] Wrote inferred directives to file /u/m/mincudin/Documents/fpga/visualization/out/hls_uniform_move_operation_N8_FRAC8/hls/syn/inferred_directives.ini
+INFO: [HLS 200-111] Finished Updating report files: CPU user time: 0.7 seconds. CPU system time: 0.08 seconds. Elapsed time: 1.27 seconds; current allocated memory: 865.742 MB.
+INFO: [VHDL 208-304] Generating VHDL RTL for uniform_move_operation.
+INFO: [VLOG 209-307] Generating Verilog RTL for uniform_move_operation.
+INFO: [HLS 200-789] **** Estimated Fmax: 412.36 MHz
+INFO: [HLS 200-2161] Finished Command csynth_design Elapsed time: 00:02:03; Allocated memory: 627.074 MB.
+INFO: [HLS 200-1510] Running: export_design -format ip 
+INFO: [HLS 200-1915] Writing HLS config ini file /u/m/mincudin/Documents/fpga/visualization/out/hls_uniform_move_operation_N8_FRAC8/hls_config.cfg
+WARNING: [HLS 200-483] The 'config_export -format ip' command is deprecated and will be removed in a future release. Use 'config_export -format ip_catalog' as its replacement.
+INFO: [IMPL 213-8] Exporting RTL as a Vivado IP.
+
+****** Vivado v2025.2 (64-bit)
+  **** SW Build 6299465 on Fri Nov 14 12:34:56 MST 2025
+  **** IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+  **** SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+  **** Start of session at: Fri May 29 07:41:03 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source run_ippack.tcl -notrace
+INFO: calling package_hls_ip ip_types=vitis sysgen json_file=/u/m/mincudin/Documents/fpga/visualization/out/hls_uniform_move_operation_N8_FRAC8/hls/hls_data.json outdir=/u/m/mincudin/Documents/fpga/visualization/out/hls_uniform_move_operation_N8_FRAC8/hls/impl/ip srcdir=/u/m/mincudin/Documents/fpga/visualization/out/hls_uniform_move_operation_N8_FRAC8/hls ippack_options_dict= ippack_options_dict=
+INFO: Copied 1 ipmisc file(s) to /u/m/mincudin/Documents/fpga/visualization/out/hls_uniform_move_operation_N8_FRAC8/hls/impl/ip/misc
+INFO: Copied 21 verilog file(s) to /u/m/mincudin/Documents/fpga/visualization/out/hls_uniform_move_operation_N8_FRAC8/hls/impl/ip/hdl/verilog
+INFO: Copied 21 vhdl file(s) to /u/m/mincudin/Documents/fpga/visualization/out/hls_uniform_move_operation_N8_FRAC8/hls/impl/ip/hdl/vhdl
+WARNING: [Common 17-1496] Vivado tclapp support version doesn't have install/uninstall hooks. Please update support using ::tclapp::update_support command.
+WARNING: [Common 17-1496] Vivado tclapp support version doesn't have install/uninstall hooks. Please update support using ::tclapp::update_support command.
+WARNING: [Common 17-1496] Vivado tclapp support version doesn't have install/uninstall hooks. Please update support using ::tclapp::update_support command.
+WARNING: [Common 17-1496] Vivado tclapp support version doesn't have install/uninstall hooks. Please update support using ::tclapp::update_support command.
+WARNING: [Common 17-1496] Vivado tclapp support version doesn't have install/uninstall hooks. Please update support using ::tclapp::update_support command.
+WARNING: [Common 17-1496] Vivado tclapp support version doesn't have install/uninstall hooks. Please update support using ::tclapp::update_support command.
+INFO: Import ports from HDL: /u/m/mincudin/Documents/fpga/visualization/out/hls_uniform_move_operation_N8_FRAC8/hls/impl/ip/hdl/vhdl/uniform_move_operation.vhd (uniform_move_operation)
+INFO: Add clock interface ap_clk
+INFO: Add reset interface ap_rst
+INFO: Add data interface h_0
+INFO: Add data interface h_1
+INFO: Add data interface h_2
+INFO: Add data interface h_3
+INFO: Add data interface h_4
+INFO: Add data interface h_5
+INFO: Add data interface h_6
+INFO: Add data interface h_7
+INFO: Add data interface J_edges_0
+INFO: Add data interface J_edges_1
+INFO: Add data interface J_edges_2
+INFO: Add data interface J_edges_3
+INFO: Add data interface J_edges_4
+INFO: Add data interface J_edges_5
+INFO: Add data interface J_edges_6
+INFO: Add data interface J_edges_7
+INFO: Add data interface J_edges_8
+INFO: Add data interface J_edges_9
+INFO: Add data interface J_edges_10
+INFO: Add data interface J_edges_11
+INFO: Add data interface J_edges_12
+INFO: Add data interface J_edges_13
+INFO: Add data interface J_edges_14
+INFO: Add data interface J_edges_15
+INFO: Add data interface J_edges_16
+INFO: Add data interface J_edges_17
+INFO: Add data interface J_edges_18
+INFO: Add data interface J_edges_19
+INFO: Add data interface J_edges_20
+INFO: Add data interface J_edges_21
+INFO: Add data interface J_edges_22
+INFO: Add data interface J_edges_23
+INFO: Add data interface J_edges_24
+INFO: Add data interface J_edges_25
+INFO: Add data interface J_edges_26
+INFO: Add data interface J_edges_27
+INFO: Add data interface new_spins
+INFO: Add data interface old_energy
+INFO: Add data interface new_energy
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/scratch/mincudin/xlnx/2025.2/data/ip'.
+INFO: Add data interface delta_x
+INFO: Add data interface accept_prob
+INFO: Calling post_process_vitis to specialize IP
+INFO: Calling post_process_sysgen to specialize IP
+Generating sysgen info xml from json file
+INFO: Created IP /u/m/mincudin/Documents/fpga/visualization/out/hls_uniform_move_operation_N8_FRAC8/hls/impl/ip/component.xml
+INFO: Created IP archive /u/m/mincudin/Documents/fpga/visualization/out/hls_uniform_move_operation_N8_FRAC8/hls/impl/ip/xilinx_com_hls_uniform_move_operation_1_0.zip
+INFO: [Common 17-206] Exiting Vivado at Fri May 29 07:41:10 2026...
+INFO: [HLS 200-802] Generated output file hls_uniform_move_operation_N8_FRAC8/hls/impl/export.zip
+INFO: [HLS 200-2161] Finished Command export_design Elapsed time: 00:00:11; Allocated memory: 20.371 MB.
+INFO: [HLS 200-112] Total CPU user time: 130.26 seconds. Total CPU system time: 4.41 seconds. Total elapsed time: 136.38 seconds; peak allocated memory: 886.113 MB.
+INFO: [vitis-run 60-791] Total elapsed time: 0h 2m 17s
+INFO: [vitis-run 60-1662] Stopping dispatch session having empty uuid.
+Copied hls_local_spin_flip_operation_N8_FRAC8/hls/impl/verilog -> visualization/hls_local_spin_flip_operation_N8_FRAC8_verilog
+Copied hls_uniform_move_operation_N8_FRAC8/hls/impl/verilog -> visualization/hls_uniform_move_operation_N8_FRAC8_verilog
+Done.
+Temporary sources: visualization/temp
+HLS outputs:       visualization/out
+Verilog folders:   visualization/*_verilog

@@ -5,7 +5,7 @@ echo "Sourcing Vitis... (note you need set +u because the following script needs
 source /scratch/mincudin/xlnx/2025.2/Vitis/settings64.sh
 
 export HLS_PART="${HLS_PART:-xcvu19p-fsva3824-2-e}"
-export CLOCK_NS="${CLOCK_NS:-3.333}"
+export CLOCK_NS="${CLOCK_NS:-3.000}"
 
 # Parameters used to generate src/exp_cheby.hpp for each N.
 export BETA_VAL="${BETA_VAL:-4}"
@@ -22,12 +22,13 @@ echo "From now on python3.11 + numpy + scipy is required."
 
 echo "top,source,n,frac,beta,degree,eps_op,status,report,log" > reports/synthesis_status.csv
 
-for n in 8 16 32; do
+#for n in 8 16 32; do
+for n in 8 16 32 64; do
     frac="$(python3.11 - <<PY
 import math
 n = ${n}
 eps = float("${EPS_DISCR}")
-print(math.ceil(3.5 * math.log2(n / eps)))
+print(math.ceil(3.5 * math.log2(n) - math.log2(eps)))
 PY
 )"
     export SK_N_VAL="${n}"
@@ -63,10 +64,27 @@ PY
         echo "Log: ${log}"
         echo "============================================================"
 
-        vitis-run --mode hls --tcl scripts/run_synthesis_move.tcl 2>&1
+        if vitis-run --mode hls --tcl scripts/run_synthesis_move.tcl 2>&1 | tee "${log}"; then
+            comp="hls_${TOP_NAME}_N${SK_N_VAL}_FRAC${FRAC_VAL}"
+            rpt="$(find "${comp}" -name "*csynth*.rpt" | head -1 || true)"
+
+            if [[ -n "${rpt}" && -f "${rpt}" ]]; then
+                out_rpt="reports/${TOP_NAME}_N${SK_N_VAL}_FRAC${FRAC_VAL}_csynth.rpt"
+                cp "${rpt}" "${out_rpt}"
+                echo "${TOP_NAME},${SRC_FILE},${SK_N_VAL},${FRAC_VAL},${BETA_VAL},${DEGREE_VAL},${EPS_OP},ok,${out_rpt},${log}" >> reports/synthesis_status.csv
+                echo "OK: copied report to ${out_rpt}"
+            else
+                echo "${TOP_NAME},${SRC_FILE},${SK_N_VAL},${FRAC_VAL},${BETA_VAL},${DEGREE_VAL},${EPS_OP},no_report,,${log}" >> reports/synthesis_status.csv
+                echo "WARNING: synthesis succeeded but no csynth report found."
+            fi
+        else
+            echo "${TOP_NAME},${SRC_FILE},${SK_N_VAL},${FRAC_VAL},${BETA_VAL},${DEGREE_VAL},${EPS_OP},failed,,${log}" >> reports/synthesis_status.csv
+            echo "FAILED: ${TOP_NAME}, N=${SK_N_VAL}. Continuing."
+        fi
 
         echo
     done
 done
 
-echo "Done."
+echo "Done. Status file:"
+echo "reports/synthesis_status.csv"
