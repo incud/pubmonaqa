@@ -1,4 +1,4 @@
-from monaqa2.data.single_step_cpu import cpu_time_per_local_move, cpu_time_per_uniform_move
+from monaqa2.data.single_step_classical import cpu_time_per_local_move, cpu_time_per_uniform_move
 import numpy as np
 
 

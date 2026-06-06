@@ -40,4 +40,3 @@ QUANTUM_RUNTIME_REFLECTION = MONAQA2_PARENT / "data/quantum_runtime_reflection.p
 
 QUANTUM_RUNTIME_ACCEPT_PATH = MONAQA2_PARENT / "data/quantum_runtime_accept_path.pkl"
 
-TIMING_CPU_FOLDER = MONAQA2_PARENT / "timing_estimation/cpu/results_41891950"
