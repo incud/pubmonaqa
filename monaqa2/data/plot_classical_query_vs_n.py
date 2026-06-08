@@ -5,7 +5,7 @@ import numpy as np
 
 from monaqa2.data.filename import CLASSICAL_QUERY_FILE, SPECTRAL_GAP_FILE
 from monaqa2.data.spectral_gap import get_spectral_gap_fit_by_n
-from monaqa2.data.classical_query import get_classical_query_stats, get_classical_query_fit
+from monaqa2.data.classical_query import get_classical_query_stats, get_classical_query_fit_by_n
 
 
 # PROPOSALS = ["local1", "local2", "local3", "uniform", "qemc", "layden"]
@@ -118,7 +118,7 @@ def plot_classical_queries_vs_n(
         ax.scatter(n_vals, center, s=36, color=color, edgecolors="none", alpha=0.95, zorder=3)
 
         try:
-            A_q, b_q = get_classical_query_fit(proposal=proposal, a=a, q0_mode=q0_mode, epsilon=epsilon, beta=beta, in_file=classical_query_file, statistic=statistic, n_min=n_fit_min, n_max=n_fit_max)
+            A_q, b_q = get_classical_query_fit_by_n(proposal=proposal, a=a, q0_mode=q0_mode, epsilon=epsilon, beta=beta, in_file=classical_query_file, statistic=statistic, n_min=n_fit_min, n_max=n_fit_max)
         except ValueError:
             continue
 

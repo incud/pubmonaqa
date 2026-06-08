@@ -146,3 +146,5 @@ def plot_spectral_gap_vs_n(
     ax.legend(handles, labels, frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.18), ncol=1, borderaxespad=0.0, handlelength=2.4)
 
     return fig, ax
+
+

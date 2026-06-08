@@ -1,3 +1,5 @@
+from functools import cache
+
 from monaqa2.data.filename import SPECTRAL_GAP_FILE
 from monaqa2.data.hyperparams import load_best_qemc_gamma_t
 from monaqa2.data.instances import load_instances
@@ -91,6 +93,7 @@ def load_spectral_gap(proposal: str, a: int | float, in_file: Path = SPECTRAL_GA
     return df.loc[mask, ["n", "idx", "beta", "delta"]].reset_index(drop=True)
 
 
+@cache
 def get_spectral_gap_stats(
     proposal: str,
     a: int | float,

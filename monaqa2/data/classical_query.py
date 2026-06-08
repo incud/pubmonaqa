@@ -11,6 +11,7 @@ from monaqa2.mcmc.search import search_monotone
 import numpy as np
 import pandas as pd
 from scipy.sparse.csgraph import minimum_spanning_tree
+from functools import cache
 
 
 def connectivity_bottleneck(X: np.ndarray) -> float:
@@ -381,6 +382,7 @@ def load_classical_queries(
     return out.reset_index(drop=True)
 
 
+@cache
 def get_classical_query_stats(
     proposal: str,
     a: int | float,
@@ -408,7 +410,7 @@ def get_classical_query_stats(
     return grouped_statistics(df=df, value_col="queries", group_cols=("n", "beta"), statistic=statistic, positive_only=True, extra_cols={"epsilon": float(epsilon), "q0_mode": q0_mode})
 
 
-def get_classical_query_fit(
+def get_classical_query_fit_by_n(
     proposal: str,
     a: int | float,
     q0_mode: str,

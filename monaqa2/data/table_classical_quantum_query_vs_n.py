@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from monaqa2.data.filename import CLASSICAL_QUERY_FILE, QUANTUM_QUERY_FILE
-from monaqa2.data.classical_query import get_classical_query_stats, get_classical_query_fit
+from monaqa2.data.classical_query import get_classical_query_stats, get_classical_query_fit_by_n
 from monaqa2.data.quantum_query import get_quantum_query_stats, get_quantum_query_fit
 
 
@@ -53,7 +53,7 @@ def get_classical_quantum_query_vs_n_table(
         classical_table = _filter_stats_table(classical_table, beta=beta, min_count=min_count)
 
         try:
-            A, b = get_classical_query_fit(proposal=move, a=a, q0_mode=q0_mode, epsilon=epsilon, beta=beta, in_file=classical_query_file, statistic=statistic, n_min=n_fit_min, n_max=n_fit_max, only_ok=only_ok)
+            A, b = get_classical_query_fit_by_n(proposal=move, a=a, q0_mode=q0_mode, epsilon=epsilon, beta=beta, in_file=classical_query_file, statistic=statistic, n_min=n_fit_min, n_max=n_fit_max, only_ok=only_ok)
         except ValueError:
             A, b = np.nan, np.nan
 

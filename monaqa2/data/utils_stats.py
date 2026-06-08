@@ -119,9 +119,61 @@ def filter_stats_table(
     return out.loc[mask].copy()
 
 
+def _fit_exponential_from_filtered_stats(table: pd.DataFrame, sign: int) -> tuple[float, float]:
+    n = table["n"].to_numpy(dtype=float)
+    y = table["center"].to_numpy(dtype=float)
+
+    if y.size < 2:
+        raise ValueError("Need at least two positive points to fit.")
+
+    slope, log_A = np.polyfit(n, np.log(y), deg=1)
+    return float(np.exp(log_A)), float(sign * slope)
+
+
+def interpolate_exponential_from_stats(
+    table: pd.DataFrame,
+    beta: float,
+    n_min: int | None = None,
+    n_max: int | None = None,
+    sign: int = 1,
+) -> tuple[float, float]:
+    """
+    Interpolate the exponential fit y(n,beta)=A(beta)*exp(sign*b(beta)*n) when the requested beta is missing.
+
+    The method fits only the two closest bracketing beta values and linearly interpolates log(A) and b.
+    If beta lies outside the available range, it extrapolates from the two nearest endpoint beta values.
+    """
+    available = filter_stats_table(table, beta=None, n_min=n_min, n_max=n_max, center_positive=True)
+    beta_values = np.sort(available["beta"].astype(float).dropna().unique())
+
+    if beta_values.size < 2:
+        raise ValueError(f"Cannot interpolate fit for beta={beta}; fewer than two beta values are available.")
+
+    j = int(np.searchsorted(beta_values, float(beta)))
+
+    if j == 0:
+        beta_0, beta_1 = beta_values[0], beta_values[1]
+    elif j == beta_values.size:
+        beta_0, beta_1 = beta_values[-2], beta_values[-1]
+    else:
+        beta_0, beta_1 = beta_values[j - 1], beta_values[j]
+
+    table_0 = filter_stats_table(available, beta=beta_0, n_min=None, n_max=None, center_positive=True)
+    table_1 = filter_stats_table(available, beta=beta_1, n_min=None, n_max=None, center_positive=True)
+
+    A_0, b_0 = _fit_exponential_from_filtered_stats(table_0, sign)
+    A_1, b_1 = _fit_exponential_from_filtered_stats(table_1, sign)
+
+    weight = (float(beta) - beta_0) / (beta_1 - beta_0)
+    log_A = (1.0 - weight) * np.log(A_0) + weight * np.log(A_1)
+    b = (1.0 - weight) * b_0 + weight * b_1
+
+    return float(np.exp(log_A)), float(b)
+
+
 def fit_exponential_from_stats(
     table: pd.DataFrame,
-    beta: float | None = None,
+    beta: float,
     n_min: int | None = None,
     n_max: int | None = None,
     sign: int = 1,
@@ -129,7 +181,7 @@ def fit_exponential_from_stats(
     """
     Fit y(n) = A * exp(sign * b * n) from a statistics table.
 
-    Use sign=1 for growing quantities such as query counts. Use sign=-1 for decaying quantities such as spectral gaps. The returned b is always the coefficient in the requested model y(n)=A*exp(sign*b*n).
+    Use sign=1 for growing quantities such as query counts. Use sign=-1 for decaying quantities such as spectral gaps. The returned b is always the coefficient in the requested model y(n)=A*exp(sign*b*n). If the requested beta is missing, the method interpolates log(A) and b from the two closest available beta values.
 
     :param table: Statistics table with columns n and center.
     :param beta: Optional beta value to select before fitting.
@@ -141,16 +193,9 @@ def fit_exponential_from_stats(
     if sign not in (-1, 1):
         raise ValueError("sign must be either 1 or -1")
 
-    table = filter_stats_table(table, beta=beta, n_min=n_min, n_max=n_max, center_positive=True)
+    filtered = filter_stats_table(table, beta=beta, n_min=n_min, n_max=n_max, center_positive=True)
 
-    if table.empty:
-        raise ValueError(f"No data found for beta={beta} in n range [{n_min}, {n_max}].")
+    if filtered.empty:
+        return interpolate_exponential_from_stats(table, beta=beta, n_min=n_min, n_max=n_max, sign=sign)
 
-    n = table["n"].to_numpy(dtype=float)
-    y = table["center"].to_numpy(dtype=float)
-
-    if y.size < 2:
-        raise ValueError("Need at least two positive points to fit.")
-
-    slope, log_A = np.polyfit(n, np.log(y), deg=1)
-    return float(np.exp(log_A)), float(sign * slope)
+    return _fit_exponential_from_filtered_stats(filtered, sign)
