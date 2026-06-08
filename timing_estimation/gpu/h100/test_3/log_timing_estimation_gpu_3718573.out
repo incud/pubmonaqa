@@ -1,0 +1,42 @@
+job=3718573 host=u24-chaihm0-633 src=timing_estimation_gpu.cu
+GPU 0: NVIDIA H100 NVL (UUID: GPU-0efe7b13-9836-34ce-79ec-1a6b1439563a)
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2025 NVIDIA Corporation
+Built on Tue_Dec_16_07:23:41_PM_PST_2025
+Cuda compilation tools, release 13.1, V13.1.115
+=== N=64 ===
+SK_N 64
+N_MODELS 1
+CHAINS_PER_MODEL 1
+N_CHAINS 1
+N_STEPS 1000000
+RNG_POOL_SIZE 1048576
+local_seconds  0.926223
+uniform_seconds 2.05181
+=== N=128 ===
+SK_N 128
+N_MODELS 1
+CHAINS_PER_MODEL 1
+N_CHAINS 1
+N_STEPS 1000000
+RNG_POOL_SIZE 1048576
+local_seconds  0.935248
+uniform_seconds 3.20182
+=== N=256 ===
+SK_N 256
+N_MODELS 1
+CHAINS_PER_MODEL 1
+N_CHAINS 1
+N_STEPS 1000000
+RNG_POOL_SIZE 1048576
+local_seconds  1.11772
+uniform_seconds 8.69733
+=== N=512 ===
+SK_N 512
+N_MODELS 1
+CHAINS_PER_MODEL 1
+N_CHAINS 1
+N_STEPS 1000000
+RNG_POOL_SIZE 1048576
+local_seconds  1.54707
+uniform_seconds 59.3601
