@@ -10,7 +10,7 @@ N_INSTANCES = 10
 OUT_DIR = Path("ising_inputs")
 OUT_DIR.mkdir(exist_ok=True)
 
-for n in range(5, 25 + 1):
+for n in range(5, 30 + 1):
     for j in range(N_INSTANCES):
         model = RandomIsingModel(n, seed=n * N_INSTANCES + j)
 

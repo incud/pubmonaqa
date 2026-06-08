@@ -26,8 +26,15 @@ g++ -std=c++20 -O3 -march=native -mtune=native -ffast-math -fno-math-errno -funr
 mkdir -p variance_outputs
 
 for idx in $(seq 0 9); do
-    for n in $(seq 5 25); do
+    for n in $(seq 5 30); do
+        out="variance_outputs/variance_n${n}_idx${idx}.txt"
+
+        if [ -f "$out" ]; then
+            echo "skipping n=$n idx=$idx because $out already exists"
+            continue
+        fi
+
         echo "running n=$n idx=$idx"
-        srun --ntasks=1 --cpus-per-task=1 ./estimation_variance_new.x "$n" "ising_inputs/model_n${n}_idx${idx}.txt" > "variance_outputs/variance_n${n}_idx${idx}.txt"
+        srun --ntasks=1 --cpus-per-task=1 ./estimation_variance_new.x "$n" "ising_inputs/model_n${n}_idx${idx}.txt" > "$out"
     done
 done
