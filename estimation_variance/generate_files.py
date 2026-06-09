@@ -26,3 +26,24 @@ for n in range(5, 30 + 1):
             for i in range(n):
                 for k in range(i + 1, n):
                     f.write(f"{J[i, k]:.17g}\n")
+
+
+OTHER_N_INSTANCES = 90
+
+for n in range(5, 30 + 1):
+    for j in range(N_INSTANCES, N_INSTANCES+OTHER_N_INSTANCES):
+        model = RandomIsingModel(n, seed=123456789 + n * N_INSTANCES + j)
+
+        h = np.asarray(model.h_rescaled, dtype=float)
+        J = np.asarray(model.J_rescaled, dtype=float)
+
+        filename = OUT_DIR / f"model_n{n}_idx{j}.txt"
+
+        with open(filename, "w") as f:
+            for i in range(n):
+                f.write(f"{h[i]:.17g}\n")
+
+            for i in range(n):
+                for k in range(i + 1, n):
+                    f.write(f"{J[i, k]:.17g}\n")
+    
