@@ -133,8 +133,8 @@ int main(int argc, char** argv) {
 
     n = stoi(argv[1]);
 
-    if(n <= 0 || n > 25) {
-        cerr << "this exact streaming code allows 1 <= n <= 25\n";
+    if(n <= 0 || n > 30) {
+        cerr << "this exact streaming code allows 1 <= n <= 30\n";
         return 1;
     }
 
