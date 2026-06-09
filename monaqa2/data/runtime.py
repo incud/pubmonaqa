@@ -35,6 +35,7 @@ def fpga_uniform_step(n: int | float) -> float:
 
 
 def rotated_surface_code_distance(spacetime_volume: int, physical_error_rate: float) -> int:
+    spacetime_volume = int(spacetime_volume)
     assert spacetime_volume > 0
     assert 0 < physical_error_rate < 1e-2
 
@@ -48,30 +49,35 @@ def rotated_surface_code_distance(spacetime_volume: int, physical_error_rate: fl
 
 
 def rotated_surface_code_time(logical_time: int, logical_space: int, physical_operation_time: float, physical_measurement_time: float, physical_error_rate: float) -> float:
+    logical_time = int(logical_time)
+    logical_space = int(logical_space)
     spacetime_volume = logical_time * logical_space
     d = rotated_surface_code_distance(spacetime_volume, physical_error_rate)
     logical_cycle_time = d * (4 * physical_operation_time + physical_measurement_time)
     return logical_time * logical_cycle_time
 
 
-def _validate(**kwargs):
-    for name, value in kwargs.items():
-        assert np.isfinite(value) and value > 0, f"Argument {name} must be finite and positive, got {value}"
+def _calculate_auxiliary_quantum_circuit_vars(n: int, eps: float, beta: float) -> tuple[int, float, int, float, int, float, float, float]:
+    n = max(2, int(n))
+    eps = np.clip(float(eps), np.finfo(float).tiny, 1.0 - np.finfo(float).eps)
+    beta_eff = max(float(beta), 1.0)
+
+    ell_n = int(np.ceil(np.log2(n)))
+    ell_eps = np.log2(1.0 / eps)
+    ell_2n = int(np.ceil(np.log2(2 * n)))
+    S = 1.0 + np.log2(n) + ell_eps
+    ell_S = int(np.ceil(np.log2(1.0 + 3.5 * S)))
+    alpha = 2.0 * n**1.5 / np.sqrt(np.pi)
+
+    m_arg = beta_eff * alpha / (2.0 * np.log(1.0 / eps))
+    m = max(2.0, np.log2(max(m_arg, 1.0)))
+    ell_m = np.log2(m)
+
+    return ell_n, ell_eps, ell_2n, S, ell_S, alpha, m, ell_m
 
 
 def quantum_walk_local_circuit(n: int, eps: float, beta: float) -> tuple[int, int]:
-    ell_n = int(np.ceil(np.log2(n)))
-    ell_eps = np.log2(1 / eps)
-    ell_2n = int(np.ceil(np.log2(2 * n)))
-    S = 1 + np.log2(n) + ell_eps
-    ell_S = int(np.ceil(np.log2(1 + 3.5 * S)))
-    alpha = 2 * n ** 1.5 / np.sqrt(np.pi)
-    m = np.log2(beta * alpha / (2 * np.log(1 / eps)))
-    if not np.isfinite(m) or m < 2.0:
-        m = 2.0
-    _validate(n=n, eps=eps, beta=max(beta, 1), ell_n=ell_n, ell_eps=ell_eps, ell_2n=ell_2n, S=S, ell_S=ell_S, alpha=alpha, m=m)
-    ell_m = np.log2(m)
-    _validate(ell_m=ell_m)
+    ell_n, ell_eps, ell_2n, S, ell_S, alpha, m, ell_m = _calculate_auxiliary_quantum_circuit_vars(n, eps, beta)
 
     proposal_depth, proposal_qubits = 13 * ell_n + 15, 2 * n
     boltz_depth = int(np.ceil(162 * ell_eps * ell_S + 54 * ell_S - 93 * ell_eps + 24 * ell_2n + 49 * S + 28 * ell_m - 12))
@@ -85,18 +91,7 @@ def quantum_walk_local_circuit(n: int, eps: float, beta: float) -> tuple[int, in
 
 
 def quantum_walk_uniform_circuit(n: int, eps: float, beta: float) -> tuple[int, int]:
-    ell_n = int(np.ceil(np.log2(n)))
-    ell_eps = np.log2(1 / eps)
-    ell_2n = int(np.ceil(np.log2(2 * n)))
-    S = 1 + np.log2(n) + ell_eps
-    ell_S = int(np.ceil(np.log2(1 + 3.5 * S)))
-    alpha = 2 * n ** 1.5 / np.sqrt(np.pi)
-    m = np.log2(beta * alpha / (2 * np.log(1 / eps)))
-    if not np.isfinite(m) or m < 2.0:
-        m = 2.0
-    _validate(n=n, eps=eps, beta=max(beta, 1), ell_n=ell_n, ell_eps=ell_eps, ell_2n=ell_2n, S=S, ell_S=ell_S, alpha=alpha, m=m)
-    ell_m = np.log2(m)
-    _validate(ell_m=ell_m)
+    ell_n, ell_eps, ell_2n, S, ell_S, alpha, m, ell_m = _calculate_auxiliary_quantum_circuit_vars(n, eps, beta)
 
     proposal_depth, proposal_qubits = 0, 2 * n
     boltz_depth = int(np.ceil(162 * ell_eps * ell_S + 54 * ell_S - 93 * ell_eps + 24 * ell_2n + 49 * S + 28 * ell_m - 12))
@@ -110,18 +105,7 @@ def quantum_walk_uniform_circuit(n: int, eps: float, beta: float) -> tuple[int, 
 
 
 def quantum_walk_qemc_circuit(n: int, eps: float, beta: float, num_trotter_steps: int = 50) -> tuple[int, int]:
-    ell_n = int(np.ceil(np.log2(n)))
-    ell_eps = np.log2(1 / eps)
-    ell_2n = int(np.ceil(np.log2(2 * n)))
-    S = 1 + np.log2(n) + ell_eps
-    ell_S = int(np.ceil(np.log2(1 + 3.5 * S)))
-    alpha = 2 * n ** 1.5 / np.sqrt(np.pi)
-    m = np.log2(beta * alpha / (2 * np.log(1 / eps)))
-    if not np.isfinite(m) or m < 2.0:
-        m = 2.0
-    _validate(n=n, eps=eps, beta=max(beta, 1), ell_n=ell_n, ell_eps=ell_eps, ell_2n=ell_2n, S=S, ell_S=ell_S, alpha=alpha, m=m)
-    ell_m = np.log2(m)
-    _validate(ell_m=ell_m)
+    ell_n, ell_eps, ell_2n, S, ell_S, alpha, m, ell_m = _calculate_auxiliary_quantum_circuit_vars(n, eps, beta)
 
     proposal_depth, proposal_qubits = 1 + num_trotter_steps * (n + 2), 2 * n
     boltz_depth = int(np.ceil(162 * ell_eps * ell_S + 54 * ell_S - 93 * ell_eps + 24 * ell_2n + 49 * S + 28 * ell_m - 12))

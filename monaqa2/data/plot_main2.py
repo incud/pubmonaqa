@@ -114,13 +114,6 @@ def plot_spectral_gap_vs_n(
         legend_handles[proposal] = fit_line
         legend_labels[proposal] = rf"{PROPOSAL_LABELS[proposal]}: fit ${A:.3f} \times \exp(-{b:.3f} n)$"
 
-    # Info about the scale size of the 
-    one_day = 24 * 60 * 60
-    one_year = 365.25 * one_day
-    ten_years = 10 * one_year
-    ax.axhline(one_day, color="black", linestyle=":", linewidth=1.5, alpha=0.85, zorder=0)
-    ax.axhline(ten_years, color="black", linestyle=":", linewidth=1.5, alpha=0.85, zorder=0)
-
     ax.set_yscale("log")
     ax.set_xlabel(r"$n$")
     ax.set_ylabel(r"Spectral gap $\delta$")
@@ -390,6 +383,14 @@ def plot_annealing_classical_queries_and_quantum_runtime_vs_n(
         quantum_handles[proposal] = quantum_line
         classical_labels[proposal] = rf"{PROPOSAL_LABELS[proposal]} classical runtime"
         quantum_labels[proposal] = rf"{PROPOSAL_LABELS[proposal]} quantum-walk runtime"
+
+    # Info about the scale size of the 
+    one_day = 24 * 60 * 60
+    one_year = 365.25 * one_day
+    ten_years = 10 * one_year
+    ax.axhline(one_day, color="black", linestyle=":", linewidth=1.5, alpha=0.85, zorder=0)
+    ax.axhline(ten_years, color="black", linestyle=":", linewidth=1.5, alpha=0.85, zorder=0)
+
 
     ax.set_yscale("log")
     ax.set_xlabel(r"$n$")
