@@ -24,19 +24,6 @@ BEST_HYPERPARAMS_QEMC_FILE = MONAQA2_PARENT / "data/best_hyperparams_qemc.hdf5"
 
 SPECTRAL_GAP_FILE = MONAQA2_PARENT / "data/spectral_gaps_merged.pkl"
 
-ANNEALING_SCHEDULE_FILE = MONAQA2_PARENT / "data/annealing_schedules.hdf5"
-
 CLASSICAL_QUERY_FILE = MONAQA2_PARENT / "data/classical_queries_merged.pkl"
 
-QUANTUM_QUERY_FILE = MONAQA2_PARENT / "data/quantum_queries.pkl"
-
-QUANTUM_RUNTIME_PROPOSAL_UNIFORM = MONAQA2_PARENT / "data/quantum_runtime_proposal_uniform.pkl"
-
-QUANTUM_RUNTIME_PROPOSAL_LOCAL = MONAQA2_PARENT / "data/quantum_runtime_proposal_local.pkl"
-
-QUANTUM_RUNTIME_PROPOSAL_QEMC = MONAQA2_PARENT / "data/quantum_runtime_proposal_qemc.pkl"
-
-QUANTUM_RUNTIME_REFLECTION = MONAQA2_PARENT / "data/quantum_runtime_reflection.pkl"
-
-QUANTUM_RUNTIME_ACCEPT_PATH = MONAQA2_PARENT / "data/quantum_runtime_accept_path.pkl"
-
+CACHE_PHASE_GAP_FACTOR_FILE = MONAQA2_PARENT / "data/cache_phase_gap_factor.npz"

@@ -1,5 +1,7 @@
 import numpy as np
-
+import mpmath as mp
+from monaqa2.data.utils_interpolation_cache import interpolation_cache
+import monaqa2.data.filename
 
 ALLOWED_DEVICES = {"cpu", "gpu", "fpga"}
 
@@ -69,6 +71,7 @@ def rotated_surface_code_time(logical_time: int | float, logical_space: int | fl
     d = rotated_surface_code_distance(spacetime_volume, physical_error_rate)
     logical_cycle_time = d * (4 * physical_operation_time + physical_measurement_time)
     return logical_time * logical_cycle_time
+
 
 def _calculate_auxiliary_quantum_circuit_vars(n: int | float, eps: float, beta: float) -> tuple[float, float, float, float, float, float, float, float]:
     n = max(2.0, float(n))
@@ -161,14 +164,19 @@ def get_annealing_time_classical_walk_qemc(n: int | float, vec_queries: list[flo
     return total_time
 
 
+
+@interpolation_cache(monaqa2.data.filename.CACHE_PHASE_GAP_FACTOR_FILE)
+def phase_gap_factor(spectral_gap: float) -> float:
+    with mp.workdps(100):
+        g = mp.mpf(spectral_gap)
+        # 1.0 is wrapped in mp.mpf to force mpmath high-precision division
+        # MUUUUCH SAFER THAN arccos(1 - g)
+        result = mp.mpf(1) / (2 * mp.asin(mp.sqrt(g / 2)))    
+        return float(result)
+
+
 def spectral_gap_to_filter_degree(spectral_gap: float, prec: float) -> float:
-    phase_gap = np.arccos(1.0 - spectral_gap)
-    if not np.isfinite(phase_gap) or phase_gap < 1e-16:
-        phase_gap = 1e-16
-    degree_filter = 2.0 * prec / phase_gap
-    if not np.isfinite(degree_filter):
-        degree_filter = 1e18
-    return degree_filter
+    return 2 * prec * phase_gap_factor(spectral_gap)
 
 
 def get_annealing_time_quantum_walk_local(n: int, eps: float, betas: list[float], spectral_gaps: list[float], physical_operation_time: float, physical_measurement_time: float, physical_error_rate: float, num_trotter_steps: int = 50) -> float:

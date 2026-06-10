@@ -3,7 +3,7 @@ from typing import Callable
 import matplotlib.pyplot as plt
 from monaqa2.data.filename import CLASSICAL_QUERY_FILE, SPECTRAL_GAP_FILE
 from monaqa2.data.runtime import get_annealing_queries_quantum_walks
-from monaqa2.data.spectral_gap import get_spectral_gap_stats, get_spectral_gap_fit_by_n
+from monaqa2.data.spectral_gap import get_spectral_gap_stats, get_spectral_gap_fit_by_n, get_spectral_gap_fit_by_beta
 from monaqa2.data.classical_query import get_classical_query_stats, get_classical_query_fit_by_n
 from monaqa2.data.runtime import (
     get_annealing_time_classical_walk_local,
@@ -69,7 +69,7 @@ def _positive_band(center: np.ndarray, spread: np.ndarray) -> tuple[np.ndarray, 
 
 
 def plot_spectral_gap_vs_n(
-    beta: float,
+    fixed_beta: float,
     in_file: Path = SPECTRAL_GAP_FILE,
     statistic: str = "mean+std",
     show_spread: bool = True,
@@ -99,25 +99,25 @@ def plot_spectral_gap_vs_n(
         color = PROPOSAL_COLORS[proposal]
 
         # Scatter points of the spectral gap
-        n_vals, center, spread = _compact_spectral_gap_points(proposal, beta, statistic, in_file)
+        n_vals, center, spread = _compact_spectral_gap_points(proposal, fixed_beta, statistic, in_file)
         if show_spread:
             lower, upper = _positive_band(center, spread)
             ax.fill_between(n_vals, lower, upper, color=color, alpha=0.25, linewidth=0.0, zorder=1)
         ax.scatter(n_vals, center, s=36, color=color, edgecolors="none", alpha=0.95, zorder=3)
 
         # Fitting line
-        A, b = get_spectral_gap_fit_by_n(proposal=proposal, a=np.inf, fixed_beta=beta, in_file=in_file, statistic=statistic, n_min=n_fit_min, n_max=n_fit_max)
+        A, b = get_spectral_gap_fit_by_n(proposal=proposal, a=np.inf, fixed_beta=fixed_beta, in_file=in_file, statistic=statistic, n_min=n_fit_min, n_max=n_fit_max)
         delta_fit = A * np.exp(-b * n_grid)
         (fit_line,) = ax.plot(n_grid, delta_fit, color=color, linewidth=2.0, linestyle="-", alpha=0.90, zorder=2)
 
         # Legend
         legend_handles[proposal] = fit_line
-        legend_labels[proposal] = rf"{PROPOSAL_LABELS[proposal]}: fit ${A:.3f} \times \exp(-{b:.3f} n)$"
-
+        legend_labels[proposal] = rf"{PROPOSAL_LABELS[proposal]}: fit ${A:.3f} \times 2^{{-{b / np.log(2):.3f} n}}$"
+    
     ax.set_yscale("log")
     ax.set_xlabel(r"$n$")
     ax.set_ylabel(r"Spectral gap $\delta$")
-    ax.set_title(rf"Spectral gap over instances, $\beta={beta}$, statistic={statistic}")
+    ax.set_title(rf"Spectral gap over instances, $\beta={fixed_beta}$, statistic={statistic}")
 
     ax.set_axisbelow(True)
     ax.grid(True, which="major", alpha=0.30)
@@ -130,7 +130,89 @@ def plot_spectral_gap_vs_n(
     return fig, ax
 
 
+def plot_spectral_gap_vs_beta(
+    fixed_n: int,
+    in_file: Path = SPECTRAL_GAP_FILE,
+    statistic: str = "mean+std",
+    show_spread: bool = True,
+    beta_max: float = 100.0,
+    beta_step: float = 0.01,
+    beta_plot_min: float | None = None,
+    beta_plot_max: float | None = None,
+) -> tuple[plt.Figure, plt.Axes]:
+    """
+    Plot spectral gap versus beta for fixed n.
 
+    Scatter points show the statistic center over instances.
+    Transparent bands show center +/- spread.
+    Solid lines show log-linear interpolation of delta(beta).
+    """
+    beta_plot_min = beta_step if beta_plot_min is None else float(beta_plot_min)
+    beta_plot_max = beta_max if beta_plot_max is None else float(beta_plot_max)
+
+    if beta_plot_min <= 0.0:
+        raise ValueError("beta_plot_min must be positive because the x-axis is logarithmic.")
+
+    fig, ax = plt.subplots(figsize=(8.5, 4.8))
+    legend_handles = {}
+    legend_labels = {}
+
+    for proposal in PROPOSALS_SORTED:
+
+        color = PROPOSAL_COLORS[proposal]
+
+        table = get_spectral_gap_stats(proposal=proposal, a=np.inf, in_file=in_file, statistic=statistic)
+        table = table[
+            (table["n"].astype(int) == int(fixed_n))
+            & (table["count"].astype(int) >= 1)
+            & np.isfinite(table["beta"].astype(float))
+            & np.isfinite(table["center"].astype(float))
+            & (table["beta"].astype(float) > 0.0)
+            & (table["center"].astype(float) > 0.0)
+        ].copy()
+
+        table["beta"] = table["beta"].astype(float)
+        table["center"] = table["center"].astype(float)
+        table["spread"] = table["spread"].fillna(0.0).astype(float)
+        table = table.sort_values("beta")
+
+        table_plot = table[(table["beta"] >= beta_plot_min) & (table["beta"] <= beta_plot_max)]
+
+        if not table_plot.empty:
+            beta_vals = table_plot["beta"].to_numpy(dtype=float)
+            center = table_plot["center"].to_numpy(dtype=float)
+            spread = table_plot["spread"].to_numpy(dtype=float)
+
+            if show_spread:
+                lower, upper = _positive_band(center, spread)
+                ax.fill_between(beta_vals, lower, upper, color=color, alpha=0.25, linewidth=0.0, zorder=1)
+
+            ax.scatter(beta_vals, center, s=36, color=color, edgecolors="none", alpha=0.95, zorder=3)
+
+        grid = get_spectral_gap_fit_by_beta(proposal=proposal, a=np.inf, fixed_n=fixed_n, beta_max=beta_max, beta_step=beta_step, spectral_gap_file=in_file, statistic=statistic)
+        grid = grid[(grid[:, 0] >= beta_plot_min) & (grid[:, 0] <= beta_plot_max) & (grid[:, 1] > 0.0)]
+
+        (line,) = ax.plot(grid[:, 0], grid[:, 1], color=color, linewidth=2.0, linestyle="-", alpha=0.90, zorder=2)
+
+        legend_handles[proposal] = line
+        legend_labels[proposal] = rf"{PROPOSAL_LABELS[proposal]}: log-linear interpolation"
+
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlim(beta_plot_min, beta_plot_max)
+    ax.set_xlabel(r"$\beta$")
+    ax.set_ylabel(r"Spectral gap $\delta$")
+    ax.set_title(rf"Spectral gap over instances, $n={fixed_n}$, statistic={statistic}")
+
+    ax.set_axisbelow(True)
+    ax.grid(True, which="major", alpha=0.30)
+    ax.grid(False, which="minor")
+
+    handles = [legend_handles[p] for p in PROPOSALS_SORTED if p in legend_handles]
+    labels = [legend_labels[p] for p in PROPOSALS_SORTED if p in legend_labels]
+    ax.legend(handles, labels, frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.18), ncol=1, borderaxespad=0.0, handlelength=2.4)
+
+    return fig, ax
 
 
 def plot_last_step_classical_queries_and_spectral_gap_vs_n(
@@ -187,7 +269,7 @@ def plot_last_step_classical_queries_and_spectral_gap_vs_n(
 
         # Legend
         query_handles[proposal] = query_line
-        query_labels[proposal] = rf"{PROPOSAL_LABELS[proposal]} queries: ${A_q:.3g}\exp({b_q:.3f} n)$"
+        query_labels[proposal] = rf"{PROPOSAL_LABELS[proposal]} queries: ${A_q:.3g} \times 2^{{{b_q / np.log(2):.3f} n}}$"
 
         # Optional inverse spectral-gap fitting line
         if show_inverse_gap and ax_gap is not None:
@@ -198,7 +280,7 @@ def plot_last_step_classical_queries_and_spectral_gap_vs_n(
 
             # Legend
             gap_handles[proposal] = gap_line
-            gap_labels[proposal] = rf"{PROPOSAL_LABELS[proposal]} inverse gap: ${1.0 / A_g:.3g}\exp({b_g:.3f} n)$"
+            gap_labels[proposal] = rf"{PROPOSAL_LABELS[proposal]} inverse gap: ${1.0 / A_g:.3g} \times 2^{{{b_g / np.log(2):.3f} n}}$"
 
     ax.set_yscale("log")
     ax.set_xlabel(r"$n$")
@@ -231,8 +313,7 @@ def plot_last_step_classical_queries_and_spectral_gap_vs_n(
     return fig, ax, ax_gap
 
 
-
-def plot_annealing_classical_queries_and_quantum_queries_vs_n(
+def plot_annealing_classical_and_quantum_queries_vs_n(
     beta: float,
     epsilon: float,
     annealing_schedule_generator: Callable[[int, float], list[float]],
@@ -309,7 +390,7 @@ def plot_annealing_classical_queries_and_quantum_queries_vs_n(
     return fig, ax
 
 
-def plot_annealing_classical_queries_and_quantum_runtime_vs_n(
+def plot_annealing_classical_and_quantum_runtime_vs_n(
     beta: float,
     epsilon: float,
     annealing_schedule_generator: Callable[[int, float], list[float]],
