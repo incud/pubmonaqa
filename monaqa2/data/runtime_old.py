@@ -34,52 +34,39 @@ def fpga_uniform_step(n: int | float) -> float:
     return (0.254100 + 0.004200 * np.log2(n)) * 1e-6
 
 
-def rotated_surface_code_distance(spacetime_volume: int | float, physical_error_rate: float) -> float:
-    spacetime_volume = float(spacetime_volume)
+def rotated_surface_code_distance(spacetime_volume: int, physical_error_rate: float) -> int:
+    spacetime_volume = int(spacetime_volume)
     assert spacetime_volume > 0
     assert 0 < physical_error_rate < 1e-2
 
-    def total_error(d: float) -> float:
-        logical_error_per_round = d * 0.1 * (100 * physical_error_rate) ** ((d + 1.0) / 2.0)
-        return spacetime_volume * logical_error_per_round
-
-    if total_error(3.0) <= 1.0 / 3.0:
-        return 3.0
-
-    lo = 3.0
-    hi = 5.0
-    while total_error(hi) > 1.0 / 3.0:
-        lo = hi
-        hi *= 1.5
-
-    for _ in range(80):
-        mid = 0.5 * (lo + hi)
-        if total_error(mid) <= 1.0 / 3.0:
-            hi = mid
-        else:
-            lo = mid
-
-    return hi
+    d = 3
+    while True:
+        logical_error_per_round = d * 0.1 * (100 * physical_error_rate) ** ((d + 1) / 2)
+        total_error = spacetime_volume * logical_error_per_round
+        if total_error <= 1 / 3:
+            return d
+        d += 2
 
 
-def rotated_surface_code_time(logical_time: int | float, logical_space: int | float, physical_operation_time: float, physical_measurement_time: float, physical_error_rate: float) -> float:
-    logical_time = float(logical_time)
-    logical_space = float(logical_space)
+def rotated_surface_code_time(logical_time: int, logical_space: int, physical_operation_time: float, physical_measurement_time: float, physical_error_rate: float) -> float:
+    logical_time = int(logical_time)
+    logical_space = int(logical_space)
     spacetime_volume = logical_time * logical_space
     d = rotated_surface_code_distance(spacetime_volume, physical_error_rate)
     logical_cycle_time = d * (4 * physical_operation_time + physical_measurement_time)
     return logical_time * logical_cycle_time
 
-def _calculate_auxiliary_quantum_circuit_vars(n: int | float, eps: float, beta: float) -> tuple[float, float, float, float, float, float, float, float]:
-    n = max(2.0, float(n))
+
+def _calculate_auxiliary_quantum_circuit_vars(n: int, eps: float, beta: float) -> tuple[int, float, int, float, int, float, float, float]:
+    n = max(2, int(n))
     eps = np.clip(float(eps), np.finfo(float).tiny, 1.0 - np.finfo(float).eps)
     beta_eff = max(float(beta), 1.0)
 
-    ell_n = np.log2(n)
+    ell_n = int(np.ceil(np.log2(n)))
     ell_eps = np.log2(1.0 / eps)
-    ell_2n = np.log2(2.0 * n)
+    ell_2n = int(np.ceil(np.log2(2 * n)))
     S = 1.0 + np.log2(n) + ell_eps
-    ell_S = np.log2(1.0 + 3.5 * S)
+    ell_S = int(np.ceil(np.log2(1.0 + 3.5 * S)))
     alpha = 2.0 * n**1.5 / np.sqrt(np.pi)
 
     m_arg = beta_eff * alpha / (2.0 * np.log(1.0 / eps))
@@ -89,49 +76,49 @@ def _calculate_auxiliary_quantum_circuit_vars(n: int | float, eps: float, beta: 
     return ell_n, ell_eps, ell_2n, S, ell_S, alpha, m, ell_m
 
 
-def quantum_walk_local_circuit(n: int | float, eps: float, beta: float) -> tuple[float, float]:
+def quantum_walk_local_circuit(n: int, eps: float, beta: float) -> tuple[int, int]:
     ell_n, ell_eps, ell_2n, S, ell_S, alpha, m, ell_m = _calculate_auxiliary_quantum_circuit_vars(n, eps, beta)
 
     proposal_depth, proposal_qubits = 13 * ell_n + 15, 2 * n
-    boltz_depth = 162 * ell_eps * ell_S + 54 * ell_S - 93 * ell_eps + 24 * ell_2n + 49 * S + 28 * ell_m - 12
-    boltz_qubits = 2 * n + 4 * n**2 + 21 * n**2 * S + 2
-    reflection_depth = 14 * np.log2(n + 7 * S + 3) - 13
-    reflection_qubits = 2 * n + 7 * S + 6
-    accept_depth = 28 * np.log2(4 + 7 * S) - 23
-    accept_qubits = 3 * n + 7 * S + 4
+    boltz_depth = int(np.ceil(162 * ell_eps * ell_S + 54 * ell_S - 93 * ell_eps + 24 * ell_2n + 49 * S + 28 * ell_m - 12))
+    boltz_qubits = int(np.ceil(2 * n + 4 * n**2 + 21 * n**2 * S + 2))
+    reflection_depth = 14 * int(np.ceil(np.log2(n + 7 * S + 3))) - 13
+    reflection_qubits = int(np.ceil(2 * n + 7 * S + 6))
+    accept_depth = 28 * int(np.ceil(np.log2(4 + 7 * S))) - 23
+    accept_qubits = int(np.ceil(3 * n + 7 * S + 4))
 
     return 2 * proposal_depth + 2 * boltz_depth + reflection_depth + accept_depth, max(proposal_qubits, boltz_qubits, reflection_qubits, accept_qubits)
 
 
-def quantum_walk_uniform_circuit(n: int | float, eps: float, beta: float) -> tuple[float, float]:
+def quantum_walk_uniform_circuit(n: int, eps: float, beta: float) -> tuple[int, int]:
     ell_n, ell_eps, ell_2n, S, ell_S, alpha, m, ell_m = _calculate_auxiliary_quantum_circuit_vars(n, eps, beta)
 
     proposal_depth, proposal_qubits = 0, 2 * n
-    boltz_depth = 162 * ell_eps * ell_S + 54 * ell_S - 93 * ell_eps + 24 * ell_2n + 49 * S + 28 * ell_m - 12
-    boltz_qubits = 2 * n + 4 * n**2 + 21 * n**2 * S + 2
-    reflection_depth = 14 * np.log2(n + 7 * S + 3) - 13
-    reflection_qubits = 2 * n + 7 * S + 6
-    accept_depth = 28 * np.log2(4 + 7 * S) - 23
-    accept_qubits = 3 * n + 7 * S + 4
+    boltz_depth = int(np.ceil(162 * ell_eps * ell_S + 54 * ell_S - 93 * ell_eps + 24 * ell_2n + 49 * S + 28 * ell_m - 12))
+    boltz_qubits = int(np.ceil(2 * n + 4 * n**2 + 21 * n**2 * S + 2))
+    reflection_depth = 14 * int(np.ceil(np.log2(n + 7 * S + 3))) - 13
+    reflection_qubits = int(np.ceil(2 * n + 7 * S + 6))
+    accept_depth = 28 * int(np.ceil(np.log2(4 + 7 * S))) - 23
+    accept_qubits = int(np.ceil(3 * n + 7 * S + 4))
 
     return 2 * proposal_depth + 2 * boltz_depth + reflection_depth + accept_depth, max(proposal_qubits, boltz_qubits, reflection_qubits, accept_qubits)
 
 
-def quantum_walk_qemc_circuit(n: int | float, eps: float, beta: float, num_trotter_steps: int = 50) -> tuple[float, float]:
+def quantum_walk_qemc_circuit(n: int, eps: float, beta: float, num_trotter_steps: int = 50) -> tuple[int, int]:
     ell_n, ell_eps, ell_2n, S, ell_S, alpha, m, ell_m = _calculate_auxiliary_quantum_circuit_vars(n, eps, beta)
 
     proposal_depth, proposal_qubits = 1 + num_trotter_steps * (n + 2), 2 * n
-    boltz_depth = 162 * ell_eps * ell_S + 54 * ell_S - 93 * ell_eps + 24 * ell_2n + 49 * S + 28 * ell_m - 12
-    boltz_qubits = 2 * n + 4 * n**2 + 21 * n**2 * S + 2
-    reflection_depth = 14 * np.log2(n + 7 * S + 3) - 13
-    reflection_qubits = 2 * n + 7 * S + 6
-    accept_depth = 28 * np.log2(4 + 7 * S) - 23
-    accept_qubits = 3 * n + 7 * S + 4
+    boltz_depth = int(np.ceil(162 * ell_eps * ell_S + 54 * ell_S - 93 * ell_eps + 24 * ell_2n + 49 * S + 28 * ell_m - 12))
+    boltz_qubits = int(np.ceil(2 * n + 4 * n**2 + 21 * n**2 * S + 2))
+    reflection_depth = 14 * int(np.ceil(np.log2(n + 7 * S + 3))) - 13
+    reflection_qubits = int(np.ceil(2 * n + 7 * S + 6))
+    accept_depth = 28 * int(np.ceil(np.log2(4 + 7 * S))) - 23
+    accept_qubits = int(np.ceil(3 * n + 7 * S + 4))
 
     return 2 * proposal_depth + 2 * boltz_depth + reflection_depth + accept_depth, max(proposal_qubits, boltz_qubits, reflection_qubits, accept_qubits)
 
 
-def get_annealing_time_classical_walk_local(n: int | float, vec_queries: list[float], device: str = "cpu") -> float:
+def get_annealing_time_classical_walk_local(n: int, vec_queries: list[int], device: str = "cpu") -> float:
     assert device in ALLOWED_DEVICES, f"Device {device} unknown. Allowed: {ALLOWED_DEVICES}"
     if device == "cpu":
         return sum(vec_queries) * cpu_local_step(n)
@@ -141,7 +128,7 @@ def get_annealing_time_classical_walk_local(n: int | float, vec_queries: list[fl
         return sum(vec_queries) * fpga_local_step(n)
 
 
-def get_annealing_time_classical_walk_uniform(n: int | float, vec_queries: list[float], device: str = "cpu") -> float:
+def get_annealing_time_classical_walk_uniform(n: int, vec_queries: list[int], device: str = "cpu") -> float:
     assert device in ALLOWED_DEVICES, f"Device {device} unknown. Allowed: {ALLOWED_DEVICES}"
     if device == "cpu":
         return sum(vec_queries) * cpu_uniform_step(n)
@@ -151,7 +138,7 @@ def get_annealing_time_classical_walk_uniform(n: int | float, vec_queries: list[
         return sum(vec_queries) * fpga_uniform_step(n)
 
 
-def get_annealing_time_classical_walk_qemc(n: int | float, vec_queries: list[float], physical_operation_time: float, physical_measurement_time: float, physical_error_rate: float, num_trotter_steps: int = 50) -> float:
+def get_annealing_time_classical_walk_qemc(n: int, vec_queries: list[int], physical_operation_time: float, physical_measurement_time: float, physical_error_rate: float, num_trotter_steps: int = 50) -> float:
     total_time = 0
     for queries in vec_queries:
         logical_time_per_query = 1 + num_trotter_steps * (n + 2)
@@ -161,13 +148,13 @@ def get_annealing_time_classical_walk_qemc(n: int | float, vec_queries: list[flo
     return total_time
 
 
-def spectral_gap_to_filter_degree(spectral_gap: float, prec: float) -> float:
-    phase_gap = np.arccos(1.0 - spectral_gap)
+def spectral_gap_to_filter_degree(spectral_gap: float, prec: float) -> int:
+    phase_gap = np.arccos(1 - spectral_gap)
     if not np.isfinite(phase_gap) or phase_gap < 1e-16:
         phase_gap = 1e-16
-    degree_filter = 2.0 * prec / phase_gap
-    if not np.isfinite(degree_filter):
-        degree_filter = 1e18
+    degree_filter = 2 * int(np.ceil(prec / phase_gap)) 
+    if not np.isfinite(degree_filter) or phase_gap > 1e+18:
+        degree_filter = int(1e+18)
     return degree_filter
 
 
@@ -219,7 +206,7 @@ def get_annealing_time_quantum_walk_qemc(n: int, eps: float, betas: list[float],
     return rotated_surface_code_time(logical_time, logical_space, physical_operation_time, physical_measurement_time, physical_error_rate)
 
 
-def get_annealing_queries_quantum_walks(n: int | float, eps: float, spectral_gaps: list[float]) -> float:
+def get_annealing_queries_quantum_walks(n: int, eps: float, spectral_gaps: list[float]) -> int:
     degree_filters = [spectral_gap_to_filter_degree(spectral_gap, np.log2(1/eps)) 
                       for spectral_gap in spectral_gaps]
     F = sum(degree_filters)
