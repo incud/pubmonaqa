@@ -352,7 +352,7 @@ def plot_annealing_classical_queries_and_quantum_runtime_vs_n(
         quantum_runtime = []
 
         for n in n_vals:
-            print(f"{n} ", end="")
+            print(f"{n} ", end="", flush=True)
             schedule = annealing_schedule_generator(n, beta)
             vec_queries = []
             spectral_gaps = []
