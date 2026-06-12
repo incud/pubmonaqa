@@ -8,6 +8,8 @@ __pycache__/
 
 logs/*
 data/old_data/*
+data/data_arxiv_2411_17821/*
+key.github
 
 # Distribution / packaging
 .Python
