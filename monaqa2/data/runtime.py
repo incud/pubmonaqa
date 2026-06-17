@@ -8,36 +8,71 @@ ALLOWED_DEVICES = {"cpu", "gpu", "fpga"}
 
 
 def cpu_local_step(n: int | float) -> float:
+    """Return the fitted CPU time for one local classical Metropolis step.
+
+    :param n: Number of spins.
+    :return: Runtime in seconds for one local update.
+    """
     # local/op: 5.959e-09 + 1.429e-10 n
     return 5.959e-09 + 1.429e-10 * n
 
 
 def cpu_uniform_step(n: int | float) -> float:
+    """Return the fitted CPU time for one uniform classical Metropolis step.
+
+    :param n: Number of spins.
+    :return: Runtime in seconds for one uniform update.
+    """
     # uniform/op: 0.000e+00 + 1.173e-08 n + 6.964e-11 n^2
     return 1.173e-08 * n + 6.964e-11 * n**2
 
 
 def gpu_local_step(n: int | float) -> float:
+    """Return the fitted GPU time for one local classical Metropolis step.
+
+    :param n: Number of spins.
+    :return: Runtime in seconds for one local update.
+    """
     # local/op: 7.837e-07 + 1.459e-09 n
     return 7.837e-07 + 1.459e-09 * n
 
 
 def gpu_uniform_step(n: int | float) -> float:
+    """Return the fitted GPU time for one uniform classical Metropolis step.
+
+    :param n: Number of spins.
+    :return: Runtime in seconds for one uniform update.
+    """
     # uniform/op: 0.000e+00 + 0.000e+00 n + 2.215e-10 n^2
     return 2.215e-10 * n**2
 
 
 def fpga_local_step(n: int | float) -> float:
+    """Return the fitted FPGA time for one local classical Metropolis step.
+
+    :param n: Number of spins.
+    :return: Runtime in seconds for one local update.
+    """
     # 0.267900 + 0.001800 log2(N) [μs, multiply by 10^{-6}]
     return (0.267900 + 0.001800 * np.log2(n)) * 1e-6
 
 
 def fpga_uniform_step(n: int | float) -> float:
+    """Return the fitted FPGA time for one uniform classical Metropolis step.
+
+    :param n: Number of spins.
+    :return: Runtime in seconds for one uniform update.
+    """
     # 0.254100 + 0.004200 log2(N) [μs, multiply by 10^{-6}]
     return (0.254100 + 0.004200 * np.log2(n)) * 1e-6
 
 
 def split_quantum_error_budget(eps_TV: float) -> tuple[float, float, float, float]:
+    """Split the target total-variation error into four resource budgets.
+
+    :param eps_TV: Desired final total-variation distance error.
+    :return: Tuple ``(eps_SF, eps_MS, eps_FLT, eps_W_budget)`` for surface-code failures, magic-state failures, spectral-filter approximation, and walk-implementation error.
+    """
     eps_SF = eps_TV / 4.0
     eps_MS = eps_TV / 4.0
     eps_FLT = eps_TV / 4.0
@@ -46,6 +81,13 @@ def split_quantum_error_budget(eps_TV: float) -> tuple[float, float, float, floa
 
 
 def rotated_surface_code_distance(spacetime_volume: int | float, physical_error_rate: float, eps_SF: float) -> float:
+    """Return the smallest odd rotated-surface-code distance satisfying the surface-code budget.
+
+    :param spacetime_volume: Logical spacetime volume, equal to logical time times logical space.
+    :param physical_error_rate: Physical Clifford error rate.
+    :param eps_SF: Error budget assigned to surface-code logical failures.
+    :return: Smallest odd code distance ``d >= 3`` satisfying the error model.
+    """
     def distance(index: int) -> int:
         return 2 * index + 3
 
@@ -59,6 +101,16 @@ def rotated_surface_code_distance(spacetime_volume: int | float, physical_error_
 
 
 def rotated_surface_code_time(logical_time: int | float, logical_space: int | float, physical_operation_time: float, physical_measurement_time: float, physical_error_rate: float, eps_SF: float) -> float:
+    """Return the physical runtime of a logical computation under the rotated-surface-code model.
+
+    :param logical_time: Logical depth in tile-time steps.
+    :param logical_space: Logical space in surface-code tiles.
+    :param physical_operation_time: Time for one physical operation.
+    :param physical_measurement_time: Time for one physical measurement.
+    :param physical_error_rate: Physical Clifford error rate.
+    :param eps_SF: Error budget assigned to surface-code logical failures.
+    :return: Physical runtime in the same time unit as the physical operation and measurement times.
+    """
     spacetime_volume = logical_time * logical_space
     d = rotated_surface_code_distance(spacetime_volume, physical_error_rate, eps_SF)
     logical_cycle_time = d * (4 * physical_operation_time + physical_measurement_time)
@@ -66,6 +118,13 @@ def rotated_surface_code_time(logical_time: int | float, logical_space: int | fl
 
 
 def _calculate_auxiliary_quantum_circuit_vars(n: int | float, eps_W: float, beta: float) -> tuple[float, float, float, float, float, float, float, float]:
+    """Return auxiliary parameters used by the quantum-walk circuit formulas.
+
+    :param n: Number of spins.
+    :param eps_W: Error budget for a single implementation of ``W`` or ``W-dagger``.
+    :param beta: Inverse temperature for the current annealing step.
+    :return: Tuple ``(ell_n, ell_eps, ell_2n, S, ell_S, alpha, m, ell_m)`` used in the resource formulas.
+    """
     ell_n = np.log2(n)
     ell_eps = np.log2(1.0 / eps_W)
     ell_2n = np.log2(2.0 * n)
@@ -80,49 +139,114 @@ def _calculate_auxiliary_quantum_circuit_vars(n: int | float, eps_W: float, beta
     return ell_n, ell_eps, ell_2n, S, ell_S, alpha, m, ell_m
 
 
-def quantum_walk_local_circuit(n: int | float, eps_W: float, beta: float) -> tuple[float, float]:
+def quantum_walk_local_circuit(n: int | float, eps_W: float, beta: float, arithmetic_type: str = "HYBRID") -> tuple[float, float]:
+    """Return resources for one local-proposal Szegedy walk application.
+
+    :param n: Number of spins.
+    :param eps_W: Error budget for one implementation of ``W`` or ``W-dagger``.
+    :param beta: Inverse temperature for the current annealing step.
+    :param arithmetic_type: Arithmetic implementation, either ``"HYBRID"`` or ``"FULLY_PHASE"``.
+    :return: Tuple ``(logical_depth, logical_qubits)`` for one walk application.
+    """
     ell_n, ell_eps, ell_2n, S, ell_S, alpha, m, ell_m = _calculate_auxiliary_quantum_circuit_vars(n, eps_W, beta)
 
     proposal_depth, proposal_qubits = 13 * ell_n + 15, 2 * n
-    boltz_depth = 162 * ell_eps * ell_S + 54 * ell_S - 93 * ell_eps + 24 * ell_2n + 49 * S + 28 * ell_m - 12
-    boltz_qubits = 2 * n + 4 * n**2 + 21 * n**2 * S + 2
-    reflection_depth = 14 * np.log2(n + 7 * S + 3) - 13
-    reflection_qubits = 2 * n + 7 * S + 6
-    accept_depth = 28 * np.log2(4 + 7 * S) - 23
-    accept_qubits = 3 * n + 7 * S + 4
+
+    if arithmetic_type == "HYBRID":
+        boltz_depth = 162 * ell_eps * ell_S + 54 * ell_S - 93 * ell_eps + 24 * ell_2n + 49 * S + 28 * ell_m - 12
+        boltz_qubits = 2 * n + 4 * n**2 + 21 * n**2 * S + 2
+        reflection_depth = 14 * np.log2(n + 7 * S + 3) - 13
+        reflection_qubits = 2 * n + 7 * S + 6
+        accept_depth = 28 * np.log2(4 + 7 * S) - 23
+        accept_qubits = 3 * n + 7 * S + 4
+    else:
+        d = 2.0 + max(np.sqrt(0.5 * beta * alpha * ell_eps) + ell_eps, alpha * ell_eps)
+        controlled_qubitized_depth = 58 * n - 58 + 14 * np.log2(6 * n)
+        boltz_depth = 3 * d * controlled_qubitized_depth + 3 * (2 * d + 1)
+        boltz_qubits = 10 * n + 2
+        reflection_depth = 14 * np.log2(n) - 13
+        reflection_qubits = 2 * n + 3
+        accept_depth = 3
+        accept_qubits = 3 * n + 1
 
     return 2 * proposal_depth + 2 * boltz_depth + reflection_depth + accept_depth, max(proposal_qubits, boltz_qubits, reflection_qubits, accept_qubits)
 
 
-def quantum_walk_uniform_circuit(n: int | float, eps_W: float, beta: float) -> tuple[float, float]:
+def quantum_walk_uniform_circuit(n: int | float, eps_W: float, beta: float, arithmetic_type: str = "HYBRID") -> tuple[float, float]:
+    """Return resources for one uniform-proposal Szegedy walk application.
+
+    :param n: Number of spins.
+    :param eps_W: Error budget for one implementation of ``W`` or ``W-dagger``.
+    :param beta: Inverse temperature for the current annealing step.
+    :param arithmetic_type: Arithmetic implementation, either ``"HYBRID"`` or ``"FULLY_PHASE"``.
+    :return: Tuple ``(logical_depth, logical_qubits)`` for one walk application.
+    """
     ell_n, ell_eps, ell_2n, S, ell_S, alpha, m, ell_m = _calculate_auxiliary_quantum_circuit_vars(n, eps_W, beta)
 
     proposal_depth, proposal_qubits = 0, 2 * n
-    boltz_depth = 162 * ell_eps * ell_S + 54 * ell_S - 93 * ell_eps + 24 * ell_2n + 49 * S + 28 * ell_m - 12
-    boltz_qubits = 2 * n + 4 * n**2 + 21 * n**2 * S + 2
-    reflection_depth = 14 * np.log2(n + 7 * S + 3) - 13
-    reflection_qubits = 2 * n + 7 * S + 6
-    accept_depth = 28 * np.log2(4 + 7 * S) - 23
-    accept_qubits = 3 * n + 7 * S + 4
+
+    if arithmetic_type == "HYBRID":
+        boltz_depth = 162 * ell_eps * ell_S + 54 * ell_S - 93 * ell_eps + 24 * ell_2n + 49 * S + 28 * ell_m - 12
+        boltz_qubits = 2 * n + 4 * n**2 + 21 * n**2 * S + 2
+        reflection_depth = 14 * np.log2(n + 7 * S + 3) - 13
+        reflection_qubits = 2 * n + 7 * S + 6
+        accept_depth = 28 * np.log2(4 + 7 * S) - 23
+        accept_qubits = 3 * n + 7 * S + 4
+    else:
+        d = 2.0 + max(np.sqrt(0.5 * beta * alpha * ell_eps) + ell_eps, alpha * ell_eps)
+        controlled_qubitized_depth = 58 * n - 58 + 14 * np.log2(6 * n)
+        boltz_depth = 3 * d * controlled_qubitized_depth + 3 * (2 * d + 1)
+        boltz_qubits = 10 * n + 2
+        reflection_depth = 14 * np.log2(n) - 13
+        reflection_qubits = 2 * n + 3
+        accept_depth = 3
+        accept_qubits = 3 * n + 1
 
     return 2 * proposal_depth + 2 * boltz_depth + reflection_depth + accept_depth, max(proposal_qubits, boltz_qubits, reflection_qubits, accept_qubits)
 
 
-def quantum_walk_qemc_circuit(n: int | float, eps_W: float, beta: float, num_trotter_steps: int = 50) -> tuple[float, float]:
+def quantum_walk_qemc_circuit(n: int | float, eps_W: float, beta: float, num_trotter_steps: int = 50, arithmetic_type: str = "HYBRID") -> tuple[float, float]:
+    """Return resources for one QEMC-proposal Szegedy walk application.
+
+    :param n: Number of spins.
+    :param eps_W: Error budget for one implementation of ``W`` or ``W-dagger``.
+    :param beta: Inverse temperature for the current annealing step.
+    :param num_trotter_steps: Number of Trotter steps used by the QEMC proposal.
+    :param arithmetic_type: Arithmetic implementation, either ``"HYBRID"`` or ``"FULLY_PHASE"``.
+    :return: Tuple ``(logical_depth, logical_qubits)`` for one walk application.
+    """
     ell_n, ell_eps, ell_2n, S, ell_S, alpha, m, ell_m = _calculate_auxiliary_quantum_circuit_vars(n, eps_W, beta)
 
     proposal_depth, proposal_qubits = 1 + num_trotter_steps * (n + 2), 2 * n
-    boltz_depth = 162 * ell_eps * ell_S + 54 * ell_S - 93 * ell_eps + 24 * ell_2n + 49 * S + 28 * ell_m - 12
-    boltz_qubits = 2 * n + 4 * n**2 + 21 * n**2 * S + 2
-    reflection_depth = 14 * np.log2(n + 7 * S + 3) - 13
-    reflection_qubits = 2 * n + 7 * S + 6
-    accept_depth = 28 * np.log2(4 + 7 * S) - 23
-    accept_qubits = 3 * n + 7 * S + 4
+
+    if arithmetic_type == "HYBRID":
+        boltz_depth = 162 * ell_eps * ell_S + 54 * ell_S - 93 * ell_eps + 24 * ell_2n + 49 * S + 28 * ell_m - 12
+        boltz_qubits = 2 * n + 4 * n**2 + 21 * n**2 * S + 2
+        reflection_depth = 14 * np.log2(n + 7 * S + 3) - 13
+        reflection_qubits = 2 * n + 7 * S + 6
+        accept_depth = 28 * np.log2(4 + 7 * S) - 23
+        accept_qubits = 3 * n + 7 * S + 4
+    else:
+        d = 2.0 + max(np.sqrt(0.5 * beta * alpha * ell_eps) + ell_eps, alpha * ell_eps)
+        controlled_qubitized_depth = 58 * n - 58 + 14 * np.log2(6 * n)
+        boltz_depth = 3 * d * controlled_qubitized_depth + 3 * (2 * d + 1)
+        boltz_qubits = 10 * n + 2
+        reflection_depth = 14 * np.log2(n) - 13
+        reflection_qubits = 2 * n + 3
+        accept_depth = 3
+        accept_qubits = 3 * n + 1
 
     return 2 * proposal_depth + 2 * boltz_depth + reflection_depth + accept_depth, max(proposal_qubits, boltz_qubits, reflection_qubits, accept_qubits)
 
 
 def get_annealing_time_classical_walk_local(n: int | float, vec_queries: list[float], device: str = "cpu") -> float:
+    """Return the classical annealing runtime for local Metropolis updates.
+
+    :param n: Number of spins.
+    :param vec_queries: Number of classical update queries per annealing step.
+    :param device: Classical device model, one of ``"cpu"``, ``"gpu"``, or ``"fpga"``.
+    :return: Total runtime in seconds.
+    """
     assert device in ALLOWED_DEVICES, f"Device {device} unknown. Allowed: {ALLOWED_DEVICES}"
     if device == "cpu":
         return sum(vec_queries) * cpu_local_step(n)
@@ -133,6 +257,13 @@ def get_annealing_time_classical_walk_local(n: int | float, vec_queries: list[fl
 
 
 def get_annealing_time_classical_walk_uniform(n: int | float, vec_queries: list[float], device: str = "cpu") -> float:
+    """Return the classical annealing runtime for uniform Metropolis updates.
+
+    :param n: Number of spins.
+    :param vec_queries: Number of classical update queries per annealing step.
+    :param device: Classical device model, one of ``"cpu"``, ``"gpu"``, or ``"fpga"``.
+    :return: Total runtime in seconds.
+    """
     assert device in ALLOWED_DEVICES, f"Device {device} unknown. Allowed: {ALLOWED_DEVICES}"
     if device == "cpu":
         return sum(vec_queries) * cpu_uniform_step(n)
@@ -143,6 +274,17 @@ def get_annealing_time_classical_walk_uniform(n: int | float, vec_queries: list[
 
 
 def get_annealing_time_classical_walk_qemc(n: int | float, vec_queries: list[float], physical_operation_time: float, physical_measurement_time: float, physical_error_rate: float, eps_SF: float, num_trotter_steps: int = 50) -> float:
+    """Return the surface-code runtime for a QEMC proposal used inside a classical annealing schedule.
+
+    :param n: Number of spins.
+    :param vec_queries: Number of QEMC proposal queries per annealing step.
+    :param physical_operation_time: Time for one physical operation.
+    :param physical_measurement_time: Time for one physical measurement.
+    :param physical_error_rate: Physical Clifford error rate.
+    :param eps_SF: Error budget assigned to surface-code logical failures.
+    :param num_trotter_steps: Number of Trotter steps used by the QEMC proposal.
+    :return: Physical runtime in the same time unit as the physical operation and measurement times.
+    """
     total_time = 0
     for queries in vec_queries:
         logical_time_per_query = 1 + num_trotter_steps * (n + 2)
@@ -154,6 +296,11 @@ def get_annealing_time_classical_walk_qemc(n: int | float, vec_queries: list[flo
 
 @interpolation_cache(monaqa2.data.filename.CACHE_PHASE_GAP_FACTOR_FILE)
 def phase_gap_factor(spectral_gap: float) -> float:
+    """Return the inverse phase gap of a Szegedy walk.
+
+    :param spectral_gap: Classical spectral gap ``delta``.
+    :return: ``1 / arccos(1 - delta)``, evaluated as ``1 / (2 asin(sqrt(delta / 2)))`` for numerical stability.
+    """
     with mp.workdps(100):
         g = mp.mpf(spectral_gap)
         # 1.0 is wrapped in mp.mpf to force mpmath high-precision division
@@ -162,33 +309,51 @@ def phase_gap_factor(spectral_gap: float) -> float:
         return float(result)
 
 
-def spectral_gap_to_filter_degree(spectral_gap: float, prec: float) -> float:
-    return 2 * prec * phase_gap_factor(spectral_gap)
+def spectral_filter_polynomial_degree(spectral_gap: float, eps_filter: float) -> float:
+    """Return the polynomial degree for one QSVT spectral filter.
+
+    :param spectral_gap: Spectral gap of the Markov-chain discriminant matrix at the current annealing step.
+    :param eps_filter: Leakage budget assigned to this single spectral filter.
+    :return: Degree of the QSVT spectral-filter polynomial.
+    """
+    return 2 * np.log2(1.0 / eps_filter) * phase_gap_factor(spectral_gap)
 
 
-def get_qsvt_filter_application_overhead(zeno_overlap_probability: float = 1.0 / np.e) -> float:
-    return 1.0 + 1.0 / zeno_overlap_probability
+def spectral_filter_polynomial_degree_list(spectral_gaps: list[float], eps_FLT: float, overlap: float = 1.0 / np.e) -> list[float]:
+    """Return the QSVT spectral-filter degree for each annealing step.
+
+    :param spectral_gaps: Spectral gaps along the annealing schedule.
+    :param eps_FLT: Total error budget assigned to all spectral-filter polynomial approximations.
+    :param overlap: Lower bound on the squared overlap between consecutive annealing states.
+    :return: List of polynomial degrees, one for each spectral gap.
+    """
+    num_filters = len(spectral_gaps)
+    num_zeno_filters = num_filters * (1.0 + 1.0 / overlap)
+    eps_filter = eps_FLT / num_zeno_filters
+    return [spectral_filter_polynomial_degree(spectral_gap, eps_filter) for spectral_gap in spectral_gaps]
 
 
-def get_total_qsvt_filter_applications(num_filters: int | float, zeno_overlap_probability: float = 1.0 / np.e) -> float:
-    return num_filters * get_qsvt_filter_application_overhead(zeno_overlap_probability)
+def get_scheduled_filter_queries(degree_filters: list[float], overlap: float = 1.0 / np.e) -> list[float]:
+    """Return the expected number of walk queries per annealing step after Zeno-rewind repetitions.
 
-
-def get_filter_degrees_from_budget(spectral_gaps: list[float], eps_FLT: float, zeno_overlap_probability: float = 1.0 / np.e) -> list[float]:
-    total_filter_applications = get_total_qsvt_filter_applications(len(spectral_gaps), zeno_overlap_probability)
-    eps_filter = eps_FLT / total_filter_applications
-    prec = np.log2(1.0 / eps_filter)
-    return [spectral_gap_to_filter_degree(spectral_gap, prec) for spectral_gap in spectral_gaps]
-
-
-def get_scheduled_filter_queries(degree_filters: list[float], zeno_overlap_probability: float = 1.0 / np.e) -> list[float]:
-    overhead = get_qsvt_filter_application_overhead(zeno_overlap_probability)
-    return [overhead * degree for degree in degree_filters]
+    :param degree_filters: Degree of each unique QSVT spectral filter.
+    :param overlap: Lower bound on the squared overlap between consecutive annealing states.
+    :return: Expected number of calls to ``W`` or ``W-dagger`` contributed by each annealing step.
+    """
+    zeno_overhead = 1.0 + 1.0 / overlap
+    return [zeno_overhead * degree for degree in degree_filters]
 
 
 def get_quantum_annealing_error_budget(eps_TV: float, spectral_gaps: list[float], zeno_overlap_probability: float = 1.0 / np.e) -> dict[str, float | list[float]]:
+    """Return the error budget and query counts for the quantum annealing schedule.
+
+    :param eps_TV: Desired final total-variation distance error.
+    :param spectral_gaps: Spectral gaps along the annealing schedule.
+    :param zeno_overlap_probability: Lower bound on the squared overlap used in the Zeno-rewind cost model.
+    :return: Dictionary containing the four error budgets, QSVT degrees, expected queries per step, total expected queries, and per-walk error ``eps_W``.
+    """
     eps_SF, eps_MS, eps_FLT, eps_W_budget = split_quantum_error_budget(eps_TV)
-    degree_filters = get_filter_degrees_from_budget(spectral_gaps, eps_FLT, zeno_overlap_probability)
+    degree_filters = spectral_filter_polynomial_degree_list(spectral_gaps, eps_FLT, zeno_overlap_probability)
     queries_per_step = get_scheduled_filter_queries(degree_filters, zeno_overlap_probability)
     total_queries = float(sum(queries_per_step))
     eps_W = eps_W_budget / total_queries
@@ -205,7 +370,21 @@ def get_quantum_annealing_error_budget(eps_TV: float, spectral_gaps: list[float]
     }
 
 
-def _get_annealing_time_quantum_walk(n: int | float, eps_TV: float, betas: list[float], spectral_gaps: list[float], physical_operation_time: float, physical_measurement_time: float, physical_error_rate: float, circuit_fn, zeno_overlap_probability: float = 1.0 / np.e) -> float:
+def _get_annealing_time_quantum_walk(n: int | float, eps_TV: float, betas: list[float], spectral_gaps: list[float], physical_operation_time: float, physical_measurement_time: float, physical_error_rate: float, circuit_fn, zeno_overlap_probability: float = 1.0 / np.e, arithmetic_type: str = "HYBRID") -> float:
+    """Return the surface-code runtime for a quantum annealing schedule.
+
+    :param n: Number of spins.
+    :param eps_TV: Desired final total-variation distance error.
+    :param betas: Inverse temperatures along the annealing schedule.
+    :param spectral_gaps: Spectral gaps along the annealing schedule.
+    :param physical_operation_time: Time for one physical operation.
+    :param physical_measurement_time: Time for one physical measurement.
+    :param physical_error_rate: Physical Clifford error rate.
+    :param circuit_fn: Function returning one-walk logical resources for a selected proposal rule.
+    :param zeno_overlap_probability: Lower bound on the squared overlap used in the Zeno-rewind cost model.
+    :param arithmetic_type: Arithmetic implementation, either ``"HYBRID"`` or ``"FULLY_PHASE"``.
+    :return: Physical runtime in the same time unit as the physical operation and measurement times.
+    """
     budget = get_quantum_annealing_error_budget(eps_TV, spectral_gaps, zeno_overlap_probability)
     eps_SF = budget["eps_SF"]
     eps_W = budget["eps_W"]
@@ -214,28 +393,86 @@ def _get_annealing_time_quantum_walk(n: int | float, eps_TV: float, betas: list[
     logical_time = 0
     logical_space = 0
     for beta, queries in zip(betas, queries_per_step):
-        walk_time, walk_space = circuit_fn(n, eps_W, beta)
+        walk_time, walk_space = circuit_fn(n, eps_W, beta, arithmetic_type)
         logical_time += queries * walk_time
         logical_space = max(logical_space, walk_space)
 
     return rotated_surface_code_time(logical_time, logical_space, physical_operation_time, physical_measurement_time, physical_error_rate, eps_SF)
 
 
-def get_annealing_time_quantum_walk_local(n: int, eps_TV: float, betas: list[float], spectral_gaps: list[float], physical_operation_time: float, physical_measurement_time: float, physical_error_rate: float, zeno_overlap_probability: float = 1.0 / np.e, num_trotter_steps: int = 50) -> float:
-    return _get_annealing_time_quantum_walk(n, eps_TV, betas, spectral_gaps, physical_operation_time, physical_measurement_time, physical_error_rate, quantum_walk_local_circuit, zeno_overlap_probability)
+def get_annealing_time_quantum_walk_local(n: int, eps_TV: float, betas: list[float], spectral_gaps: list[float], physical_operation_time: float, physical_measurement_time: float, physical_error_rate: float, zeno_overlap_probability: float = 1.0 / np.e, num_trotter_steps: int = 50, arithmetic_type: str = "HYBRID") -> float:
+    """Return the surface-code runtime for quantum annealing with local-proposal Szegedy walks.
+
+    :param n: Number of spins.
+    :param eps_TV: Desired final total-variation distance error.
+    :param betas: Inverse temperatures along the annealing schedule.
+    :param spectral_gaps: Spectral gaps along the annealing schedule.
+    :param physical_operation_time: Time for one physical operation.
+    :param physical_measurement_time: Time for one physical measurement.
+    :param physical_error_rate: Physical Clifford error rate.
+    :param zeno_overlap_probability: Lower bound on the squared overlap used in the Zeno-rewind cost model.
+    :param num_trotter_steps: Unused for local proposals; kept for signature compatibility.
+    :param arithmetic_type: Arithmetic implementation, either ``"HYBRID"`` or ``"FULLY_PHASE"``.
+    :return: Physical runtime in the same time unit as the physical operation and measurement times.
+    """
+    return _get_annealing_time_quantum_walk(n, eps_TV, betas, spectral_gaps, physical_operation_time, physical_measurement_time, physical_error_rate, quantum_walk_local_circuit, zeno_overlap_probability, arithmetic_type)
 
 
-def get_annealing_time_quantum_walk_uniform(n: int, eps_TV: float, betas: list[float], spectral_gaps: list[float], physical_operation_time: float, physical_measurement_time: float, physical_error_rate: float, zeno_overlap_probability: float = 1.0 / np.e, num_trotter_steps: int = 50) -> float:
-    return _get_annealing_time_quantum_walk(n, eps_TV, betas, spectral_gaps, physical_operation_time, physical_measurement_time, physical_error_rate, quantum_walk_uniform_circuit, zeno_overlap_probability)
+def get_annealing_time_quantum_walk_uniform(n: int, eps_TV: float, betas: list[float], spectral_gaps: list[float], physical_operation_time: float, physical_measurement_time: float, physical_error_rate: float, zeno_overlap_probability: float = 1.0 / np.e, num_trotter_steps: int = 50, arithmetic_type: str = "HYBRID") -> float:
+    """Return the surface-code runtime for quantum annealing with uniform-proposal Szegedy walks.
+
+    :param n: Number of spins.
+    :param eps_TV: Desired final total-variation distance error.
+    :param betas: Inverse temperatures along the annealing schedule.
+    :param spectral_gaps: Spectral gaps along the annealing schedule.
+    :param physical_operation_time: Time for one physical operation.
+    :param physical_measurement_time: Time for one physical measurement.
+    :param physical_error_rate: Physical Clifford error rate.
+    :param zeno_overlap_probability: Lower bound on the squared overlap used in the Zeno-rewind cost model.
+    :param num_trotter_steps: Unused for uniform proposals; kept for signature compatibility.
+    :param arithmetic_type: Arithmetic implementation, either ``"HYBRID"`` or ``"FULLY_PHASE"``.
+    :return: Physical runtime in the same time unit as the physical operation and measurement times.
+    """
+    return _get_annealing_time_quantum_walk(n, eps_TV, betas, spectral_gaps, physical_operation_time, physical_measurement_time, physical_error_rate, quantum_walk_uniform_circuit, zeno_overlap_probability, arithmetic_type)
 
 
-def get_annealing_time_quantum_walk_qemc(n: int, eps_TV: float, betas: list[float], spectral_gaps: list[float], physical_operation_time: float, physical_measurement_time: float, physical_error_rate: float, zeno_overlap_probability: float = 1.0 / np.e, num_trotter_steps: int = 50) -> float:
-    def circuit_fn(n_local: int | float, eps_W: float, beta: float) -> tuple[float, float]:
-        return quantum_walk_qemc_circuit(n_local, eps_W, beta, num_trotter_steps)
+def get_annealing_time_quantum_walk_qemc(n: int, eps_TV: float, betas: list[float], spectral_gaps: list[float], physical_operation_time: float, physical_measurement_time: float, physical_error_rate: float, zeno_overlap_probability: float = 1.0 / np.e, num_trotter_steps: int = 50, arithmetic_type: str = "HYBRID") -> float:
+    """Return the surface-code runtime for quantum annealing with QEMC-proposal Szegedy walks.
 
-    return _get_annealing_time_quantum_walk(n, eps_TV, betas, spectral_gaps, physical_operation_time, physical_measurement_time, physical_error_rate, circuit_fn, zeno_overlap_probability)
+    :param n: Number of spins.
+    :param eps_TV: Desired final total-variation distance error.
+    :param betas: Inverse temperatures along the annealing schedule.
+    :param spectral_gaps: Spectral gaps along the annealing schedule.
+    :param physical_operation_time: Time for one physical operation.
+    :param physical_measurement_time: Time for one physical measurement.
+    :param physical_error_rate: Physical Clifford error rate.
+    :param zeno_overlap_probability: Lower bound on the squared overlap used in the Zeno-rewind cost model.
+    :param num_trotter_steps: Number of Trotter steps used by the QEMC proposal.
+    :param arithmetic_type: Arithmetic implementation, either ``"HYBRID"`` or ``"FULLY_PHASE"``.
+    :return: Physical runtime in the same time unit as the physical operation and measurement times.
+    """
+    def circuit_fn(n_local: int | float, eps_W: float, beta: float, arithmetic_type_local: str = "HYBRID") -> tuple[float, float]:
+        """Wrap the QEMC circuit resource function with a fixed Trotter-step count.
+
+        :param n_local: Number of spins.
+        :param eps_W: Error budget for one implementation of ``W`` or ``W-dagger``.
+        :param beta: Inverse temperature for the current annealing step.
+        :param arithmetic_type_local: Arithmetic implementation, either ``"HYBRID"`` or ``"FULLY_PHASE"``.
+        :return: Tuple ``(logical_depth, logical_qubits)`` for one QEMC walk application.
+        """
+        return quantum_walk_qemc_circuit(n_local, eps_W, beta, num_trotter_steps, arithmetic_type_local)
+
+    return _get_annealing_time_quantum_walk(n, eps_TV, betas, spectral_gaps, physical_operation_time, physical_measurement_time, physical_error_rate, circuit_fn, zeno_overlap_probability, arithmetic_type)
 
 
 def get_annealing_queries_quantum_walks(n: int | float, eps_TV: float, spectral_gaps: list[float], zeno_overlap_probability: float = 1.0 / np.e) -> float:
+    """Return the expected number of walk queries in the Zeno-rewind quantum annealing schedule.
+
+    :param n: Number of spins; currently unused but kept for API compatibility.
+    :param eps_TV: Desired final total-variation distance error.
+    :param spectral_gaps: Spectral gaps along the annealing schedule.
+    :param zeno_overlap_probability: Lower bound on the squared overlap used in the Zeno-rewind cost model.
+    :return: Expected total number of calls to ``W`` or ``W-dagger``.
+    """
     budget = get_quantum_annealing_error_budget(eps_TV, spectral_gaps, zeno_overlap_probability)
     return budget["total_queries"]
