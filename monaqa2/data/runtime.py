@@ -5,6 +5,18 @@ import monaqa2.data.filename
 from monaqa2.mcmc.search import search_monotone
 
 ALLOWED_DEVICES = {"cpu", "gpu", "fpga"}
+ALLOWED_ARITHMETIC_TYPES = {"HYBRID", "FULLY_PHASE"}
+
+
+def _validate_arithmetic_type(arithmetic_type: str) -> str:
+    """Return a validated arithmetic type.
+
+    :param arithmetic_type: Arithmetic implementation name.
+    :return: The validated arithmetic implementation name.
+    """
+    if arithmetic_type not in ALLOWED_ARITHMETIC_TYPES:
+        raise ValueError(f"Unknown arithmetic_type={arithmetic_type!r}. Allowed: {ALLOWED_ARITHMETIC_TYPES}")
+    return arithmetic_type
 
 
 def cpu_local_step(n: int | float) -> float:
@@ -120,11 +132,26 @@ def rotated_surface_code_time(logical_time: int | float, logical_space: int | fl
 def _calculate_auxiliary_quantum_circuit_vars(n: int | float, eps_W: float, beta: float) -> tuple[float, float, float, float, float, float, float, float]:
     """Return auxiliary parameters used by the quantum-walk circuit formulas.
 
+    The hybrid-arithmetic resource formula assumes the active-tail regime ``m >= 3``.
+    For smaller ``beta`` or ``n``, the active-tail expression is not valid as written;
+    we use the conservative floor ``m = 3`` to keep the resource estimate finite.
+
     :param n: Number of spins.
     :param eps_W: Error budget for a single implementation of ``W`` or ``W-dagger``.
     :param beta: Inverse temperature for the current annealing step.
     :return: Tuple ``(ell_n, ell_eps, ell_2n, S, ell_S, alpha, m, ell_m)`` used in the resource formulas.
     """
+    n = float(n)
+    beta = float(beta)
+    eps_W = float(eps_W)
+
+    if not np.isfinite(n) or n <= 0.0:
+        raise ValueError(f"Invalid n={n}")
+    if not np.isfinite(beta) or beta < 0.0:
+        raise ValueError(f"Invalid beta={beta}")
+    if not np.isfinite(eps_W) or not (0.0 < eps_W < 1.0):
+        raise ValueError(f"Invalid eps_W={eps_W}")
+
     ell_n = np.log2(n)
     ell_eps = np.log2(1.0 / eps_W)
     ell_2n = np.log2(2.0 * n)
@@ -133,7 +160,8 @@ def _calculate_auxiliary_quantum_circuit_vars(n: int | float, eps_W: float, beta
     alpha = 2.0 * n**1.5 / np.sqrt(np.pi)
 
     m_arg = beta * alpha / (2.0 * np.log(1.0 / eps_W))
-    m = np.log2(m_arg)
+    m_raw = np.log2(m_arg) if m_arg > 0.0 else -np.inf
+    m = max(3.0, float(m_raw))
     ell_m = np.log2(m)
 
     return ell_n, ell_eps, ell_2n, S, ell_S, alpha, m, ell_m
@@ -148,6 +176,7 @@ def quantum_walk_local_circuit(n: int | float, eps_W: float, beta: float, arithm
     :param arithmetic_type: Arithmetic implementation, either ``"HYBRID"`` or ``"FULLY_PHASE"``.
     :return: Tuple ``(logical_depth, logical_qubits)`` for one walk application.
     """
+    arithmetic_type = _validate_arithmetic_type(arithmetic_type)
     ell_n, ell_eps, ell_2n, S, ell_S, alpha, m, ell_m = _calculate_auxiliary_quantum_circuit_vars(n, eps_W, beta)
 
     proposal_depth, proposal_qubits = 13 * ell_n + 15, 2 * n
@@ -181,6 +210,7 @@ def quantum_walk_uniform_circuit(n: int | float, eps_W: float, beta: float, arit
     :param arithmetic_type: Arithmetic implementation, either ``"HYBRID"`` or ``"FULLY_PHASE"``.
     :return: Tuple ``(logical_depth, logical_qubits)`` for one walk application.
     """
+    arithmetic_type = _validate_arithmetic_type(arithmetic_type)
     ell_n, ell_eps, ell_2n, S, ell_S, alpha, m, ell_m = _calculate_auxiliary_quantum_circuit_vars(n, eps_W, beta)
 
     proposal_depth, proposal_qubits = 0, 2 * n
@@ -215,6 +245,7 @@ def quantum_walk_qemc_circuit(n: int | float, eps_W: float, beta: float, num_tro
     :param arithmetic_type: Arithmetic implementation, either ``"HYBRID"`` or ``"FULLY_PHASE"``.
     :return: Tuple ``(logical_depth, logical_qubits)`` for one walk application.
     """
+    arithmetic_type = _validate_arithmetic_type(arithmetic_type)
     ell_n, ell_eps, ell_2n, S, ell_S, alpha, m, ell_m = _calculate_auxiliary_quantum_circuit_vars(n, eps_W, beta)
 
     proposal_depth, proposal_qubits = 1 + num_trotter_steps * (n + 2), 2 * n
@@ -294,20 +325,32 @@ def get_annealing_time_classical_walk_qemc(n: int | float, vec_queries: list[flo
     return total_time
 
 
-@interpolation_cache(monaqa2.data.filename.CACHE_PHASE_GAP_FACTOR_FILE)
-def phase_gap_factor(spectral_gap: float) -> float:
-    """Return the inverse phase gap of a Szegedy walk.
+# @interpolation_cache(monaqa2.data.filename.CACHE_PHASE_GAP_FACTOR_FILE)
+# def phase_gap_factor(spectral_gap: float) -> float:
+#     """Return the inverse phase gap of a Szegedy walk.
+# 
+#     :param spectral_gap: Classical spectral gap ``delta``.
+#     :return: ``1 / arccos(1 - delta)``, evaluated as ``1 / (2 asin(sqrt(delta / 2)))`` for numerical stability.
+#     """
+#     with mp.workdps(100):
+#         g = mp.mpf(spectral_gap)
+#         # 1.0 is wrapped in mp.mpf to force mpmath high-precision division
+#         # MUUUUCH SAFER THAN arccos(1 - g)
+#         result = mp.mpf(1) / (2 * mp.asin(mp.sqrt(g / 2)))
+#         return float(result)
+
+def phase_gap_factor(spectral_gap: float | str | np.longdouble) -> np.longdouble:
+    """Return ``1 / arccos(1 - delta)``, computed stably.
 
     :param spectral_gap: Classical spectral gap ``delta``.
-    :return: ``1 / arccos(1 - delta)``, evaluated as ``1 / (2 asin(sqrt(delta / 2)))`` for numerical stability.
+    :return: Inverse Szegedy phase gap.
     """
-    with mp.workdps(100):
-        g = mp.mpf(spectral_gap)
-        # 1.0 is wrapped in mp.mpf to force mpmath high-precision division
-        # MUUUUCH SAFER THAN arccos(1 - g)
-        result = mp.mpf(1) / (2 * mp.asin(mp.sqrt(g / 2)))
-        return float(result)
-
+    g = np.longdouble(spectral_gap)
+    if not np.isfinite(g) or g <= np.longdouble(0) or g > np.longdouble(1):
+        raise ValueError(f"Invalid spectral_gap={spectral_gap}. Expected 0 < spectral_gap <= 1.")
+    return np.longdouble(1) / (
+        np.longdouble(2) * np.arcsin(np.sqrt(g / np.longdouble(2)))
+    )
 
 def spectral_filter_polynomial_degree(spectral_gap: float, eps_filter: float) -> float:
     """Return the polynomial degree for one QSVT spectral filter.
@@ -400,7 +443,7 @@ def _get_annealing_time_quantum_walk(n: int | float, eps_TV: float, betas: list[
     return rotated_surface_code_time(logical_time, logical_space, physical_operation_time, physical_measurement_time, physical_error_rate, eps_SF)
 
 
-def get_annealing_time_quantum_walk_local(n: int, eps_TV: float, betas: list[float], spectral_gaps: list[float], physical_operation_time: float, physical_measurement_time: float, physical_error_rate: float, zeno_overlap_probability: float = 1.0 / np.e, num_trotter_steps: int = 50, arithmetic_type: str = "HYBRID") -> float:
+def get_annealing_time_quantum_walk_local(n: int, eps_TV: float, betas: list[float], spectral_gaps: list[float], physical_operation_time: float, physical_measurement_time: float, physical_error_rate: float, *, zeno_overlap_probability: float = 1.0 / np.e, num_trotter_steps: int = 50, arithmetic_type: str = "HYBRID") -> float:
     """Return the surface-code runtime for quantum annealing with local-proposal Szegedy walks.
 
     :param n: Number of spins.
@@ -418,7 +461,7 @@ def get_annealing_time_quantum_walk_local(n: int, eps_TV: float, betas: list[flo
     return _get_annealing_time_quantum_walk(n, eps_TV, betas, spectral_gaps, physical_operation_time, physical_measurement_time, physical_error_rate, quantum_walk_local_circuit, zeno_overlap_probability, arithmetic_type)
 
 
-def get_annealing_time_quantum_walk_uniform(n: int, eps_TV: float, betas: list[float], spectral_gaps: list[float], physical_operation_time: float, physical_measurement_time: float, physical_error_rate: float, zeno_overlap_probability: float = 1.0 / np.e, num_trotter_steps: int = 50, arithmetic_type: str = "HYBRID") -> float:
+def get_annealing_time_quantum_walk_uniform(n: int, eps_TV: float, betas: list[float], spectral_gaps: list[float], physical_operation_time: float, physical_measurement_time: float, physical_error_rate: float, *, zeno_overlap_probability: float = 1.0 / np.e, num_trotter_steps: int = 50, arithmetic_type: str = "HYBRID") -> float:
     """Return the surface-code runtime for quantum annealing with uniform-proposal Szegedy walks.
 
     :param n: Number of spins.
@@ -436,7 +479,7 @@ def get_annealing_time_quantum_walk_uniform(n: int, eps_TV: float, betas: list[f
     return _get_annealing_time_quantum_walk(n, eps_TV, betas, spectral_gaps, physical_operation_time, physical_measurement_time, physical_error_rate, quantum_walk_uniform_circuit, zeno_overlap_probability, arithmetic_type)
 
 
-def get_annealing_time_quantum_walk_qemc(n: int, eps_TV: float, betas: list[float], spectral_gaps: list[float], physical_operation_time: float, physical_measurement_time: float, physical_error_rate: float, zeno_overlap_probability: float = 1.0 / np.e, num_trotter_steps: int = 50, arithmetic_type: str = "HYBRID") -> float:
+def get_annealing_time_quantum_walk_qemc(n: int, eps_TV: float, betas: list[float], spectral_gaps: list[float], physical_operation_time: float, physical_measurement_time: float, physical_error_rate: float, *, zeno_overlap_probability: float = 1.0 / np.e, num_trotter_steps: int = 50, arithmetic_type: str = "HYBRID") -> float:
     """Return the surface-code runtime for quantum annealing with QEMC-proposal Szegedy walks.
 
     :param n: Number of spins.
@@ -476,3 +519,64 @@ def get_annealing_queries_quantum_walks(n: int | float, eps_TV: float, spectral_
     """
     budget = get_quantum_annealing_error_budget(eps_TV, spectral_gaps, zeno_overlap_probability)
     return budget["total_queries"]
+
+
+
+def tight_schedule_annealing(n: int | float, beta: float) -> list[float]:
+    beta = float(beta)
+    if beta <= 0.0:
+        return []
+
+    current = 0.0
+    schedule = []
+
+    def delta_beta(n: int | float, beta: float | np.ndarray) -> float | np.ndarray:
+        beta = np.asarray(beta, dtype=float)
+        step = np.where(
+            beta < 1.0,
+            np.exp(-0.111 * beta + 0.615 * beta**2),
+            0.533 * (beta + 0.286)**1.75,
+        ) / np.sqrt(float(n))
+        return step
+
+    while current < beta:
+        step = float(delta_beta(n, current))
+        if not np.isfinite(step) or step <= 0.0:
+            raise ValueError(f"Invalid annealing step: n={n}, beta={current}, step={step}")
+
+        current = min(current + step, beta)
+
+        if not schedule or not np.isclose(current, schedule[-1]):
+            schedule.append(current)
+
+    return schedule
+
+
+def make_prefix_stable_schedule_generator(
+    beta_max: float,
+    n_ref: int | float,
+    base_schedule_generator,
+):
+    """Return a schedule generator using one fixed master beta grid.
+
+    :param beta_max: Maximum final beta for which the schedule is needed.
+    :param n_ref: Reference n used to generate the master schedule, usually n_plot_max.
+    :param base_schedule_generator: Original adaptive schedule generator.
+    :return: Function ``schedule(n, beta)`` with beta-prefix stability and no n-dependent node motion.
+    """
+    beta_max = float(beta_max)
+    master_schedule = base_schedule_generator(n_ref, beta_max)
+
+    def schedule(n: int | float, beta: float) -> list[float]:
+        beta = float(beta)
+        if beta <= 0.0:
+            return []
+
+        prefix = [b for b in master_schedule if b < beta and not np.isclose(b, beta)]
+
+        if not prefix or not np.isclose(prefix[-1], beta):
+            prefix.append(beta)
+
+        return prefix
+
+    return schedule
