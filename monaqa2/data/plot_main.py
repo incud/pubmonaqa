@@ -77,6 +77,10 @@ def plot_spectral_gap_vs_n(
     n_fit_max: int | None = 10,
     n_plot_min: int | None = None,
     n_plot_max: int | None = None,
+    fig: plt.Figure | None = None,
+    ax: plt.Axes | None = None,
+    title: str | None = None,
+    show_legend: bool = True,
 ) -> tuple[plt.Figure, plt.Axes]:
     """
     Plot spectral gap versus n for fixed beta.
@@ -89,7 +93,9 @@ def plot_spectral_gap_vs_n(
         n_plot_min = 1
         n_plot_max = 100
 
-    fig, ax = plt.subplots(figsize=(8.5, 4.8))
+    if fig is None or ax is None:
+        fig, ax = plt.subplots(figsize=(8.5, 4.8))
+
     n_grid = np.linspace(float(n_plot_min), float(n_plot_max), 300)
     legend_handles = {}
     legend_labels = {}
@@ -117,15 +123,16 @@ def plot_spectral_gap_vs_n(
     ax.set_yscale("log")
     ax.set_xlabel(r"$n$")
     ax.set_ylabel(r"Spectral gap $\delta$")
-    ax.set_title(rf"Spectral gap over instances, $\beta={fixed_beta}$, statistic={statistic}")
+    ax.set_title(title if title is not None else rf"Spectral gap over instances, $\beta={fixed_beta}$, statistic={statistic}")
 
     ax.set_axisbelow(True)
     ax.grid(True, which="major", alpha=0.30)
     ax.grid(False, which="minor")
 
-    handles = [legend_handles[p] for p in PROPOSALS_SORTED if p in legend_handles]
-    labels = [legend_labels[p] for p in PROPOSALS_SORTED if p in legend_labels]
-    ax.legend(handles, labels, frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.18), ncol=1, borderaxespad=0.0, handlelength=2.4)
+    if show_legend:
+        handles = [legend_handles[p] for p in PROPOSALS_SORTED if p in legend_handles]
+        labels = [legend_labels[p] for p in PROPOSALS_SORTED if p in legend_labels]
+        ax.legend(handles, labels, frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.18), ncol=1, borderaxespad=0.0, handlelength=2.4)
 
     return fig, ax
 
@@ -139,6 +146,10 @@ def plot_spectral_gap_vs_beta(
     beta_step: float = 0.01,
     beta_plot_min: float | None = None,
     beta_plot_max: float | None = None,
+    fig: plt.Figure | None = None,
+    ax: plt.Axes | None = None,
+    title: str | None = None,
+    show_legend: bool = True,
 ) -> tuple[plt.Figure, plt.Axes]:
     """
     Plot spectral gap versus beta for fixed n.
@@ -153,7 +164,9 @@ def plot_spectral_gap_vs_beta(
     if beta_plot_min <= 0.0:
         raise ValueError("beta_plot_min must be positive because the x-axis is logarithmic.")
 
-    fig, ax = plt.subplots(figsize=(8.5, 4.8))
+    if fig is None or ax is None:
+        fig, ax = plt.subplots(figsize=(8.5, 4.8))
+
     legend_handles = {}
     legend_labels = {}
 
@@ -202,15 +215,16 @@ def plot_spectral_gap_vs_beta(
     ax.set_xlim(beta_plot_min, beta_plot_max)
     ax.set_xlabel(r"$\beta$")
     ax.set_ylabel(r"Spectral gap $\delta$")
-    ax.set_title(rf"Spectral gap over instances, $n={fixed_n}$, statistic={statistic}")
+    ax.set_title(title if title is not None else rf"Spectral gap over instances, $n={fixed_n}$, statistic={statistic}")
 
     ax.set_axisbelow(True)
     ax.grid(True, which="major", alpha=0.30)
     ax.grid(False, which="minor")
 
-    handles = [legend_handles[p] for p in PROPOSALS_SORTED if p in legend_handles]
-    labels = [legend_labels[p] for p in PROPOSALS_SORTED if p in legend_labels]
-    ax.legend(handles, labels, frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.18), ncol=1, borderaxespad=0.0, handlelength=2.4)
+    if show_legend:
+        handles = [legend_handles[p] for p in PROPOSALS_SORTED if p in legend_handles]
+        labels = [legend_labels[p] for p in PROPOSALS_SORTED if p in legend_labels]
+        ax.legend(handles, labels, frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.18), ncol=1, borderaxespad=0.0, handlelength=2.4)
 
     return fig, ax
 
@@ -228,6 +242,10 @@ def plot_last_step_classical_queries_and_spectral_gap_vs_n(
     n_fit_max: int | None = 10,
     n_plot_min: int | None = None,
     n_plot_max: int | None = None,
+    fig: plt.Figure | None = None,
+    ax: plt.Axes | None = None,
+    title: str | None = None,
+    show_legend: bool = True,
 ) -> tuple[plt.Figure, plt.Axes, plt.Axes | None]:
     """
     Plot classical queries versus n for fixed beta and epsilon. This is for the last
@@ -242,7 +260,9 @@ def plot_last_step_classical_queries_and_spectral_gap_vs_n(
         n_plot_min = 1
         n_plot_max = 100
 
-    fig, ax = plt.subplots(figsize=(8.5, 4.8))
+    if fig is None or ax is None:
+        fig, ax = plt.subplots(figsize=(8.5, 4.8))
+
     ax_gap = ax.twinx() if show_inverse_gap else None
     n_grid = np.linspace(float(n_plot_min), float(n_plot_max), 300)
 
@@ -285,7 +305,7 @@ def plot_last_step_classical_queries_and_spectral_gap_vs_n(
     ax.set_yscale("log")
     ax.set_xlabel(r"$n$")
     ax.set_ylabel(r"Classical queries")
-    ax.set_title(rf"Classical queries, $\beta={beta}$, $\epsilon={epsilon:g}$")
+    ax.set_title(title if title is not None else rf"Classical queries, $\beta={beta}$, $\epsilon={epsilon:g}$")
 
     ax.set_axisbelow(True)
     ax.grid(True, which="major", alpha=0.30)
@@ -308,7 +328,8 @@ def plot_last_step_classical_queries_and_spectral_gap_vs_n(
         handles += [gap_handles[p] for p in PROPOSALS_SORTED if p in gap_handles]
         labels += [gap_labels[p] for p in PROPOSALS_SORTED if p in gap_labels]
 
-    ax.legend(handles, labels, frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.18), ncol=1, borderaxespad=0.0, handlelength=2.4)
+    if show_legend:
+        ax.legend(handles, labels, frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.18), ncol=1, borderaxespad=0.0, handlelength=2.4)
 
     return fig, ax, ax_gap
 
@@ -324,6 +345,10 @@ def plot_annealing_classical_and_quantum_queries_vs_n(
     n_fit_max: int | None = 10,
     n_plot_min: int | None = None,
     n_plot_max: int | None = None,
+    fig: plt.Figure | None = None,
+    ax: plt.Axes | None = None,
+    title: str | None = None,
+    show_legend: bool = True,
 ) -> tuple[plt.Figure, plt.Axes]:
     """
     Plot total annealing classical-query estimates and quantum-walk query estimates versus n.
@@ -335,7 +360,9 @@ def plot_annealing_classical_and_quantum_queries_vs_n(
         n_plot_min = 1
         n_plot_max = 100
 
-    fig, ax = plt.subplots(figsize=(8.5, 4.8))
+    if fig is None or ax is None:
+        fig, ax = plt.subplots(figsize=(8.5, 4.8))
+
     n_vals = np.linspace(float(n_plot_min), float(n_plot_max), 300)
     classical_handles = {}
     classical_labels = {}
@@ -374,7 +401,7 @@ def plot_annealing_classical_and_quantum_queries_vs_n(
     ax.set_yscale("log")
     ax.set_xlabel(r"$n$")
     ax.set_ylabel(r"Queries")
-    ax.set_title(rf"Annealing queries, $\beta_F={beta}$, $\epsilon={epsilon:g}$")
+    ax.set_title(title if title is not None else rf"Annealing queries, $\beta_F={beta}$, $\epsilon={epsilon:g}$")
 
     ax.set_axisbelow(True)
     ax.grid(True, which="major", alpha=0.30)
@@ -385,7 +412,8 @@ def plot_annealing_classical_and_quantum_queries_vs_n(
     handles += [quantum_handles[p] for p in PROPOSALS_SORTED if p in quantum_handles]
     labels += [quantum_labels[p] for p in PROPOSALS_SORTED if p in quantum_labels]
 
-    ax.legend(handles, labels, frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.18), ncol=1, borderaxespad=0.0, handlelength=2.4)
+    if show_legend:
+        ax.legend(handles, labels, frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.18), ncol=1, borderaxespad=0.0, handlelength=2.4)
 
     return fig, ax
 
