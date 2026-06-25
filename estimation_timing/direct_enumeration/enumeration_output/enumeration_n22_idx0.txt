@@ -1,0 +1,8 @@
+n 22
+input_file ising_inputs/model_n22_idx0.txt
+states 4194304
+sum -8.748456126195236493e-11
+seconds_total 1.22675774600000009329
+seconds_per_operation 2.9248183870315553982e-07
+ns_per_operation 292.481838703155517578
+completed 1

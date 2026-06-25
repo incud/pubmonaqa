@@ -1,0 +1,8 @@
+n 11
+input_file ising_inputs/model_n11_idx0.txt
+states 2048
+sum -1.50990331349021289498e-14
+seconds_total 0.00025430500000000002582
+seconds_per_operation 1.24172363281250012607e-07
+ns_per_operation 124.172363281250014211
+completed 1

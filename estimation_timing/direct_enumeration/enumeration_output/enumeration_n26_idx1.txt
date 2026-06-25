@@ -1,0 +1,8 @@
+n 26
+input_file ising_inputs/model_n26_idx1.txt
+states 67108864
+sum 9.00761437661046215908e-10
+seconds_total 23.526356660000001142
+seconds_per_operation 3.50570032894611375659e-07
+ns_per_operation 350.570032894611358643
+completed 1

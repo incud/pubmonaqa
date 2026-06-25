@@ -1,0 +1,8 @@
+n 18
+input_file ising_inputs/model_n18_idx0.txt
+states 262144
+sum -9.770517728213690134e-13
+seconds_total 0.0638015650000000045239
+seconds_per_operation 2.43383655548095720382e-07
+ns_per_operation 243.383655548095731547
+completed 1
