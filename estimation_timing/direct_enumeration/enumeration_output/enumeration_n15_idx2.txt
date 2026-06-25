@@ -1,0 +1,8 @@
+n 15
+input_file ising_inputs/model_n15_idx2.txt
+states 32768
+sum -1.69850244979841136228e-12
+seconds_total 0.0067667130000000005885
+seconds_per_operation 2.06503692626953142959e-07
+ns_per_operation 206.503692626953153422
+completed 1

@@ -1,0 +1,8 @@
+n 25
+input_file ising_inputs/model_n25_idx5.txt
+states 33554432
+sum 2.26752713827771401611e-09
+seconds_total 11.2309843770000004071
+seconds_per_operation 3.34709417134523403855e-07
+ns_per_operation 334.709417134523391724
+completed 1

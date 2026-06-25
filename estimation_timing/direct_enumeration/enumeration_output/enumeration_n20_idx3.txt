@@ -1,0 +1,8 @@
+n 20
+input_file ising_inputs/model_n20_idx3.txt
+states 1048576
+sum -1.99622540719701646594e-11
+seconds_total 0.280453027999999993103
+seconds_per_operation 2.67460849761962884047e-07
+ns_per_operation 267.460849761962890625
+completed 1

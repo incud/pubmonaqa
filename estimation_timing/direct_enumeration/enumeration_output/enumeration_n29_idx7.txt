@@ -1,0 +1,8 @@
+n 29
+input_file ising_inputs/model_n29_idx7.txt
+states 536870912
+sum -9.44922895484978653258e-09
+seconds_total 217.060700717000003124
+seconds_per_operation 4.0430706127919257269e-07
+ns_per_operation 404.307061279192566872
+completed 1

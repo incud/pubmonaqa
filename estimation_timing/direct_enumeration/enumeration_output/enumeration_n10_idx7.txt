@@ -1,0 +1,8 @@
+n 10
+input_file ising_inputs/model_n10_idx7.txt
+states 1024
+sum -1.17128529097954015015e-14
+seconds_total 0.000113219000000000001387
+seconds_per_operation 1.10565429687500001355e-07
+ns_per_operation 110.5654296875
+completed 1

@@ -1,0 +1,8 @@
+n 19
+input_file ising_inputs/model_n19_idx4.txt
+states 524288
+sum -5.167581640375118468e-12
+seconds_total 0.133804402000000016715
+seconds_per_operation 2.55211643218994172506e-07
+ns_per_operation 255.211643218994169047
+completed 1

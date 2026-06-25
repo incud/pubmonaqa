@@ -1,0 +1,8 @@
+n 28
+input_file ising_inputs/model_n28_idx4.txt
+states 268435456
+sum -1.12448079181426408013e-08
+seconds_total 103.317439202000002751
+seconds_per_operation 3.84887453921139250515e-07
+ns_per_operation 384.887453921139240265
+completed 1

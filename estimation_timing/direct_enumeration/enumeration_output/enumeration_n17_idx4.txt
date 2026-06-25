@@ -1,0 +1,8 @@
+n 17
+input_file ising_inputs/model_n17_idx4.txt
+states 131072
+sum 3.50397488801945655723e-12
+seconds_total 0.0307351370000000026494
+seconds_per_operation 2.34490486145019551464e-07
+ns_per_operation 234.490486145019559672
+completed 1
