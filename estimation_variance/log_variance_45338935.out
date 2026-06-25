@@ -1,0 +1,2102 @@
+Loading gcc/12.2.0
+  Loading requirement: zlib-ng/2.1.6-jkgunjc zstd/1.5.6-uq5yyux binutils/2.42
+skipping n=5 idx=0 because variance_outputs/variance_n5_idx0.txt already exists
+skipping n=6 idx=0 because variance_outputs/variance_n6_idx0.txt already exists
+skipping n=7 idx=0 because variance_outputs/variance_n7_idx0.txt already exists
+skipping n=8 idx=0 because variance_outputs/variance_n8_idx0.txt already exists
+skipping n=9 idx=0 because variance_outputs/variance_n9_idx0.txt already exists
+skipping n=10 idx=0 because variance_outputs/variance_n10_idx0.txt already exists
+skipping n=11 idx=0 because variance_outputs/variance_n11_idx0.txt already exists
+skipping n=12 idx=0 because variance_outputs/variance_n12_idx0.txt already exists
+skipping n=13 idx=0 because variance_outputs/variance_n13_idx0.txt already exists
+skipping n=14 idx=0 because variance_outputs/variance_n14_idx0.txt already exists
+skipping n=15 idx=0 because variance_outputs/variance_n15_idx0.txt already exists
+skipping n=16 idx=0 because variance_outputs/variance_n16_idx0.txt already exists
+skipping n=17 idx=0 because variance_outputs/variance_n17_idx0.txt already exists
+skipping n=18 idx=0 because variance_outputs/variance_n18_idx0.txt already exists
+skipping n=19 idx=0 because variance_outputs/variance_n19_idx0.txt already exists
+skipping n=20 idx=0 because variance_outputs/variance_n20_idx0.txt already exists
+skipping n=21 idx=0 because variance_outputs/variance_n21_idx0.txt already exists
+skipping n=22 idx=0 because variance_outputs/variance_n22_idx0.txt already exists
+skipping n=23 idx=0 because variance_outputs/variance_n23_idx0.txt already exists
+skipping n=24 idx=0 because variance_outputs/variance_n24_idx0.txt already exists
+skipping n=25 idx=0 because variance_outputs/variance_n25_idx0.txt already exists
+skipping n=5 idx=1 because variance_outputs/variance_n5_idx1.txt already exists
+skipping n=6 idx=1 because variance_outputs/variance_n6_idx1.txt already exists
+skipping n=7 idx=1 because variance_outputs/variance_n7_idx1.txt already exists
+skipping n=8 idx=1 because variance_outputs/variance_n8_idx1.txt already exists
+skipping n=9 idx=1 because variance_outputs/variance_n9_idx1.txt already exists
+skipping n=10 idx=1 because variance_outputs/variance_n10_idx1.txt already exists
+skipping n=11 idx=1 because variance_outputs/variance_n11_idx1.txt already exists
+skipping n=12 idx=1 because variance_outputs/variance_n12_idx1.txt already exists
+skipping n=13 idx=1 because variance_outputs/variance_n13_idx1.txt already exists
+skipping n=14 idx=1 because variance_outputs/variance_n14_idx1.txt already exists
+skipping n=15 idx=1 because variance_outputs/variance_n15_idx1.txt already exists
+skipping n=16 idx=1 because variance_outputs/variance_n16_idx1.txt already exists
+skipping n=17 idx=1 because variance_outputs/variance_n17_idx1.txt already exists
+skipping n=18 idx=1 because variance_outputs/variance_n18_idx1.txt already exists
+skipping n=19 idx=1 because variance_outputs/variance_n19_idx1.txt already exists
+skipping n=20 idx=1 because variance_outputs/variance_n20_idx1.txt already exists
+skipping n=21 idx=1 because variance_outputs/variance_n21_idx1.txt already exists
+skipping n=22 idx=1 because variance_outputs/variance_n22_idx1.txt already exists
+skipping n=23 idx=1 because variance_outputs/variance_n23_idx1.txt already exists
+skipping n=24 idx=1 because variance_outputs/variance_n24_idx1.txt already exists
+skipping n=25 idx=1 because variance_outputs/variance_n25_idx1.txt already exists
+skipping n=5 idx=2 because variance_outputs/variance_n5_idx2.txt already exists
+skipping n=6 idx=2 because variance_outputs/variance_n6_idx2.txt already exists
+skipping n=7 idx=2 because variance_outputs/variance_n7_idx2.txt already exists
+skipping n=8 idx=2 because variance_outputs/variance_n8_idx2.txt already exists
+skipping n=9 idx=2 because variance_outputs/variance_n9_idx2.txt already exists
+skipping n=10 idx=2 because variance_outputs/variance_n10_idx2.txt already exists
+skipping n=11 idx=2 because variance_outputs/variance_n11_idx2.txt already exists
+skipping n=12 idx=2 because variance_outputs/variance_n12_idx2.txt already exists
+skipping n=13 idx=2 because variance_outputs/variance_n13_idx2.txt already exists
+skipping n=14 idx=2 because variance_outputs/variance_n14_idx2.txt already exists
+skipping n=15 idx=2 because variance_outputs/variance_n15_idx2.txt already exists
+skipping n=16 idx=2 because variance_outputs/variance_n16_idx2.txt already exists
+skipping n=17 idx=2 because variance_outputs/variance_n17_idx2.txt already exists
+skipping n=18 idx=2 because variance_outputs/variance_n18_idx2.txt already exists
+skipping n=19 idx=2 because variance_outputs/variance_n19_idx2.txt already exists
+skipping n=20 idx=2 because variance_outputs/variance_n20_idx2.txt already exists
+skipping n=21 idx=2 because variance_outputs/variance_n21_idx2.txt already exists
+skipping n=22 idx=2 because variance_outputs/variance_n22_idx2.txt already exists
+skipping n=23 idx=2 because variance_outputs/variance_n23_idx2.txt already exists
+skipping n=24 idx=2 because variance_outputs/variance_n24_idx2.txt already exists
+skipping n=25 idx=2 because variance_outputs/variance_n25_idx2.txt already exists
+running n=5 idx=3
+skipping n=6 idx=3 because variance_outputs/variance_n6_idx3.txt already exists
+skipping n=7 idx=3 because variance_outputs/variance_n7_idx3.txt already exists
+skipping n=8 idx=3 because variance_outputs/variance_n8_idx3.txt already exists
+skipping n=9 idx=3 because variance_outputs/variance_n9_idx3.txt already exists
+skipping n=10 idx=3 because variance_outputs/variance_n10_idx3.txt already exists
+skipping n=11 idx=3 because variance_outputs/variance_n11_idx3.txt already exists
+skipping n=12 idx=3 because variance_outputs/variance_n12_idx3.txt already exists
+skipping n=13 idx=3 because variance_outputs/variance_n13_idx3.txt already exists
+skipping n=14 idx=3 because variance_outputs/variance_n14_idx3.txt already exists
+skipping n=15 idx=3 because variance_outputs/variance_n15_idx3.txt already exists
+skipping n=16 idx=3 because variance_outputs/variance_n16_idx3.txt already exists
+skipping n=17 idx=3 because variance_outputs/variance_n17_idx3.txt already exists
+running n=18 idx=3
+skipping n=19 idx=3 because variance_outputs/variance_n19_idx3.txt already exists
+skipping n=20 idx=3 because variance_outputs/variance_n20_idx3.txt already exists
+skipping n=21 idx=3 because variance_outputs/variance_n21_idx3.txt already exists
+skipping n=22 idx=3 because variance_outputs/variance_n22_idx3.txt already exists
+skipping n=23 idx=3 because variance_outputs/variance_n23_idx3.txt already exists
+skipping n=24 idx=3 because variance_outputs/variance_n24_idx3.txt already exists
+skipping n=25 idx=3 because variance_outputs/variance_n25_idx3.txt already exists
+skipping n=5 idx=4 because variance_outputs/variance_n5_idx4.txt already exists
+skipping n=6 idx=4 because variance_outputs/variance_n6_idx4.txt already exists
+skipping n=7 idx=4 because variance_outputs/variance_n7_idx4.txt already exists
+skipping n=8 idx=4 because variance_outputs/variance_n8_idx4.txt already exists
+skipping n=9 idx=4 because variance_outputs/variance_n9_idx4.txt already exists
+skipping n=10 idx=4 because variance_outputs/variance_n10_idx4.txt already exists
+skipping n=11 idx=4 because variance_outputs/variance_n11_idx4.txt already exists
+skipping n=12 idx=4 because variance_outputs/variance_n12_idx4.txt already exists
+skipping n=13 idx=4 because variance_outputs/variance_n13_idx4.txt already exists
+skipping n=14 idx=4 because variance_outputs/variance_n14_idx4.txt already exists
+skipping n=15 idx=4 because variance_outputs/variance_n15_idx4.txt already exists
+skipping n=16 idx=4 because variance_outputs/variance_n16_idx4.txt already exists
+skipping n=17 idx=4 because variance_outputs/variance_n17_idx4.txt already exists
+skipping n=18 idx=4 because variance_outputs/variance_n18_idx4.txt already exists
+skipping n=19 idx=4 because variance_outputs/variance_n19_idx4.txt already exists
+skipping n=20 idx=4 because variance_outputs/variance_n20_idx4.txt already exists
+skipping n=21 idx=4 because variance_outputs/variance_n21_idx4.txt already exists
+skipping n=22 idx=4 because variance_outputs/variance_n22_idx4.txt already exists
+skipping n=23 idx=4 because variance_outputs/variance_n23_idx4.txt already exists
+skipping n=24 idx=4 because variance_outputs/variance_n24_idx4.txt already exists
+skipping n=25 idx=4 because variance_outputs/variance_n25_idx4.txt already exists
+skipping n=5 idx=5 because variance_outputs/variance_n5_idx5.txt already exists
+skipping n=6 idx=5 because variance_outputs/variance_n6_idx5.txt already exists
+skipping n=7 idx=5 because variance_outputs/variance_n7_idx5.txt already exists
+skipping n=8 idx=5 because variance_outputs/variance_n8_idx5.txt already exists
+skipping n=9 idx=5 because variance_outputs/variance_n9_idx5.txt already exists
+skipping n=10 idx=5 because variance_outputs/variance_n10_idx5.txt already exists
+skipping n=11 idx=5 because variance_outputs/variance_n11_idx5.txt already exists
+skipping n=12 idx=5 because variance_outputs/variance_n12_idx5.txt already exists
+skipping n=13 idx=5 because variance_outputs/variance_n13_idx5.txt already exists
+skipping n=14 idx=5 because variance_outputs/variance_n14_idx5.txt already exists
+skipping n=15 idx=5 because variance_outputs/variance_n15_idx5.txt already exists
+skipping n=16 idx=5 because variance_outputs/variance_n16_idx5.txt already exists
+skipping n=17 idx=5 because variance_outputs/variance_n17_idx5.txt already exists
+skipping n=18 idx=5 because variance_outputs/variance_n18_idx5.txt already exists
+skipping n=19 idx=5 because variance_outputs/variance_n19_idx5.txt already exists
+skipping n=20 idx=5 because variance_outputs/variance_n20_idx5.txt already exists
+skipping n=21 idx=5 because variance_outputs/variance_n21_idx5.txt already exists
+skipping n=22 idx=5 because variance_outputs/variance_n22_idx5.txt already exists
+skipping n=23 idx=5 because variance_outputs/variance_n23_idx5.txt already exists
+skipping n=24 idx=5 because variance_outputs/variance_n24_idx5.txt already exists
+skipping n=25 idx=5 because variance_outputs/variance_n25_idx5.txt already exists
+skipping n=5 idx=6 because variance_outputs/variance_n5_idx6.txt already exists
+skipping n=6 idx=6 because variance_outputs/variance_n6_idx6.txt already exists
+skipping n=7 idx=6 because variance_outputs/variance_n7_idx6.txt already exists
+skipping n=8 idx=6 because variance_outputs/variance_n8_idx6.txt already exists
+skipping n=9 idx=6 because variance_outputs/variance_n9_idx6.txt already exists
+skipping n=10 idx=6 because variance_outputs/variance_n10_idx6.txt already exists
+skipping n=11 idx=6 because variance_outputs/variance_n11_idx6.txt already exists
+skipping n=12 idx=6 because variance_outputs/variance_n12_idx6.txt already exists
+skipping n=13 idx=6 because variance_outputs/variance_n13_idx6.txt already exists
+skipping n=14 idx=6 because variance_outputs/variance_n14_idx6.txt already exists
+skipping n=15 idx=6 because variance_outputs/variance_n15_idx6.txt already exists
+skipping n=16 idx=6 because variance_outputs/variance_n16_idx6.txt already exists
+skipping n=17 idx=6 because variance_outputs/variance_n17_idx6.txt already exists
+skipping n=18 idx=6 because variance_outputs/variance_n18_idx6.txt already exists
+skipping n=19 idx=6 because variance_outputs/variance_n19_idx6.txt already exists
+skipping n=20 idx=6 because variance_outputs/variance_n20_idx6.txt already exists
+skipping n=21 idx=6 because variance_outputs/variance_n21_idx6.txt already exists
+skipping n=22 idx=6 because variance_outputs/variance_n22_idx6.txt already exists
+skipping n=23 idx=6 because variance_outputs/variance_n23_idx6.txt already exists
+skipping n=24 idx=6 because variance_outputs/variance_n24_idx6.txt already exists
+skipping n=25 idx=6 because variance_outputs/variance_n25_idx6.txt already exists
+skipping n=5 idx=7 because variance_outputs/variance_n5_idx7.txt already exists
+skipping n=6 idx=7 because variance_outputs/variance_n6_idx7.txt already exists
+skipping n=7 idx=7 because variance_outputs/variance_n7_idx7.txt already exists
+skipping n=8 idx=7 because variance_outputs/variance_n8_idx7.txt already exists
+skipping n=9 idx=7 because variance_outputs/variance_n9_idx7.txt already exists
+skipping n=10 idx=7 because variance_outputs/variance_n10_idx7.txt already exists
+skipping n=11 idx=7 because variance_outputs/variance_n11_idx7.txt already exists
+skipping n=12 idx=7 because variance_outputs/variance_n12_idx7.txt already exists
+skipping n=13 idx=7 because variance_outputs/variance_n13_idx7.txt already exists
+skipping n=14 idx=7 because variance_outputs/variance_n14_idx7.txt already exists
+skipping n=15 idx=7 because variance_outputs/variance_n15_idx7.txt already exists
+skipping n=16 idx=7 because variance_outputs/variance_n16_idx7.txt already exists
+skipping n=17 idx=7 because variance_outputs/variance_n17_idx7.txt already exists
+skipping n=18 idx=7 because variance_outputs/variance_n18_idx7.txt already exists
+skipping n=19 idx=7 because variance_outputs/variance_n19_idx7.txt already exists
+skipping n=20 idx=7 because variance_outputs/variance_n20_idx7.txt already exists
+skipping n=21 idx=7 because variance_outputs/variance_n21_idx7.txt already exists
+skipping n=22 idx=7 because variance_outputs/variance_n22_idx7.txt already exists
+skipping n=23 idx=7 because variance_outputs/variance_n23_idx7.txt already exists
+skipping n=24 idx=7 because variance_outputs/variance_n24_idx7.txt already exists
+skipping n=25 idx=7 because variance_outputs/variance_n25_idx7.txt already exists
+skipping n=5 idx=8 because variance_outputs/variance_n5_idx8.txt already exists
+skipping n=6 idx=8 because variance_outputs/variance_n6_idx8.txt already exists
+skipping n=7 idx=8 because variance_outputs/variance_n7_idx8.txt already exists
+skipping n=8 idx=8 because variance_outputs/variance_n8_idx8.txt already exists
+skipping n=9 idx=8 because variance_outputs/variance_n9_idx8.txt already exists
+skipping n=10 idx=8 because variance_outputs/variance_n10_idx8.txt already exists
+skipping n=11 idx=8 because variance_outputs/variance_n11_idx8.txt already exists
+skipping n=12 idx=8 because variance_outputs/variance_n12_idx8.txt already exists
+skipping n=13 idx=8 because variance_outputs/variance_n13_idx8.txt already exists
+skipping n=14 idx=8 because variance_outputs/variance_n14_idx8.txt already exists
+skipping n=15 idx=8 because variance_outputs/variance_n15_idx8.txt already exists
+skipping n=16 idx=8 because variance_outputs/variance_n16_idx8.txt already exists
+skipping n=17 idx=8 because variance_outputs/variance_n17_idx8.txt already exists
+skipping n=18 idx=8 because variance_outputs/variance_n18_idx8.txt already exists
+skipping n=19 idx=8 because variance_outputs/variance_n19_idx8.txt already exists
+skipping n=20 idx=8 because variance_outputs/variance_n20_idx8.txt already exists
+skipping n=21 idx=8 because variance_outputs/variance_n21_idx8.txt already exists
+skipping n=22 idx=8 because variance_outputs/variance_n22_idx8.txt already exists
+skipping n=23 idx=8 because variance_outputs/variance_n23_idx8.txt already exists
+skipping n=24 idx=8 because variance_outputs/variance_n24_idx8.txt already exists
+skipping n=25 idx=8 because variance_outputs/variance_n25_idx8.txt already exists
+skipping n=5 idx=9 because variance_outputs/variance_n5_idx9.txt already exists
+skipping n=6 idx=9 because variance_outputs/variance_n6_idx9.txt already exists
+skipping n=7 idx=9 because variance_outputs/variance_n7_idx9.txt already exists
+skipping n=8 idx=9 because variance_outputs/variance_n8_idx9.txt already exists
+skipping n=9 idx=9 because variance_outputs/variance_n9_idx9.txt already exists
+skipping n=10 idx=9 because variance_outputs/variance_n10_idx9.txt already exists
+skipping n=11 idx=9 because variance_outputs/variance_n11_idx9.txt already exists
+skipping n=12 idx=9 because variance_outputs/variance_n12_idx9.txt already exists
+skipping n=13 idx=9 because variance_outputs/variance_n13_idx9.txt already exists
+skipping n=14 idx=9 because variance_outputs/variance_n14_idx9.txt already exists
+skipping n=15 idx=9 because variance_outputs/variance_n15_idx9.txt already exists
+skipping n=16 idx=9 because variance_outputs/variance_n16_idx9.txt already exists
+skipping n=17 idx=9 because variance_outputs/variance_n17_idx9.txt already exists
+skipping n=18 idx=9 because variance_outputs/variance_n18_idx9.txt already exists
+skipping n=19 idx=9 because variance_outputs/variance_n19_idx9.txt already exists
+skipping n=20 idx=9 because variance_outputs/variance_n20_idx9.txt already exists
+skipping n=21 idx=9 because variance_outputs/variance_n21_idx9.txt already exists
+skipping n=22 idx=9 because variance_outputs/variance_n22_idx9.txt already exists
+skipping n=23 idx=9 because variance_outputs/variance_n23_idx9.txt already exists
+skipping n=24 idx=9 because variance_outputs/variance_n24_idx9.txt already exists
+skipping n=25 idx=9 because variance_outputs/variance_n25_idx9.txt already exists
+skipping n=5 idx=10 because variance_outputs/variance_n5_idx10.txt already exists
+skipping n=6 idx=10 because variance_outputs/variance_n6_idx10.txt already exists
+skipping n=7 idx=10 because variance_outputs/variance_n7_idx10.txt already exists
+skipping n=8 idx=10 because variance_outputs/variance_n8_idx10.txt already exists
+skipping n=9 idx=10 because variance_outputs/variance_n9_idx10.txt already exists
+skipping n=10 idx=10 because variance_outputs/variance_n10_idx10.txt already exists
+skipping n=11 idx=10 because variance_outputs/variance_n11_idx10.txt already exists
+skipping n=12 idx=10 because variance_outputs/variance_n12_idx10.txt already exists
+skipping n=13 idx=10 because variance_outputs/variance_n13_idx10.txt already exists
+skipping n=14 idx=10 because variance_outputs/variance_n14_idx10.txt already exists
+skipping n=15 idx=10 because variance_outputs/variance_n15_idx10.txt already exists
+skipping n=16 idx=10 because variance_outputs/variance_n16_idx10.txt already exists
+skipping n=17 idx=10 because variance_outputs/variance_n17_idx10.txt already exists
+skipping n=18 idx=10 because variance_outputs/variance_n18_idx10.txt already exists
+running n=19 idx=10
+skipping n=20 idx=10 because variance_outputs/variance_n20_idx10.txt already exists
+skipping n=21 idx=10 because variance_outputs/variance_n21_idx10.txt already exists
+running n=22 idx=10
+running n=23 idx=10
+skipping n=24 idx=10 because variance_outputs/variance_n24_idx10.txt already exists
+skipping n=25 idx=10 because variance_outputs/variance_n25_idx10.txt already exists
+running n=5 idx=11
+skipping n=6 idx=11 because variance_outputs/variance_n6_idx11.txt already exists
+running n=7 idx=11
+running n=8 idx=11
+running n=9 idx=11
+running n=10 idx=11
+running n=11 idx=11
+skipping n=12 idx=11 because variance_outputs/variance_n12_idx11.txt already exists
+running n=13 idx=11
+skipping n=14 idx=11 because variance_outputs/variance_n14_idx11.txt already exists
+running n=15 idx=11
+running n=16 idx=11
+running n=17 idx=11
+running n=18 idx=11
+running n=19 idx=11
+running n=20 idx=11
+running n=21 idx=11
+running n=22 idx=11
+running n=23 idx=11
+running n=24 idx=11
+running n=25 idx=11
+running n=5 idx=12
+skipping n=6 idx=12 because variance_outputs/variance_n6_idx12.txt already exists
+running n=7 idx=12
+running n=8 idx=12
+skipping n=9 idx=12 because variance_outputs/variance_n9_idx12.txt already exists
+running n=10 idx=12
+running n=11 idx=12
+running n=12 idx=12
+running n=13 idx=12
+running n=14 idx=12
+running n=15 idx=12
+running n=16 idx=12
+running n=17 idx=12
+running n=18 idx=12
+running n=19 idx=12
+skipping n=20 idx=12 because variance_outputs/variance_n20_idx12.txt already exists
+running n=21 idx=12
+running n=22 idx=12
+skipping n=23 idx=12 because variance_outputs/variance_n23_idx12.txt already exists
+running n=24 idx=12
+running n=25 idx=12
+running n=5 idx=13
+skipping n=6 idx=13 because variance_outputs/variance_n6_idx13.txt already exists
+running n=7 idx=13
+running n=8 idx=13
+running n=9 idx=13
+running n=10 idx=13
+running n=11 idx=13
+running n=12 idx=13
+running n=13 idx=13
+running n=14 idx=13
+running n=15 idx=13
+running n=16 idx=13
+skipping n=17 idx=13 because variance_outputs/variance_n17_idx13.txt already exists
+running n=18 idx=13
+running n=19 idx=13
+running n=20 idx=13
+skipping n=21 idx=13 because variance_outputs/variance_n21_idx13.txt already exists
+running n=22 idx=13
+skipping n=23 idx=13 because variance_outputs/variance_n23_idx13.txt already exists
+running n=24 idx=13
+running n=25 idx=13
+skipping n=5 idx=14 because variance_outputs/variance_n5_idx14.txt already exists
+running n=6 idx=14
+running n=7 idx=14
+running n=8 idx=14
+running n=9 idx=14
+skipping n=10 idx=14 because variance_outputs/variance_n10_idx14.txt already exists
+running n=11 idx=14
+running n=12 idx=14
+running n=13 idx=14
+running n=14 idx=14
+running n=15 idx=14
+running n=16 idx=14
+running n=17 idx=14
+skipping n=18 idx=14 because variance_outputs/variance_n18_idx14.txt already exists
+skipping n=19 idx=14 because variance_outputs/variance_n19_idx14.txt already exists
+running n=20 idx=14
+skipping n=21 idx=14 because variance_outputs/variance_n21_idx14.txt already exists
+running n=22 idx=14
+running n=23 idx=14
+running n=24 idx=14
+running n=25 idx=14
+running n=5 idx=15
+running n=6 idx=15
+running n=7 idx=15
+running n=8 idx=15
+running n=9 idx=15
+running n=10 idx=15
+running n=11 idx=15
+running n=12 idx=15
+running n=13 idx=15
+running n=14 idx=15
+skipping n=15 idx=15 because variance_outputs/variance_n15_idx15.txt already exists
+running n=16 idx=15
+running n=17 idx=15
+running n=18 idx=15
+running n=19 idx=15
+skipping n=20 idx=15 because variance_outputs/variance_n20_idx15.txt already exists
+running n=21 idx=15
+running n=22 idx=15
+running n=23 idx=15
+running n=24 idx=15
+skipping n=25 idx=15 because variance_outputs/variance_n25_idx15.txt already exists
+running n=5 idx=16
+running n=6 idx=16
+running n=7 idx=16
+running n=8 idx=16
+running n=9 idx=16
+running n=10 idx=16
+running n=11 idx=16
+running n=12 idx=16
+running n=13 idx=16
+running n=14 idx=16
+running n=15 idx=16
+running n=16 idx=16
+running n=17 idx=16
+running n=18 idx=16
+skipping n=19 idx=16 because variance_outputs/variance_n19_idx16.txt already exists
+running n=20 idx=16
+running n=21 idx=16
+skipping n=22 idx=16 because variance_outputs/variance_n22_idx16.txt already exists
+running n=23 idx=16
+skipping n=24 idx=16 because variance_outputs/variance_n24_idx16.txt already exists
+running n=25 idx=16
+running n=5 idx=17
+running n=6 idx=17
+skipping n=7 idx=17 because variance_outputs/variance_n7_idx17.txt already exists
+running n=8 idx=17
+running n=9 idx=17
+running n=10 idx=17
+running n=11 idx=17
+running n=12 idx=17
+running n=13 idx=17
+running n=14 idx=17
+running n=15 idx=17
+running n=16 idx=17
+running n=17 idx=17
+running n=18 idx=17
+running n=19 idx=17
+running n=20 idx=17
+skipping n=21 idx=17 because variance_outputs/variance_n21_idx17.txt already exists
+running n=22 idx=17
+running n=23 idx=17
+running n=24 idx=17
+running n=25 idx=17
+skipping n=5 idx=18 because variance_outputs/variance_n5_idx18.txt already exists
+running n=6 idx=18
+running n=7 idx=18
+running n=8 idx=18
+running n=9 idx=18
+running n=10 idx=18
+running n=11 idx=18
+running n=12 idx=18
+skipping n=13 idx=18 because variance_outputs/variance_n13_idx18.txt already exists
+running n=14 idx=18
+running n=15 idx=18
+skipping n=16 idx=18 because variance_outputs/variance_n16_idx18.txt already exists
+running n=17 idx=18
+skipping n=18 idx=18 because variance_outputs/variance_n18_idx18.txt already exists
+running n=19 idx=18
+running n=20 idx=18
+running n=21 idx=18
+running n=22 idx=18
+skipping n=23 idx=18 because variance_outputs/variance_n23_idx18.txt already exists
+running n=24 idx=18
+skipping n=25 idx=18 because variance_outputs/variance_n25_idx18.txt already exists
+running n=5 idx=19
+running n=6 idx=19
+running n=7 idx=19
+running n=8 idx=19
+running n=9 idx=19
+skipping n=10 idx=19 because variance_outputs/variance_n10_idx19.txt already exists
+skipping n=11 idx=19 because variance_outputs/variance_n11_idx19.txt already exists
+running n=12 idx=19
+running n=13 idx=19
+running n=14 idx=19
+skipping n=15 idx=19 because variance_outputs/variance_n15_idx19.txt already exists
+skipping n=16 idx=19 because variance_outputs/variance_n16_idx19.txt already exists
+running n=17 idx=19
+running n=18 idx=19
+running n=19 idx=19
+running n=20 idx=19
+skipping n=21 idx=19 because variance_outputs/variance_n21_idx19.txt already exists
+running n=22 idx=19
+skipping n=23 idx=19 because variance_outputs/variance_n23_idx19.txt already exists
+running n=24 idx=19
+running n=25 idx=19
+running n=5 idx=20
+running n=6 idx=20
+running n=7 idx=20
+running n=8 idx=20
+running n=9 idx=20
+running n=10 idx=20
+running n=11 idx=20
+running n=12 idx=20
+running n=13 idx=20
+running n=14 idx=20
+running n=15 idx=20
+running n=16 idx=20
+skipping n=17 idx=20 because variance_outputs/variance_n17_idx20.txt already exists
+running n=18 idx=20
+skipping n=19 idx=20 because variance_outputs/variance_n19_idx20.txt already exists
+running n=20 idx=20
+skipping n=21 idx=20 because variance_outputs/variance_n21_idx20.txt already exists
+running n=22 idx=20
+running n=23 idx=20
+running n=24 idx=20
+running n=25 idx=20
+running n=5 idx=21
+running n=6 idx=21
+running n=7 idx=21
+skipping n=8 idx=21 because variance_outputs/variance_n8_idx21.txt already exists
+running n=9 idx=21
+running n=10 idx=21
+running n=11 idx=21
+running n=12 idx=21
+running n=13 idx=21
+running n=14 idx=21
+skipping n=15 idx=21 because variance_outputs/variance_n15_idx21.txt already exists
+running n=16 idx=21
+running n=17 idx=21
+running n=18 idx=21
+running n=19 idx=21
+running n=20 idx=21
+running n=21 idx=21
+running n=22 idx=21
+running n=23 idx=21
+running n=24 idx=21
+skipping n=25 idx=21 because variance_outputs/variance_n25_idx21.txt already exists
+running n=5 idx=22
+skipping n=6 idx=22 because variance_outputs/variance_n6_idx22.txt already exists
+running n=7 idx=22
+running n=8 idx=22
+skipping n=9 idx=22 because variance_outputs/variance_n9_idx22.txt already exists
+running n=10 idx=22
+running n=11 idx=22
+running n=12 idx=22
+running n=13 idx=22
+running n=14 idx=22
+running n=15 idx=22
+running n=16 idx=22
+running n=17 idx=22
+running n=18 idx=22
+skipping n=19 idx=22 because variance_outputs/variance_n19_idx22.txt already exists
+skipping n=20 idx=22 because variance_outputs/variance_n20_idx22.txt already exists
+skipping n=21 idx=22 because variance_outputs/variance_n21_idx22.txt already exists
+running n=22 idx=22
+running n=23 idx=22
+running n=24 idx=22
+running n=25 idx=22
+running n=5 idx=23
+running n=6 idx=23
+skipping n=7 idx=23 because variance_outputs/variance_n7_idx23.txt already exists
+running n=8 idx=23
+running n=9 idx=23
+running n=10 idx=23
+running n=11 idx=23
+skipping n=12 idx=23 because variance_outputs/variance_n12_idx23.txt already exists
+running n=13 idx=23
+running n=14 idx=23
+skipping n=15 idx=23 because variance_outputs/variance_n15_idx23.txt already exists
+running n=16 idx=23
+skipping n=17 idx=23 because variance_outputs/variance_n17_idx23.txt already exists
+running n=18 idx=23
+skipping n=19 idx=23 because variance_outputs/variance_n19_idx23.txt already exists
+running n=20 idx=23
+skipping n=21 idx=23 because variance_outputs/variance_n21_idx23.txt already exists
+running n=22 idx=23
+running n=23 idx=23
+running n=24 idx=23
+running n=25 idx=23
+running n=5 idx=24
+running n=6 idx=24
+skipping n=7 idx=24 because variance_outputs/variance_n7_idx24.txt already exists
+running n=8 idx=24
+skipping n=9 idx=24 because variance_outputs/variance_n9_idx24.txt already exists
+running n=10 idx=24
+skipping n=11 idx=24 because variance_outputs/variance_n11_idx24.txt already exists
+running n=12 idx=24
+running n=13 idx=24
+running n=14 idx=24
+running n=15 idx=24
+running n=16 idx=24
+running n=17 idx=24
+running n=18 idx=24
+running n=19 idx=24
+running n=20 idx=24
+running n=21 idx=24
+running n=22 idx=24
+running n=23 idx=24
+running n=24 idx=24
+running n=25 idx=24
+skipping n=5 idx=25 because variance_outputs/variance_n5_idx25.txt already exists
+running n=6 idx=25
+skipping n=7 idx=25 because variance_outputs/variance_n7_idx25.txt already exists
+running n=8 idx=25
+running n=9 idx=25
+running n=10 idx=25
+running n=11 idx=25
+running n=12 idx=25
+running n=13 idx=25
+running n=14 idx=25
+running n=15 idx=25
+running n=16 idx=25
+running n=17 idx=25
+running n=18 idx=25
+running n=19 idx=25
+running n=20 idx=25
+running n=21 idx=25
+skipping n=22 idx=25 because variance_outputs/variance_n22_idx25.txt already exists
+running n=23 idx=25
+skipping n=24 idx=25 because variance_outputs/variance_n24_idx25.txt already exists
+running n=25 idx=25
+running n=5 idx=26
+running n=6 idx=26
+running n=7 idx=26
+skipping n=8 idx=26 because variance_outputs/variance_n8_idx26.txt already exists
+skipping n=9 idx=26 because variance_outputs/variance_n9_idx26.txt already exists
+running n=10 idx=26
+running n=11 idx=26
+running n=12 idx=26
+running n=13 idx=26
+running n=14 idx=26
+running n=15 idx=26
+running n=16 idx=26
+running n=17 idx=26
+running n=18 idx=26
+running n=19 idx=26
+running n=20 idx=26
+running n=21 idx=26
+running n=22 idx=26
+skipping n=23 idx=26 because variance_outputs/variance_n23_idx26.txt already exists
+running n=24 idx=26
+running n=25 idx=26
+running n=5 idx=27
+running n=6 idx=27
+running n=7 idx=27
+skipping n=8 idx=27 because variance_outputs/variance_n8_idx27.txt already exists
+running n=9 idx=27
+running n=10 idx=27
+running n=11 idx=27
+running n=12 idx=27
+running n=13 idx=27
+running n=14 idx=27
+running n=15 idx=27
+running n=16 idx=27
+running n=17 idx=27
+running n=18 idx=27
+running n=19 idx=27
+running n=20 idx=27
+running n=21 idx=27
+skipping n=22 idx=27 because variance_outputs/variance_n22_idx27.txt already exists
+running n=23 idx=27
+running n=24 idx=27
+running n=25 idx=27
+running n=5 idx=28
+running n=6 idx=28
+skipping n=7 idx=28 because variance_outputs/variance_n7_idx28.txt already exists
+running n=8 idx=28
+running n=9 idx=28
+running n=10 idx=28
+running n=11 idx=28
+running n=12 idx=28
+running n=13 idx=28
+skipping n=14 idx=28 because variance_outputs/variance_n14_idx28.txt already exists
+skipping n=15 idx=28 because variance_outputs/variance_n15_idx28.txt already exists
+running n=16 idx=28
+running n=17 idx=28
+running n=18 idx=28
+running n=19 idx=28
+running n=20 idx=28
+skipping n=21 idx=28 because variance_outputs/variance_n21_idx28.txt already exists
+skipping n=22 idx=28 because variance_outputs/variance_n22_idx28.txt already exists
+running n=23 idx=28
+running n=24 idx=28
+running n=25 idx=28
+running n=5 idx=29
+running n=6 idx=29
+running n=7 idx=29
+running n=8 idx=29
+running n=9 idx=29
+running n=10 idx=29
+skipping n=11 idx=29 because variance_outputs/variance_n11_idx29.txt already exists
+running n=12 idx=29
+running n=13 idx=29
+running n=14 idx=29
+running n=15 idx=29
+running n=16 idx=29
+running n=17 idx=29
+running n=18 idx=29
+running n=19 idx=29
+running n=20 idx=29
+running n=21 idx=29
+running n=22 idx=29
+skipping n=23 idx=29 because variance_outputs/variance_n23_idx29.txt already exists
+running n=24 idx=29
+running n=25 idx=29
+running n=5 idx=30
+running n=6 idx=30
+running n=7 idx=30
+running n=8 idx=30
+running n=9 idx=30
+running n=10 idx=30
+running n=11 idx=30
+running n=12 idx=30
+running n=13 idx=30
+running n=14 idx=30
+running n=15 idx=30
+running n=16 idx=30
+running n=17 idx=30
+running n=18 idx=30
+running n=19 idx=30
+running n=20 idx=30
+running n=21 idx=30
+running n=22 idx=30
+running n=23 idx=30
+running n=24 idx=30
+running n=25 idx=30
+skipping n=5 idx=31 because variance_outputs/variance_n5_idx31.txt already exists
+running n=6 idx=31
+running n=7 idx=31
+running n=8 idx=31
+running n=9 idx=31
+running n=10 idx=31
+running n=11 idx=31
+running n=12 idx=31
+skipping n=13 idx=31 because variance_outputs/variance_n13_idx31.txt already exists
+running n=14 idx=31
+running n=15 idx=31
+running n=16 idx=31
+running n=17 idx=31
+running n=18 idx=31
+running n=19 idx=31
+running n=20 idx=31
+skipping n=21 idx=31 because variance_outputs/variance_n21_idx31.txt already exists
+skipping n=22 idx=31 because variance_outputs/variance_n22_idx31.txt already exists
+running n=23 idx=31
+running n=24 idx=31
+running n=25 idx=31
+running n=5 idx=32
+running n=6 idx=32
+running n=7 idx=32
+running n=8 idx=32
+skipping n=9 idx=32 because variance_outputs/variance_n9_idx32.txt already exists
+running n=10 idx=32
+running n=11 idx=32
+running n=12 idx=32
+running n=13 idx=32
+running n=14 idx=32
+running n=15 idx=32
+running n=16 idx=32
+running n=17 idx=32
+running n=18 idx=32
+running n=19 idx=32
+running n=20 idx=32
+running n=21 idx=32
+running n=22 idx=32
+running n=23 idx=32
+running n=24 idx=32
+running n=25 idx=32
+skipping n=5 idx=33 because variance_outputs/variance_n5_idx33.txt already exists
+running n=6 idx=33
+running n=7 idx=33
+running n=8 idx=33
+running n=9 idx=33
+running n=10 idx=33
+running n=11 idx=33
+running n=12 idx=33
+running n=13 idx=33
+running n=14 idx=33
+skipping n=15 idx=33 because variance_outputs/variance_n15_idx33.txt already exists
+running n=16 idx=33
+running n=17 idx=33
+running n=18 idx=33
+running n=19 idx=33
+running n=20 idx=33
+running n=21 idx=33
+running n=22 idx=33
+skipping n=23 idx=33 because variance_outputs/variance_n23_idx33.txt already exists
+running n=24 idx=33
+running n=25 idx=33
+running n=5 idx=34
+running n=6 idx=34
+skipping n=7 idx=34 because variance_outputs/variance_n7_idx34.txt already exists
+running n=8 idx=34
+running n=9 idx=34
+running n=10 idx=34
+running n=11 idx=34
+running n=12 idx=34
+running n=13 idx=34
+running n=14 idx=34
+running n=15 idx=34
+running n=16 idx=34
+running n=17 idx=34
+running n=18 idx=34
+running n=19 idx=34
+running n=20 idx=34
+running n=21 idx=34
+running n=22 idx=34
+running n=23 idx=34
+running n=24 idx=34
+skipping n=25 idx=34 because variance_outputs/variance_n25_idx34.txt already exists
+running n=5 idx=35
+running n=6 idx=35
+running n=7 idx=35
+running n=8 idx=35
+running n=9 idx=35
+running n=10 idx=35
+running n=11 idx=35
+running n=12 idx=35
+running n=13 idx=35
+running n=14 idx=35
+running n=15 idx=35
+running n=16 idx=35
+running n=17 idx=35
+running n=18 idx=35
+running n=19 idx=35
+running n=20 idx=35
+running n=21 idx=35
+running n=22 idx=35
+running n=23 idx=35
+running n=24 idx=35
+running n=25 idx=35
+running n=5 idx=36
+running n=6 idx=36
+running n=7 idx=36
+running n=8 idx=36
+running n=9 idx=36
+skipping n=10 idx=36 because variance_outputs/variance_n10_idx36.txt already exists
+running n=11 idx=36
+running n=12 idx=36
+running n=13 idx=36
+running n=14 idx=36
+running n=15 idx=36
+running n=16 idx=36
+running n=17 idx=36
+running n=18 idx=36
+running n=19 idx=36
+running n=20 idx=36
+running n=21 idx=36
+running n=22 idx=36
+skipping n=23 idx=36 because variance_outputs/variance_n23_idx36.txt already exists
+running n=24 idx=36
+running n=25 idx=36
+running n=5 idx=37
+running n=6 idx=37
+running n=7 idx=37
+running n=8 idx=37
+running n=9 idx=37
+running n=10 idx=37
+running n=11 idx=37
+running n=12 idx=37
+running n=13 idx=37
+running n=14 idx=37
+running n=15 idx=37
+running n=16 idx=37
+running n=17 idx=37
+skipping n=18 idx=37 because variance_outputs/variance_n18_idx37.txt already exists
+running n=19 idx=37
+running n=20 idx=37
+running n=21 idx=37
+running n=22 idx=37
+skipping n=23 idx=37 because variance_outputs/variance_n23_idx37.txt already exists
+running n=24 idx=37
+running n=25 idx=37
+running n=5 idx=38
+running n=6 idx=38
+running n=7 idx=38
+running n=8 idx=38
+running n=9 idx=38
+running n=10 idx=38
+running n=11 idx=38
+skipping n=12 idx=38 because variance_outputs/variance_n12_idx38.txt already exists
+running n=13 idx=38
+running n=14 idx=38
+running n=15 idx=38
+running n=16 idx=38
+running n=17 idx=38
+running n=18 idx=38
+running n=19 idx=38
+running n=20 idx=38
+running n=21 idx=38
+running n=22 idx=38
+running n=23 idx=38
+running n=24 idx=38
+running n=25 idx=38
+running n=5 idx=39
+skipping n=6 idx=39 because variance_outputs/variance_n6_idx39.txt already exists
+running n=7 idx=39
+running n=8 idx=39
+running n=9 idx=39
+running n=10 idx=39
+running n=11 idx=39
+running n=12 idx=39
+running n=13 idx=39
+running n=14 idx=39
+running n=15 idx=39
+running n=16 idx=39
+running n=17 idx=39
+running n=18 idx=39
+running n=19 idx=39
+running n=20 idx=39
+running n=21 idx=39
+running n=22 idx=39
+running n=23 idx=39
+running n=24 idx=39
+running n=25 idx=39
+running n=5 idx=40
+running n=6 idx=40
+skipping n=7 idx=40 because variance_outputs/variance_n7_idx40.txt already exists
+running n=8 idx=40
+running n=9 idx=40
+running n=10 idx=40
+running n=11 idx=40
+running n=12 idx=40
+running n=13 idx=40
+running n=14 idx=40
+running n=15 idx=40
+running n=16 idx=40
+running n=17 idx=40
+running n=18 idx=40
+running n=19 idx=40
+running n=20 idx=40
+running n=21 idx=40
+running n=22 idx=40
+running n=23 idx=40
+running n=24 idx=40
+running n=25 idx=40
+running n=5 idx=41
+running n=6 idx=41
+running n=7 idx=41
+running n=8 idx=41
+running n=9 idx=41
+running n=10 idx=41
+running n=11 idx=41
+running n=12 idx=41
+running n=13 idx=41
+running n=14 idx=41
+running n=15 idx=41
+running n=16 idx=41
+running n=17 idx=41
+running n=18 idx=41
+running n=19 idx=41
+running n=20 idx=41
+running n=21 idx=41
+running n=22 idx=41
+running n=23 idx=41
+running n=24 idx=41
+running n=25 idx=41
+running n=5 idx=42
+running n=6 idx=42
+running n=7 idx=42
+running n=8 idx=42
+running n=9 idx=42
+running n=10 idx=42
+running n=11 idx=42
+running n=12 idx=42
+running n=13 idx=42
+running n=14 idx=42
+running n=15 idx=42
+running n=16 idx=42
+running n=17 idx=42
+running n=18 idx=42
+running n=19 idx=42
+skipping n=20 idx=42 because variance_outputs/variance_n20_idx42.txt already exists
+running n=21 idx=42
+running n=22 idx=42
+running n=23 idx=42
+running n=24 idx=42
+running n=25 idx=42
+running n=5 idx=43
+running n=6 idx=43
+running n=7 idx=43
+running n=8 idx=43
+running n=9 idx=43
+skipping n=10 idx=43 because variance_outputs/variance_n10_idx43.txt already exists
+running n=11 idx=43
+running n=12 idx=43
+running n=13 idx=43
+running n=14 idx=43
+running n=15 idx=43
+running n=16 idx=43
+running n=17 idx=43
+running n=18 idx=43
+running n=19 idx=43
+running n=20 idx=43
+skipping n=21 idx=43 because variance_outputs/variance_n21_idx43.txt already exists
+running n=22 idx=43
+running n=23 idx=43
+running n=24 idx=43
+running n=25 idx=43
+skipping n=5 idx=44 because variance_outputs/variance_n5_idx44.txt already exists
+running n=6 idx=44
+running n=7 idx=44
+running n=8 idx=44
+skipping n=9 idx=44 because variance_outputs/variance_n9_idx44.txt already exists
+skipping n=10 idx=44 because variance_outputs/variance_n10_idx44.txt already exists
+skipping n=11 idx=44 because variance_outputs/variance_n11_idx44.txt already exists
+skipping n=12 idx=44 because variance_outputs/variance_n12_idx44.txt already exists
+running n=13 idx=44
+running n=14 idx=44
+running n=15 idx=44
+running n=16 idx=44
+running n=17 idx=44
+running n=18 idx=44
+running n=19 idx=44
+running n=20 idx=44
+running n=21 idx=44
+running n=22 idx=44
+running n=23 idx=44
+running n=24 idx=44
+running n=25 idx=44
+skipping n=5 idx=45 because variance_outputs/variance_n5_idx45.txt already exists
+running n=6 idx=45
+skipping n=7 idx=45 because variance_outputs/variance_n7_idx45.txt already exists
+skipping n=8 idx=45 because variance_outputs/variance_n8_idx45.txt already exists
+skipping n=9 idx=45 because variance_outputs/variance_n9_idx45.txt already exists
+running n=10 idx=45
+running n=11 idx=45
+running n=12 idx=45
+running n=13 idx=45
+running n=14 idx=45
+running n=15 idx=45
+skipping n=16 idx=45 because variance_outputs/variance_n16_idx45.txt already exists
+skipping n=17 idx=45 because variance_outputs/variance_n17_idx45.txt already exists
+running n=18 idx=45
+running n=19 idx=45
+running n=20 idx=45
+running n=21 idx=45
+running n=22 idx=45
+running n=23 idx=45
+running n=24 idx=45
+running n=25 idx=45
+running n=5 idx=46
+skipping n=6 idx=46 because variance_outputs/variance_n6_idx46.txt already exists
+skipping n=7 idx=46 because variance_outputs/variance_n7_idx46.txt already exists
+running n=8 idx=46
+running n=9 idx=46
+running n=10 idx=46
+skipping n=11 idx=46 because variance_outputs/variance_n11_idx46.txt already exists
+running n=12 idx=46
+skipping n=13 idx=46 because variance_outputs/variance_n13_idx46.txt already exists
+skipping n=14 idx=46 because variance_outputs/variance_n14_idx46.txt already exists
+running n=15 idx=46
+running n=16 idx=46
+running n=17 idx=46
+running n=18 idx=46
+running n=19 idx=46
+skipping n=20 idx=46 because variance_outputs/variance_n20_idx46.txt already exists
+running n=21 idx=46
+running n=22 idx=46
+running n=23 idx=46
+running n=24 idx=46
+running n=25 idx=46
+skipping n=5 idx=47 because variance_outputs/variance_n5_idx47.txt already exists
+running n=6 idx=47
+running n=7 idx=47
+running n=8 idx=47
+skipping n=9 idx=47 because variance_outputs/variance_n9_idx47.txt already exists
+running n=10 idx=47
+skipping n=11 idx=47 because variance_outputs/variance_n11_idx47.txt already exists
+running n=12 idx=47
+running n=13 idx=47
+running n=14 idx=47
+running n=15 idx=47
+running n=16 idx=47
+running n=17 idx=47
+skipping n=18 idx=47 because variance_outputs/variance_n18_idx47.txt already exists
+running n=19 idx=47
+running n=20 idx=47
+running n=21 idx=47
+running n=22 idx=47
+running n=23 idx=47
+running n=24 idx=47
+running n=25 idx=47
+skipping n=5 idx=48 because variance_outputs/variance_n5_idx48.txt already exists
+running n=6 idx=48
+running n=7 idx=48
+running n=8 idx=48
+running n=9 idx=48
+running n=10 idx=48
+running n=11 idx=48
+skipping n=12 idx=48 because variance_outputs/variance_n12_idx48.txt already exists
+running n=13 idx=48
+running n=14 idx=48
+running n=15 idx=48
+running n=16 idx=48
+running n=17 idx=48
+skipping n=18 idx=48 because variance_outputs/variance_n18_idx48.txt already exists
+running n=19 idx=48
+running n=20 idx=48
+running n=21 idx=48
+running n=22 idx=48
+running n=23 idx=48
+running n=24 idx=48
+running n=25 idx=48
+running n=5 idx=49
+running n=6 idx=49
+running n=7 idx=49
+running n=8 idx=49
+running n=9 idx=49
+running n=10 idx=49
+running n=11 idx=49
+running n=12 idx=49
+skipping n=13 idx=49 because variance_outputs/variance_n13_idx49.txt already exists
+running n=14 idx=49
+skipping n=15 idx=49 because variance_outputs/variance_n15_idx49.txt already exists
+running n=16 idx=49
+running n=17 idx=49
+running n=18 idx=49
+running n=19 idx=49
+running n=20 idx=49
+running n=21 idx=49
+running n=22 idx=49
+running n=23 idx=49
+running n=24 idx=49
+running n=25 idx=49
+running n=5 idx=50
+running n=6 idx=50
+running n=7 idx=50
+running n=8 idx=50
+running n=9 idx=50
+running n=10 idx=50
+running n=11 idx=50
+running n=12 idx=50
+skipping n=13 idx=50 because variance_outputs/variance_n13_idx50.txt already exists
+running n=14 idx=50
+running n=15 idx=50
+running n=16 idx=50
+running n=17 idx=50
+running n=18 idx=50
+running n=19 idx=50
+running n=20 idx=50
+running n=21 idx=50
+running n=22 idx=50
+running n=23 idx=50
+running n=24 idx=50
+running n=25 idx=50
+running n=5 idx=51
+running n=6 idx=51
+skipping n=7 idx=51 because variance_outputs/variance_n7_idx51.txt already exists
+running n=8 idx=51
+running n=9 idx=51
+running n=10 idx=51
+running n=11 idx=51
+running n=12 idx=51
+running n=13 idx=51
+running n=14 idx=51
+running n=15 idx=51
+running n=16 idx=51
+running n=17 idx=51
+running n=18 idx=51
+running n=19 idx=51
+running n=20 idx=51
+running n=21 idx=51
+running n=22 idx=51
+running n=23 idx=51
+running n=24 idx=51
+running n=25 idx=51
+running n=5 idx=52
+running n=6 idx=52
+running n=7 idx=52
+running n=8 idx=52
+running n=9 idx=52
+running n=10 idx=52
+running n=11 idx=52
+running n=12 idx=52
+running n=13 idx=52
+running n=14 idx=52
+running n=15 idx=52
+running n=16 idx=52
+running n=17 idx=52
+running n=18 idx=52
+running n=19 idx=52
+running n=20 idx=52
+running n=21 idx=52
+running n=22 idx=52
+running n=23 idx=52
+running n=24 idx=52
+running n=25 idx=52
+skipping n=5 idx=53 because variance_outputs/variance_n5_idx53.txt already exists
+running n=6 idx=53
+running n=7 idx=53
+running n=8 idx=53
+running n=9 idx=53
+running n=10 idx=53
+running n=11 idx=53
+running n=12 idx=53
+running n=13 idx=53
+skipping n=14 idx=53 because variance_outputs/variance_n14_idx53.txt already exists
+running n=15 idx=53
+running n=16 idx=53
+running n=17 idx=53
+running n=18 idx=53
+running n=19 idx=53
+running n=20 idx=53
+running n=21 idx=53
+running n=22 idx=53
+running n=23 idx=53
+running n=24 idx=53
+running n=25 idx=53
+running n=5 idx=54
+running n=6 idx=54
+running n=7 idx=54
+running n=8 idx=54
+running n=9 idx=54
+running n=10 idx=54
+running n=11 idx=54
+running n=12 idx=54
+running n=13 idx=54
+running n=14 idx=54
+running n=15 idx=54
+running n=16 idx=54
+running n=17 idx=54
+running n=18 idx=54
+running n=19 idx=54
+running n=20 idx=54
+running n=21 idx=54
+running n=22 idx=54
+running n=23 idx=54
+running n=24 idx=54
+running n=25 idx=54
+running n=5 idx=55
+running n=6 idx=55
+running n=7 idx=55
+running n=8 idx=55
+running n=9 idx=55
+running n=10 idx=55
+running n=11 idx=55
+running n=12 idx=55
+running n=13 idx=55
+running n=14 idx=55
+running n=15 idx=55
+running n=16 idx=55
+running n=17 idx=55
+running n=18 idx=55
+running n=19 idx=55
+running n=20 idx=55
+running n=21 idx=55
+running n=22 idx=55
+running n=23 idx=55
+running n=24 idx=55
+running n=25 idx=55
+running n=5 idx=56
+running n=6 idx=56
+running n=7 idx=56
+running n=8 idx=56
+running n=9 idx=56
+running n=10 idx=56
+skipping n=11 idx=56 because variance_outputs/variance_n11_idx56.txt already exists
+running n=12 idx=56
+skipping n=13 idx=56 because variance_outputs/variance_n13_idx56.txt already exists
+running n=14 idx=56
+running n=15 idx=56
+running n=16 idx=56
+running n=17 idx=56
+running n=18 idx=56
+running n=19 idx=56
+running n=20 idx=56
+running n=21 idx=56
+running n=22 idx=56
+running n=23 idx=56
+skipping n=24 idx=56 because variance_outputs/variance_n24_idx56.txt already exists
+running n=25 idx=56
+skipping n=5 idx=57 because variance_outputs/variance_n5_idx57.txt already exists
+running n=6 idx=57
+running n=7 idx=57
+running n=8 idx=57
+running n=9 idx=57
+running n=10 idx=57
+skipping n=11 idx=57 because variance_outputs/variance_n11_idx57.txt already exists
+skipping n=12 idx=57 because variance_outputs/variance_n12_idx57.txt already exists
+running n=13 idx=57
+skipping n=14 idx=57 because variance_outputs/variance_n14_idx57.txt already exists
+skipping n=15 idx=57 because variance_outputs/variance_n15_idx57.txt already exists
+running n=16 idx=57
+running n=17 idx=57
+running n=18 idx=57
+running n=19 idx=57
+running n=20 idx=57
+running n=21 idx=57
+running n=22 idx=57
+skipping n=23 idx=57 because variance_outputs/variance_n23_idx57.txt already exists
+running n=24 idx=57
+running n=25 idx=57
+running n=5 idx=58
+skipping n=6 idx=58 because variance_outputs/variance_n6_idx58.txt already exists
+running n=7 idx=58
+running n=8 idx=58
+running n=9 idx=58
+running n=10 idx=58
+running n=11 idx=58
+running n=12 idx=58
+running n=13 idx=58
+running n=14 idx=58
+running n=15 idx=58
+running n=16 idx=58
+running n=17 idx=58
+running n=18 idx=58
+running n=19 idx=58
+running n=20 idx=58
+running n=21 idx=58
+running n=22 idx=58
+running n=23 idx=58
+running n=24 idx=58
+running n=25 idx=58
+running n=5 idx=59
+running n=6 idx=59
+running n=7 idx=59
+running n=8 idx=59
+running n=9 idx=59
+running n=10 idx=59
+running n=11 idx=59
+running n=12 idx=59
+running n=13 idx=59
+running n=14 idx=59
+skipping n=15 idx=59 because variance_outputs/variance_n15_idx59.txt already exists
+running n=16 idx=59
+skipping n=17 idx=59 because variance_outputs/variance_n17_idx59.txt already exists
+running n=18 idx=59
+running n=19 idx=59
+running n=20 idx=59
+running n=21 idx=59
+running n=22 idx=59
+running n=23 idx=59
+running n=24 idx=59
+running n=25 idx=59
+skipping n=5 idx=60 because variance_outputs/variance_n5_idx60.txt already exists
+running n=6 idx=60
+running n=7 idx=60
+skipping n=8 idx=60 because variance_outputs/variance_n8_idx60.txt already exists
+running n=9 idx=60
+running n=10 idx=60
+running n=11 idx=60
+running n=12 idx=60
+running n=13 idx=60
+skipping n=14 idx=60 because variance_outputs/variance_n14_idx60.txt already exists
+running n=15 idx=60
+running n=16 idx=60
+running n=17 idx=60
+running n=18 idx=60
+running n=19 idx=60
+running n=20 idx=60
+running n=21 idx=60
+running n=22 idx=60
+skipping n=23 idx=60 because variance_outputs/variance_n23_idx60.txt already exists
+running n=24 idx=60
+running n=25 idx=60
+running n=5 idx=61
+running n=6 idx=61
+running n=7 idx=61
+skipping n=8 idx=61 because variance_outputs/variance_n8_idx61.txt already exists
+running n=9 idx=61
+running n=10 idx=61
+running n=11 idx=61
+skipping n=12 idx=61 because variance_outputs/variance_n12_idx61.txt already exists
+skipping n=13 idx=61 because variance_outputs/variance_n13_idx61.txt already exists
+running n=14 idx=61
+skipping n=15 idx=61 because variance_outputs/variance_n15_idx61.txt already exists
+running n=16 idx=61
+running n=17 idx=61
+running n=18 idx=61
+running n=19 idx=61
+running n=20 idx=61
+running n=21 idx=61
+skipping n=22 idx=61 because variance_outputs/variance_n22_idx61.txt already exists
+running n=23 idx=61
+running n=24 idx=61
+running n=25 idx=61
+running n=5 idx=62
+running n=6 idx=62
+running n=7 idx=62
+running n=8 idx=62
+running n=9 idx=62
+running n=10 idx=62
+running n=11 idx=62
+running n=12 idx=62
+running n=13 idx=62
+running n=14 idx=62
+running n=15 idx=62
+running n=16 idx=62
+running n=17 idx=62
+running n=18 idx=62
+running n=19 idx=62
+running n=20 idx=62
+running n=21 idx=62
+running n=22 idx=62
+running n=23 idx=62
+running n=24 idx=62
+running n=25 idx=62
+running n=5 idx=63
+skipping n=6 idx=63 because variance_outputs/variance_n6_idx63.txt already exists
+running n=7 idx=63
+running n=8 idx=63
+running n=9 idx=63
+running n=10 idx=63
+skipping n=11 idx=63 because variance_outputs/variance_n11_idx63.txt already exists
+running n=12 idx=63
+running n=13 idx=63
+running n=14 idx=63
+running n=15 idx=63
+running n=16 idx=63
+running n=17 idx=63
+running n=18 idx=63
+running n=19 idx=63
+running n=20 idx=63
+running n=21 idx=63
+running n=22 idx=63
+running n=23 idx=63
+running n=24 idx=63
+running n=25 idx=63
+skipping n=5 idx=64 because variance_outputs/variance_n5_idx64.txt already exists
+running n=6 idx=64
+running n=7 idx=64
+running n=8 idx=64
+running n=9 idx=64
+running n=10 idx=64
+running n=11 idx=64
+running n=12 idx=64
+running n=13 idx=64
+running n=14 idx=64
+running n=15 idx=64
+running n=16 idx=64
+running n=17 idx=64
+skipping n=18 idx=64 because variance_outputs/variance_n18_idx64.txt already exists
+running n=19 idx=64
+running n=20 idx=64
+running n=21 idx=64
+running n=22 idx=64
+running n=23 idx=64
+running n=24 idx=64
+running n=25 idx=64
+running n=5 idx=65
+running n=6 idx=65
+running n=7 idx=65
+running n=8 idx=65
+running n=9 idx=65
+skipping n=10 idx=65 because variance_outputs/variance_n10_idx65.txt already exists
+running n=11 idx=65
+running n=12 idx=65
+running n=13 idx=65
+running n=14 idx=65
+running n=15 idx=65
+running n=16 idx=65
+running n=17 idx=65
+running n=18 idx=65
+running n=19 idx=65
+running n=20 idx=65
+running n=21 idx=65
+running n=22 idx=65
+running n=23 idx=65
+running n=24 idx=65
+running n=25 idx=65
+running n=5 idx=66
+running n=6 idx=66
+running n=7 idx=66
+running n=8 idx=66
+running n=9 idx=66
+running n=10 idx=66
+running n=11 idx=66
+running n=12 idx=66
+running n=13 idx=66
+skipping n=14 idx=66 because variance_outputs/variance_n14_idx66.txt already exists
+running n=15 idx=66
+running n=16 idx=66
+running n=17 idx=66
+running n=18 idx=66
+running n=19 idx=66
+running n=20 idx=66
+skipping n=21 idx=66 because variance_outputs/variance_n21_idx66.txt already exists
+running n=22 idx=66
+running n=23 idx=66
+running n=24 idx=66
+running n=25 idx=66
+running n=5 idx=67
+skipping n=6 idx=67 because variance_outputs/variance_n6_idx67.txt already exists
+running n=7 idx=67
+running n=8 idx=67
+skipping n=9 idx=67 because variance_outputs/variance_n9_idx67.txt already exists
+running n=10 idx=67
+running n=11 idx=67
+running n=12 idx=67
+running n=13 idx=67
+running n=14 idx=67
+running n=15 idx=67
+running n=16 idx=67
+running n=17 idx=67
+running n=18 idx=67
+running n=19 idx=67
+running n=20 idx=67
+running n=21 idx=67
+running n=22 idx=67
+running n=23 idx=67
+running n=24 idx=67
+running n=25 idx=67
+running n=5 idx=68
+running n=6 idx=68
+running n=7 idx=68
+running n=8 idx=68
+running n=9 idx=68
+running n=10 idx=68
+running n=11 idx=68
+running n=12 idx=68
+running n=13 idx=68
+running n=14 idx=68
+running n=15 idx=68
+running n=16 idx=68
+running n=17 idx=68
+running n=18 idx=68
+running n=19 idx=68
+running n=20 idx=68
+running n=21 idx=68
+running n=22 idx=68
+running n=23 idx=68
+running n=24 idx=68
+running n=25 idx=68
+running n=5 idx=69
+running n=6 idx=69
+running n=7 idx=69
+running n=8 idx=69
+running n=9 idx=69
+running n=10 idx=69
+running n=11 idx=69
+running n=12 idx=69
+running n=13 idx=69
+running n=14 idx=69
+running n=15 idx=69
+running n=16 idx=69
+running n=17 idx=69
+running n=18 idx=69
+running n=19 idx=69
+running n=20 idx=69
+running n=21 idx=69
+running n=22 idx=69
+running n=23 idx=69
+running n=24 idx=69
+running n=25 idx=69
+running n=5 idx=70
+running n=6 idx=70
+running n=7 idx=70
+running n=8 idx=70
+running n=9 idx=70
+running n=10 idx=70
+running n=11 idx=70
+running n=12 idx=70
+running n=13 idx=70
+running n=14 idx=70
+running n=15 idx=70
+running n=16 idx=70
+running n=17 idx=70
+running n=18 idx=70
+running n=19 idx=70
+running n=20 idx=70
+running n=21 idx=70
+running n=22 idx=70
+running n=23 idx=70
+running n=24 idx=70
+running n=25 idx=70
+skipping n=5 idx=71 because variance_outputs/variance_n5_idx71.txt already exists
+running n=6 idx=71
+running n=7 idx=71
+running n=8 idx=71
+skipping n=9 idx=71 because variance_outputs/variance_n9_idx71.txt already exists
+running n=10 idx=71
+running n=11 idx=71
+running n=12 idx=71
+running n=13 idx=71
+running n=14 idx=71
+running n=15 idx=71
+running n=16 idx=71
+skipping n=17 idx=71 because variance_outputs/variance_n17_idx71.txt already exists
+running n=18 idx=71
+running n=19 idx=71
+running n=20 idx=71
+running n=21 idx=71
+running n=22 idx=71
+running n=23 idx=71
+running n=24 idx=71
+running n=25 idx=71
+running n=5 idx=72
+running n=6 idx=72
+running n=7 idx=72
+running n=8 idx=72
+running n=9 idx=72
+running n=10 idx=72
+running n=11 idx=72
+running n=12 idx=72
+running n=13 idx=72
+running n=14 idx=72
+running n=15 idx=72
+running n=16 idx=72
+running n=17 idx=72
+running n=18 idx=72
+running n=19 idx=72
+running n=20 idx=72
+running n=21 idx=72
+running n=22 idx=72
+running n=23 idx=72
+running n=24 idx=72
+running n=25 idx=72
+running n=5 idx=73
+running n=6 idx=73
+running n=7 idx=73
+running n=8 idx=73
+running n=9 idx=73
+running n=10 idx=73
+running n=11 idx=73
+running n=12 idx=73
+running n=13 idx=73
+running n=14 idx=73
+running n=15 idx=73
+running n=16 idx=73
+running n=17 idx=73
+running n=18 idx=73
+running n=19 idx=73
+running n=20 idx=73
+running n=21 idx=73
+running n=22 idx=73
+running n=23 idx=73
+running n=24 idx=73
+running n=25 idx=73
+running n=5 idx=74
+running n=6 idx=74
+running n=7 idx=74
+running n=8 idx=74
+running n=9 idx=74
+running n=10 idx=74
+running n=11 idx=74
+running n=12 idx=74
+running n=13 idx=74
+running n=14 idx=74
+running n=15 idx=74
+running n=16 idx=74
+running n=17 idx=74
+running n=18 idx=74
+running n=19 idx=74
+running n=20 idx=74
+running n=21 idx=74
+running n=22 idx=74
+running n=23 idx=74
+running n=24 idx=74
+running n=25 idx=74
+running n=5 idx=75
+running n=6 idx=75
+running n=7 idx=75
+running n=8 idx=75
+running n=9 idx=75
+running n=10 idx=75
+running n=11 idx=75
+running n=12 idx=75
+running n=13 idx=75
+running n=14 idx=75
+running n=15 idx=75
+running n=16 idx=75
+running n=17 idx=75
+running n=18 idx=75
+running n=19 idx=75
+running n=20 idx=75
+running n=21 idx=75
+running n=22 idx=75
+running n=23 idx=75
+running n=24 idx=75
+running n=25 idx=75
+running n=5 idx=76
+running n=6 idx=76
+running n=7 idx=76
+running n=8 idx=76
+running n=9 idx=76
+running n=10 idx=76
+running n=11 idx=76
+running n=12 idx=76
+running n=13 idx=76
+running n=14 idx=76
+running n=15 idx=76
+running n=16 idx=76
+running n=17 idx=76
+running n=18 idx=76
+skipping n=19 idx=76 because variance_outputs/variance_n19_idx76.txt already exists
+running n=20 idx=76
+running n=21 idx=76
+running n=22 idx=76
+running n=23 idx=76
+running n=24 idx=76
+running n=25 idx=76
+running n=5 idx=77
+running n=6 idx=77
+running n=7 idx=77
+running n=8 idx=77
+running n=9 idx=77
+running n=10 idx=77
+running n=11 idx=77
+running n=12 idx=77
+running n=13 idx=77
+running n=14 idx=77
+running n=15 idx=77
+running n=16 idx=77
+running n=17 idx=77
+running n=18 idx=77
+running n=19 idx=77
+running n=20 idx=77
+running n=21 idx=77
+running n=22 idx=77
+running n=23 idx=77
+running n=24 idx=77
+running n=25 idx=77
+running n=5 idx=78
+running n=6 idx=78
+running n=7 idx=78
+running n=8 idx=78
+running n=9 idx=78
+running n=10 idx=78
+running n=11 idx=78
+running n=12 idx=78
+running n=13 idx=78
+running n=14 idx=78
+running n=15 idx=78
+running n=16 idx=78
+running n=17 idx=78
+running n=18 idx=78
+running n=19 idx=78
+running n=20 idx=78
+running n=21 idx=78
+running n=22 idx=78
+running n=23 idx=78
+running n=24 idx=78
+running n=25 idx=78
+running n=5 idx=79
+running n=6 idx=79
+running n=7 idx=79
+running n=8 idx=79
+running n=9 idx=79
+running n=10 idx=79
+running n=11 idx=79
+running n=12 idx=79
+running n=13 idx=79
+running n=14 idx=79
+running n=15 idx=79
+running n=16 idx=79
+running n=17 idx=79
+running n=18 idx=79
+running n=19 idx=79
+running n=20 idx=79
+running n=21 idx=79
+running n=22 idx=79
+running n=23 idx=79
+running n=24 idx=79
+running n=25 idx=79
+running n=5 idx=80
+running n=6 idx=80
+running n=7 idx=80
+running n=8 idx=80
+running n=9 idx=80
+running n=10 idx=80
+running n=11 idx=80
+running n=12 idx=80
+running n=13 idx=80
+running n=14 idx=80
+running n=15 idx=80
+running n=16 idx=80
+running n=17 idx=80
+running n=18 idx=80
+running n=19 idx=80
+running n=20 idx=80
+running n=21 idx=80
+running n=22 idx=80
+running n=23 idx=80
+running n=24 idx=80
+running n=25 idx=80
+running n=5 idx=81
+running n=6 idx=81
+running n=7 idx=81
+running n=8 idx=81
+running n=9 idx=81
+running n=10 idx=81
+running n=11 idx=81
+running n=12 idx=81
+running n=13 idx=81
+running n=14 idx=81
+running n=15 idx=81
+running n=16 idx=81
+running n=17 idx=81
+running n=18 idx=81
+running n=19 idx=81
+running n=20 idx=81
+running n=21 idx=81
+running n=22 idx=81
+running n=23 idx=81
+running n=24 idx=81
+running n=25 idx=81
+running n=5 idx=82
+running n=6 idx=82
+running n=7 idx=82
+running n=8 idx=82
+running n=9 idx=82
+running n=10 idx=82
+running n=11 idx=82
+running n=12 idx=82
+running n=13 idx=82
+running n=14 idx=82
+running n=15 idx=82
+running n=16 idx=82
+running n=17 idx=82
+running n=18 idx=82
+running n=19 idx=82
+running n=20 idx=82
+running n=21 idx=82
+running n=22 idx=82
+running n=23 idx=82
+running n=24 idx=82
+running n=25 idx=82
+running n=5 idx=83
+running n=6 idx=83
+running n=7 idx=83
+running n=8 idx=83
+running n=9 idx=83
+running n=10 idx=83
+running n=11 idx=83
+running n=12 idx=83
+running n=13 idx=83
+running n=14 idx=83
+running n=15 idx=83
+running n=16 idx=83
+running n=17 idx=83
+running n=18 idx=83
+running n=19 idx=83
+running n=20 idx=83
+running n=21 idx=83
+running n=22 idx=83
+running n=23 idx=83
+running n=24 idx=83
+running n=25 idx=83
+running n=5 idx=84
+running n=6 idx=84
+running n=7 idx=84
+running n=8 idx=84
+running n=9 idx=84
+running n=10 idx=84
+running n=11 idx=84
+running n=12 idx=84
+running n=13 idx=84
+running n=14 idx=84
+running n=15 idx=84
+running n=16 idx=84
+running n=17 idx=84
+running n=18 idx=84
+running n=19 idx=84
+running n=20 idx=84
+running n=21 idx=84
+running n=22 idx=84
+running n=23 idx=84
+running n=24 idx=84
+running n=25 idx=84
+running n=5 idx=85
+running n=6 idx=85
+running n=7 idx=85
+running n=8 idx=85
+running n=9 idx=85
+running n=10 idx=85
+running n=11 idx=85
+running n=12 idx=85
+running n=13 idx=85
+running n=14 idx=85
+running n=15 idx=85
+running n=16 idx=85
+running n=17 idx=85
+running n=18 idx=85
+running n=19 idx=85
+running n=20 idx=85
+running n=21 idx=85
+running n=22 idx=85
+running n=23 idx=85
+running n=24 idx=85
+running n=25 idx=85
+running n=5 idx=86
+running n=6 idx=86
+running n=7 idx=86
+running n=8 idx=86
+running n=9 idx=86
+running n=10 idx=86
+running n=11 idx=86
+running n=12 idx=86
+running n=13 idx=86
+running n=14 idx=86
+running n=15 idx=86
+running n=16 idx=86
+running n=17 idx=86
+running n=18 idx=86
+running n=19 idx=86
+running n=20 idx=86
+running n=21 idx=86
+running n=22 idx=86
+running n=23 idx=86
+running n=24 idx=86
+running n=25 idx=86
+running n=5 idx=87
+running n=6 idx=87
+running n=7 idx=87
+running n=8 idx=87
+running n=9 idx=87
+running n=10 idx=87
+running n=11 idx=87
+running n=12 idx=87
+running n=13 idx=87
+running n=14 idx=87
+running n=15 idx=87
+running n=16 idx=87
+running n=17 idx=87
+running n=18 idx=87
+running n=19 idx=87
+running n=20 idx=87
+running n=21 idx=87
+running n=22 idx=87
+running n=23 idx=87
+running n=24 idx=87
+running n=25 idx=87
+running n=5 idx=88
+running n=6 idx=88
+running n=7 idx=88
+running n=8 idx=88
+running n=9 idx=88
+running n=10 idx=88
+running n=11 idx=88
+running n=12 idx=88
+running n=13 idx=88
+running n=14 idx=88
+running n=15 idx=88
+running n=16 idx=88
+running n=17 idx=88
+running n=18 idx=88
+running n=19 idx=88
+running n=20 idx=88
+running n=21 idx=88
+running n=22 idx=88
+running n=23 idx=88
+running n=24 idx=88
+running n=25 idx=88
+running n=5 idx=89
+running n=6 idx=89
+running n=7 idx=89
+running n=8 idx=89
+running n=9 idx=89
+running n=10 idx=89
+running n=11 idx=89
+running n=12 idx=89
+running n=13 idx=89
+running n=14 idx=89
+running n=15 idx=89
+running n=16 idx=89
+running n=17 idx=89
+running n=18 idx=89
+running n=19 idx=89
+running n=20 idx=89
+running n=21 idx=89
+running n=22 idx=89
+running n=23 idx=89
+running n=24 idx=89
+running n=25 idx=89
+running n=5 idx=90
+running n=6 idx=90
+running n=7 idx=90
+running n=8 idx=90
+running n=9 idx=90
+running n=10 idx=90
+running n=11 idx=90
+running n=12 idx=90
+running n=13 idx=90
+running n=14 idx=90
+running n=15 idx=90
+running n=16 idx=90
+running n=17 idx=90
+running n=18 idx=90
+running n=19 idx=90
+running n=20 idx=90
+running n=21 idx=90
+running n=22 idx=90
+running n=23 idx=90
+running n=24 idx=90
+running n=25 idx=90
+running n=5 idx=91
+running n=6 idx=91
+running n=7 idx=91
+running n=8 idx=91
+running n=9 idx=91
+running n=10 idx=91
+running n=11 idx=91
+running n=12 idx=91
+running n=13 idx=91
+running n=14 idx=91
+running n=15 idx=91
+running n=16 idx=91
+running n=17 idx=91
+running n=18 idx=91
+running n=19 idx=91
+running n=20 idx=91
+running n=21 idx=91
+running n=22 idx=91
+running n=23 idx=91
+running n=24 idx=91
+running n=25 idx=91
+running n=5 idx=92
+running n=6 idx=92
+running n=7 idx=92
+running n=8 idx=92
+running n=9 idx=92
+running n=10 idx=92
+running n=11 idx=92
+running n=12 idx=92
+running n=13 idx=92
+running n=14 idx=92
+running n=15 idx=92
+running n=16 idx=92
+running n=17 idx=92
+running n=18 idx=92
+running n=19 idx=92
+running n=20 idx=92
+running n=21 idx=92
+running n=22 idx=92
+running n=23 idx=92
+running n=24 idx=92
+running n=25 idx=92
+running n=5 idx=93
+running n=6 idx=93
+running n=7 idx=93
+running n=8 idx=93
+running n=9 idx=93
+running n=10 idx=93
+running n=11 idx=93
+running n=12 idx=93
+running n=13 idx=93
+running n=14 idx=93
+running n=15 idx=93
+running n=16 idx=93
+running n=17 idx=93
+running n=18 idx=93
+running n=19 idx=93
+running n=20 idx=93
+running n=21 idx=93
+running n=22 idx=93
+running n=23 idx=93
+running n=24 idx=93
+running n=25 idx=93
+running n=5 idx=94
+running n=6 idx=94
+running n=7 idx=94
+running n=8 idx=94
+running n=9 idx=94
+running n=10 idx=94
+running n=11 idx=94
+running n=12 idx=94
+running n=13 idx=94
+running n=14 idx=94
+running n=15 idx=94
+running n=16 idx=94
+running n=17 idx=94
+running n=18 idx=94
+running n=19 idx=94
+running n=20 idx=94
+running n=21 idx=94
+running n=22 idx=94
+running n=23 idx=94
+running n=24 idx=94
+running n=25 idx=94
+running n=5 idx=95
+running n=6 idx=95
+running n=7 idx=95
+running n=8 idx=95
+running n=9 idx=95
+running n=10 idx=95
+running n=11 idx=95
+running n=12 idx=95
+running n=13 idx=95
+running n=14 idx=95
+running n=15 idx=95
+running n=16 idx=95
+running n=17 idx=95
+running n=18 idx=95
+running n=19 idx=95
+running n=20 idx=95
+running n=21 idx=95
+running n=22 idx=95
+running n=23 idx=95
+running n=24 idx=95
+running n=25 idx=95
+running n=5 idx=96
+running n=6 idx=96
+running n=7 idx=96
+running n=8 idx=96
+running n=9 idx=96
+running n=10 idx=96
+running n=11 idx=96
+running n=12 idx=96
+running n=13 idx=96
+running n=14 idx=96
+running n=15 idx=96
+running n=16 idx=96
+running n=17 idx=96
+running n=18 idx=96
+running n=19 idx=96
+running n=20 idx=96
+running n=21 idx=96
+running n=22 idx=96
+running n=23 idx=96
+running n=24 idx=96
+running n=25 idx=96
+running n=5 idx=97
+running n=6 idx=97
+running n=7 idx=97
+running n=8 idx=97
+running n=9 idx=97
+running n=10 idx=97
+running n=11 idx=97
+running n=12 idx=97
+running n=13 idx=97
+running n=14 idx=97
+running n=15 idx=97
+running n=16 idx=97
+running n=17 idx=97
+running n=18 idx=97
+running n=19 idx=97
+running n=20 idx=97
+running n=21 idx=97
+running n=22 idx=97
+running n=23 idx=97
+running n=24 idx=97
+running n=25 idx=97
+running n=5 idx=98
+running n=6 idx=98
+running n=7 idx=98
+running n=8 idx=98
+running n=9 idx=98
+running n=10 idx=98
+running n=11 idx=98
+running n=12 idx=98
+running n=13 idx=98
+running n=14 idx=98
+running n=15 idx=98
+running n=16 idx=98
+running n=17 idx=98
+running n=18 idx=98
+running n=19 idx=98
+running n=20 idx=98
+running n=21 idx=98
+running n=22 idx=98
+running n=23 idx=98
+running n=24 idx=98
+running n=25 idx=98
+running n=5 idx=99
+running n=6 idx=99
+running n=7 idx=99
+running n=8 idx=99
+running n=9 idx=99
+running n=10 idx=99
+running n=11 idx=99
+running n=12 idx=99
+running n=13 idx=99
+running n=14 idx=99
+running n=15 idx=99
+running n=16 idx=99
+running n=17 idx=99
+running n=18 idx=99
+running n=19 idx=99
+running n=20 idx=99
+running n=21 idx=99
+running n=22 idx=99
+running n=23 idx=99
+running n=24 idx=99
+running n=25 idx=99

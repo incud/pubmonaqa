@@ -24,10 +24,15 @@ export OPENBLAS_NUM_THREADS=1
 g++ -std=c++20 -O3 -march=native -mtune=native -ffast-math -fno-math-errno -funroll-loops -DNDEBUG estimation_variance_new.cpp -o estimation_variance_new.x
 
 mkdir -p variance_outputs
+find variance_outputs -type f -name "*.txt" -empty -delete
 
-for idx in $(seq 0 9); do
-    for n in $(seq 5 25); do
+srun --ntasks=1 --cpus-per-task=1 bash <<'EOF'
+set -euo pipefail
+
+for idx in $(seq 0 99); do
+    for n in $(seq 30 30); do
         out="variance_outputs/variance_n${n}_idx${idx}.txt"
+        tmp="${out}.tmp"
 
         if [ -f "$out" ]; then
             echo "skipping n=$n idx=$idx because $out already exists"
@@ -35,6 +40,8 @@ for idx in $(seq 0 9); do
         fi
 
         echo "running n=$n idx=$idx"
-        srun --ntasks=1 --cpus-per-task=1 ./estimation_variance_new.x "$n" "ising_inputs/model_n${n}_idx${idx}.txt" > "$out" & sleep 0.5
+        ./estimation_variance_new.x "$n" "ising_inputs/model_n${n}_idx${idx}.txt" > "$tmp"
+        mv "$tmp" "$out"
     done
 done
+EOF
