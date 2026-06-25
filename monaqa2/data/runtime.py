@@ -523,6 +523,9 @@ def get_annealing_queries_quantum_walks(n: int | float, eps_TV: float, spectral_
 
 
 def tight_schedule_annealing(n: int | float, beta: float) -> list[float]:
+    """
+    There ...
+    """
     beta = float(beta)
     if beta <= 0.0:
         return []
@@ -544,7 +547,12 @@ def tight_schedule_annealing(n: int | float, beta: float) -> list[float]:
         if not np.isfinite(step) or step <= 0.0:
             raise ValueError(f"Invalid annealing step: n={n}, beta={current}, step={step}")
 
-        current = min(current + step, beta)
+        next_beta = current + step
+
+        if current < 1.0 < min(next_beta, beta):
+            next_beta = 1.0
+
+        current = min(next_beta, beta)
 
         if not schedule or not np.isclose(current, schedule[-1]):
             schedule.append(current)
