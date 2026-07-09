@@ -270,6 +270,12 @@ def quantum_walk_qemc_circuit(n: int | float, eps_W: float, beta: float, num_tro
     return 2 * proposal_depth + 2 * boltz_depth + reflection_depth + accept_depth, max(proposal_qubits, boltz_qubits, reflection_qubits, accept_qubits)
 
 
+
+def get_time_direct_enumeration(n: int):
+    # return 1.504584e-07 * (2**n)
+    return 6.323731e-10 * (n**2) * (2**n)
+
+
 def get_annealing_time_classical_walk_local(n: int | float, vec_queries: list[float], device: str = "cpu") -> float:
     """Return the classical annealing runtime for local Metropolis updates.
 
@@ -508,6 +514,28 @@ def get_annealing_time_quantum_walk_qemc(n: int, eps_TV: float, betas: list[floa
     return _get_annealing_time_quantum_walk(n, eps_TV, betas, spectral_gaps, physical_operation_time, physical_measurement_time, physical_error_rate, circuit_fn, zeno_overlap_probability, arithmetic_type)
 
 
+
+def get_one_step_quantum_walk_queries(n: int | float, eps_TV: float, spectral_gap: float, overlap: float = 1.0 / np.e) -> float:
+    """Return the expected walk queries for one warm-start spectral-filter step.
+
+    This is the one-step analogue of ``get_annealing_queries_quantum_walks``.
+    It reuses the same error split and spectral-filter degree formula, but uses
+    the expected number of direct attempts ``1 / overlap`` rather than the
+    schedule-level Zeno-rewind overhead ``1 + 1 / overlap``.
+
+    :param n: Number of spins; currently unused but kept for API compatibility.
+    :param eps_TV: Desired total-variation distance error.
+    :param spectral_gap: Spectral gap of the Markov-chain discriminant matrix.
+    :param overlap: Lower bound on the squared overlap between the input and target coherent Gibbs states.
+    :return: Expected total number of calls to ``W`` or ``W-dagger``.
+    """
+    _, _, eps_FLT, _ = split_quantum_error_budget(eps_TV)
+    expected_attempts = 1.0 / overlap
+    eps_filter = eps_FLT / expected_attempts
+    degree_filter = spectral_filter_polynomial_degree(spectral_gap, eps_filter)
+    return float(expected_attempts * degree_filter)
+
+
 def get_annealing_queries_quantum_walks(n: int | float, eps_TV: float, spectral_gaps: list[float], zeno_overlap_probability: float = 1.0 / np.e) -> float:
     """Return the expected number of walk queries in the Zeno-rewind quantum annealing schedule.
 
@@ -519,7 +547,6 @@ def get_annealing_queries_quantum_walks(n: int | float, eps_TV: float, spectral_
     """
     budget = get_quantum_annealing_error_budget(eps_TV, spectral_gaps, zeno_overlap_probability)
     return budget["total_queries"]
-
 
 
 def tight_schedule_annealing(n: int | float, beta: float) -> list[float]:

@@ -1,23 +1,32 @@
-from typing import Callable
+import re
+from pathlib import Path
+from typing import Callable, Sequence
 
 import matplotlib.pyplot as plt
-from matplotlib.colors import to_rgb
-from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-from monaqa2.data.filename import CLASSICAL_QUERY_FILE, SPECTRAL_GAP_FILE
-from monaqa2.data.runtime import get_annealing_queries_quantum_walks
-from monaqa2.data.spectral_gap import get_spectral_gap_stats, get_spectral_gap_fit_by_n, get_spectral_gap_fit_by_beta
-from monaqa2.data.classical_query import get_classical_query_stats, get_classical_query_fit_by_n
-from monaqa2.data.runtime import (
-    split_quantum_error_budget,
-    get_annealing_time_classical_walk_local,
-    get_annealing_time_classical_walk_uniform,
-    get_annealing_time_classical_walk_qemc,
-    get_annealing_time_quantum_walk_local,
-    get_annealing_time_quantum_walk_uniform,
-    get_annealing_time_quantum_walk_qemc,
-)
 import numpy as np
-from pathlib import Path
+from matplotlib.collections import PathCollection, PolyCollection
+from matplotlib.colors import to_rgb, to_rgba
+from matplotlib.lines import Line2D
+from matplotlib.ticker import FuncFormatter, LogFormatterMathtext
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+
+from monaqa2.data.classical_query import get_classical_query_fit_by_n, get_classical_query_stats
+from monaqa2.data.filename import CLASSICAL_QUERY_FILE, SPECTRAL_GAP_FILE
+from monaqa2.data.runtime import (
+    get_annealing_queries_quantum_walks,
+    get_one_step_quantum_walk_queries,
+    get_annealing_time_classical_walk_local,
+    get_annealing_time_classical_walk_qemc,
+    get_annealing_time_classical_walk_uniform,
+    get_annealing_time_quantum_walk_local,
+    get_annealing_time_quantum_walk_qemc,
+    get_annealing_time_quantum_walk_uniform,
+    split_quantum_error_budget,
+)
+from monaqa2.data.spectral_gap import get_spectral_gap_fit_by_beta, get_spectral_gap_fit_by_n, get_spectral_gap_stats
+
+plt.rcParams["savefig.bbox"] = "tight"
+plt.rcParams["savefig.pad_inches"] = 0.0
 
 
 PROPOSALS_SORTED = ["local1", "uniform", "layden"]
@@ -32,20 +41,17 @@ PROPOSAL_LABELS = {
     "qemc": "Quantum enhanced (best hyperparameters)",
 }
 
-
 PROPOSAL_COLORS = {
-    "local1_classical": "#66CCEE",
-    "local1_quantum": "#4477AA",
-    "uniform_classical": "#777777",
-    "uniform_quantum": "#000000",
+    "local1_classical": "#777777",
+    "local1_quantum": "#000000",
+    "uniform_classical": "#66CCEE",
+    "uniform_quantum": "#4477AA",
     "layden_classical": "#CC6677",
     "layden_quantum": "#AA3377",
-    "local1": "#4477AA",
-    "uniform": "#000000",
-    "layden": "#AA3377",
-    "layden_aux": "#CC6677",
-    "qemc": "#AA3377",
 }
+
+
+MOVE_LEGEND_LABELS = ["local", "uniform", "dynamics"]
 
 
 MOVE_LABELS = {
@@ -56,7 +62,11 @@ MOVE_LABELS = {
 
 
 def _proposal_color(proposal: str, kind: str) -> str:
-    return PROPOSAL_COLORS.get(f"{proposal}_{kind}", PROPOSAL_COLORS[proposal])
+    key = f"{proposal}_{kind}"
+    try:
+        return PROPOSAL_COLORS[key]
+    except:
+        raise ValueError(f"Cannot find proposal color with {key=}. Available: {PROPOSAL_COLORS.keys()}")
 
 
 def _proposal_base_color(proposal: str) -> str:
@@ -182,7 +192,7 @@ def _plot_with_projection_style(
     n_fit_max: int | None,
     zorder: int,
 ):
-    """Plot a curve with a solid calibrated part and a dashed projected part."""
+    """Plot a curve with solid calibrated and projected parts."""
     y = np.asarray(y_vals, dtype=float)
     if n_fit_max is None:
         (line,) = ax.plot(n_vals, y, color=color, linewidth=linewidth, linestyle="-", alpha=alpha, label=label, zorder=zorder)
@@ -195,7 +205,7 @@ def _plot_with_projection_style(
     if np.any(calibrated):
         (line,) = ax.plot(n_vals[calibrated], y[calibrated], color=color, linewidth=linewidth, linestyle="-", alpha=alpha, label=label, zorder=zorder)
     if np.any(projected):
-        (proj_line,) = ax.plot(n_vals[projected], y[projected], color=color, linewidth=linewidth, linestyle=(0, (4, 2)), alpha=alpha, label=None if line is not None else label, zorder=zorder)
+        (proj_line,) = ax.plot(n_vals[projected], y[projected], color=color, linewidth=linewidth, linestyle="-", alpha=alpha, label=None if line is not None else label, zorder=zorder)
         if line is None:
             line = proj_line
     return line
@@ -897,6 +907,7 @@ def plot_annealing_classical_and_quantum_runtime_vs_n(
     physical_measurement_time_min: float = 20e-9,
     physical_measurement_time_max: float = 2_000e-9,
     num_trotter_steps: int = 50,
+    arithmetic_type: str = "HYBRID",
     classical_query_file: Path = CLASSICAL_QUERY_FILE,
     spectral_gap_file: Path = SPECTRAL_GAP_FILE,
     statistic: str = "mean+std",
@@ -942,11 +953,15 @@ def plot_annealing_classical_and_quantum_runtime_vs_n(
     - ``"full"``: local, uniform, and quantum-enhanced proposals.
     - ``"compact"``: uniform and quantum-enhanced proposals.
     - ``"compact_no_layden"``: uniform proposals and quantum-enhanced quantum-walk proposal only.
+
+    :param arithmetic_type: Arithmetic implementation for the quantum-walk runtime, either ``"HYBRID"`` or ``"FULLY_PHASE"``.
     """
     if mode not in {"full", "compact", "compact_no_layden"}:
         raise ValueError(f"Unknown mode={mode}. Expected 'full', 'compact', or 'compact_no_layden'.")
     if legend_placement not in {"legend_out", "legend_line"}:
         raise ValueError(f"Unknown legend_placement={legend_placement}. Expected 'legend_out' or 'legend_line'.")
+    if arithmetic_type not in {"HYBRID", "FULLY_PHASE"}:
+        raise ValueError(f"Unknown arithmetic_type={arithmetic_type!r}. Expected 'HYBRID' or 'FULLY_PHASE'.")
 
     if n_plot_min is None:
         n_plot_min = 3
@@ -1162,22 +1177,22 @@ def plot_annealing_classical_and_quantum_runtime_vs_n(
                 c_lower, c_upper = _visual_band([classical_value], deterministic_classical_band_fraction)
                 classical_min.append(float(c_lower[0]))
                 classical_max.append(float(c_upper[0]))
-                quantum_min.append(get_annealing_time_quantum_walk_local(int(n), epsilon, schedule, spectral_gaps, physical_operation_time_min, physical_measurement_time_min, physical_error_rate_min))
-                quantum_max.append(get_annealing_time_quantum_walk_local(int(n), epsilon, schedule, spectral_gaps, physical_operation_time_max, physical_measurement_time_max, physical_error_rate_max))
+                quantum_min.append(get_annealing_time_quantum_walk_local(int(n), epsilon, schedule, spectral_gaps, physical_operation_time_min, physical_measurement_time_min, physical_error_rate_min, arithmetic_type=arithmetic_type))
+                quantum_max.append(get_annealing_time_quantum_walk_local(int(n), epsilon, schedule, spectral_gaps, physical_operation_time_max, physical_measurement_time_max, physical_error_rate_max, arithmetic_type=arithmetic_type))
 
             elif proposal == "uniform":
                 classical_value = get_annealing_time_classical_walk_uniform(int(n), vec_queries, device=classical_device)
                 c_lower, c_upper = _visual_band([classical_value], deterministic_classical_band_fraction)
                 classical_min.append(float(c_lower[0]))
                 classical_max.append(float(c_upper[0]))
-                quantum_min.append(get_annealing_time_quantum_walk_uniform(int(n), epsilon, schedule, spectral_gaps, physical_operation_time_min, physical_measurement_time_min, physical_error_rate_min))
-                quantum_max.append(get_annealing_time_quantum_walk_uniform(int(n), epsilon, schedule, spectral_gaps, physical_operation_time_max, physical_measurement_time_max, physical_error_rate_max))
+                quantum_min.append(get_annealing_time_quantum_walk_uniform(int(n), epsilon, schedule, spectral_gaps, physical_operation_time_min, physical_measurement_time_min, physical_error_rate_min, arithmetic_type=arithmetic_type))
+                quantum_max.append(get_annealing_time_quantum_walk_uniform(int(n), epsilon, schedule, spectral_gaps, physical_operation_time_max, physical_measurement_time_max, physical_error_rate_max, arithmetic_type=arithmetic_type))
 
             elif proposal == "layden":
                 classical_min.append(get_annealing_time_classical_walk_qemc(int(n), vec_queries, physical_operation_time_min, physical_measurement_time_min, physical_error_rate_min, eps_SF, num_trotter_steps=num_trotter_steps))
                 classical_max.append(get_annealing_time_classical_walk_qemc(int(n), vec_queries, physical_operation_time_max, physical_measurement_time_max, physical_error_rate_max, eps_SF, num_trotter_steps=num_trotter_steps))
-                quantum_min.append(get_annealing_time_quantum_walk_qemc(int(n), epsilon, schedule, spectral_gaps, physical_operation_time_min, physical_measurement_time_min, physical_error_rate_min, num_trotter_steps=num_trotter_steps))
-                quantum_max.append(get_annealing_time_quantum_walk_qemc(int(n), epsilon, schedule, spectral_gaps, physical_operation_time_max, physical_measurement_time_max, physical_error_rate_max, num_trotter_steps=num_trotter_steps))
+                quantum_min.append(get_annealing_time_quantum_walk_qemc(int(n), epsilon, schedule, spectral_gaps, physical_operation_time_min, physical_measurement_time_min, physical_error_rate_min, num_trotter_steps=num_trotter_steps, arithmetic_type=arithmetic_type))
+                quantum_max.append(get_annealing_time_quantum_walk_qemc(int(n), epsilon, schedule, spectral_gaps, physical_operation_time_max, physical_measurement_time_max, physical_error_rate_max, num_trotter_steps=num_trotter_steps, arithmetic_type=arithmetic_type))
 
         classical_min = np.asarray(classical_min, dtype=float)
         classical_max = np.asarray(classical_max, dtype=float)
@@ -1537,3 +1552,1757 @@ def plot_annealing_classical_and_quantum_runtime_fancy_vs_n(
     inset_ax.grid(False, which="major", axis="x")
 
     return fig, ax
+
+
+_SPECTRAL_GAP_BETA_YTICKS = [1e-1, 1e-4, 1e-7, 1e-10, 1e-13, 1e-16]
+
+
+def _make_table_axes(n_items: int, ncols: int, figsize: tuple[float, float] | None = None) -> tuple[plt.Figure, np.ndarray]:
+    if n_items <= 0:
+        raise ValueError("n_items must be positive.")
+    if ncols <= 0:
+        raise ValueError("ncols must be positive.")
+
+    nrows = int(np.ceil(n_items / ncols))
+    if figsize is None:
+        figsize = (7.2 * ncols, 5.8 * nrows)
+
+    fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=figsize, squeeze=False)
+    axes = axes.ravel()
+
+    for ax in axes[n_items:]:
+        ax.axis("off")
+
+    return fig, axes
+
+
+def _finish_table(fig: plt.Figure, hspace: float, wspace: float) -> None:
+    fig.subplots_adjust(hspace=hspace, wspace=wspace)
+
+
+def _format_large_fit_constant(label: str) -> str:
+    def repl(match: re.Match) -> str:
+        prefix, value_text, suffix = match.groups()
+        value = float(value_text)
+        if abs(value) <= 99.0:
+            return match.group(0)
+
+        exponent = int(np.floor(np.log10(abs(value))))
+        mantissa = value / 10.0**exponent
+        mantissa = round(mantissa, 1)
+
+        if abs(mantissa) >= 10.0:
+            mantissa /= 10.0
+            exponent += 1
+
+        return rf"{prefix}{mantissa:.1f}\,10^{{{exponent}}}{suffix}"
+
+    return re.sub(r"(\$)([-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?)(\s*\\times)", repl, label)
+
+
+def _fit_only_label(label: str) -> str:
+    if ": fit " in label:
+        return _format_large_fit_constant(label.split(": fit ", 1)[1])
+    if ": log-linear interpolation" in label:
+        return "log-linear"
+    if " queries: " in label:
+        return _format_large_fit_constant(label.split(" queries: ", 1)[1])
+    if " inverse gap: " in label:
+        return _format_large_fit_constant(label.split(" inverse gap: ", 1)[1])
+    if label.endswith(" classical annealing queries"):
+        return "classical"
+    if label.endswith(" quantum-walk queries"):
+        return "quantum"
+    return label
+
+
+def _line_color(handle):
+    return handle.get_color() if hasattr(handle, "get_color") else "black"
+
+
+def _line_style(handle):
+    return handle.get_linestyle() if hasattr(handle, "get_linestyle") else "-"
+
+
+def _line_width(handle):
+    return handle.get_linewidth() if hasattr(handle, "get_linewidth") else 2.0
+
+
+def _line_alpha(handle):
+    alpha = handle.get_alpha() if hasattr(handle, "get_alpha") else None
+    return 1.0 if alpha is None else alpha
+
+
+def _lighten_grid(ax: plt.Axes) -> None:
+    ax.grid(True, which="major", color="0.92", alpha=0.45, linewidth=0.6)
+    ax.grid(False, which="minor")
+
+
+def _enlarge_axis_labels(ax: plt.Axes, label_fontsize: int, tick_labelsize: int, title_fontsize: int) -> None:
+    ax.xaxis.label.set_size(label_fontsize)
+    ax.yaxis.label.set_size(label_fontsize)
+    ax.title.set_size(title_fontsize)
+    ax.tick_params(axis="both", which="major", labelsize=tick_labelsize)
+    ax.tick_params(axis="both", which="minor", labelsize=max(1, tick_labelsize - 2))
+
+
+def _keep_axis_labels_only_on_outer_edges(axes: np.ndarray, n_items: int, ncols: int, gap_axes: Sequence[plt.Axes | None] | None = None) -> None:
+    nrows = int(np.ceil(n_items / ncols))
+    for idx, ax in enumerate(axes[:n_items]):
+        row = idx // ncols
+        col = idx % ncols
+        if row != nrows - 1:
+            ax.set_xlabel("")
+        if col != 0:
+            ax.set_ylabel("")
+        if gap_axes is not None and idx < len(gap_axes) and gap_axes[idx] is not None:
+            gap_axes[idx].set_ylabel("")
+
+
+def _keep_single_axis_y_ticks_only_on_outer_edges(
+    axes: np.ndarray,
+    n_items: int,
+    ncols: int,
+) -> None:
+    nrows = int(np.ceil(n_items / ncols))
+    for idx, ax in enumerate(axes[:n_items]):
+        row = idx // ncols
+        col = idx % ncols
+        is_left_edge = col == 0
+        is_right_edge = ncols > 1 and col == ncols - 1
+
+        if row != nrows - 1:
+            ax.set_xlabel("")
+
+        if is_left_edge:
+            ax.tick_params(axis="y", which="both", left=True, labelleft=True, right=False, labelright=False)
+        elif is_right_edge:
+            ax.set_ylabel("")
+            ax.tick_params(axis="y", which="both", left=False, labelleft=False, right=True, labelright=True)
+        else:
+            ax.set_ylabel("")
+            ax.tick_params(axis="y", which="both", left=False, labelleft=False, right=False, labelright=False)
+
+
+def _replace_legend_with_line_fit_rows(
+    ax: plt.Axes,
+    ncol: int = 3,
+    y: float = -0.17,
+    row_gap: float = 0.030,
+    group_gap: float = 0.135,
+    line_half_width: float = 0.055,
+    fontsize: int = 12,
+    label_formatter: Callable[[str], str] | None = None,
+) -> None:
+    legend = ax.get_legend()
+    if legend is None:
+        return
+
+    handles = getattr(legend, "legend_handles", None)
+    if handles is None:
+        handles = getattr(legend, "legendHandles", None)
+    if handles is None:
+        return
+
+    formatter = _fit_only_label if label_formatter is None else label_formatter
+    labels = [formatter(text.get_text()) for text in legend.get_texts()]
+    legend.remove()
+
+    for group_start in range(0, len(handles), ncol):
+        group_handles = handles[group_start:group_start + ncol]
+        group_labels = labels[group_start:group_start + ncol]
+        count = len(group_handles)
+        xs = np.linspace(0.14, 0.86, count) if count > 1 else np.array([0.5])
+        y_line = y - (group_start // ncol) * group_gap
+        y_text = y_line - row_gap
+
+        for x, handle, label in zip(xs, group_handles, group_labels):
+            ax.plot(
+                [x - line_half_width, x + line_half_width],
+                [y_line, y_line],
+                transform=ax.transAxes,
+                color=_line_color(handle),
+                linestyle=_line_style(handle),
+                linewidth=_line_width(handle),
+                alpha=_line_alpha(handle),
+                solid_capstyle="butt",
+                clip_on=False,
+            )
+            ax.text(
+                x,
+                y_text,
+                label,
+                transform=ax.transAxes,
+                ha="center",
+                va="top",
+                fontsize=fontsize,
+                clip_on=False,
+            )
+
+
+def _apply_spectral_gap_beta_y_scale(ax: plt.Axes) -> None:
+    ax.set_yscale("log")
+    ax.set_ylim(1e-16, 1.0)
+    ax.set_yticks(_SPECTRAL_GAP_BETA_YTICKS)
+    ax.yaxis.set_major_formatter(LogFormatterMathtext(base=10))
+
+
+def _scale_inset_bounds(
+    inset_bounds: tuple[float, float, float, float],
+    miniature_scale: float,
+) -> tuple[float, float, float, float]:
+    if miniature_scale <= 0.0:
+        raise ValueError("miniature_scale must be positive.")
+
+    x0, y0, width, height = inset_bounds
+    width = min(width * miniature_scale, max(0.01, 0.98 - x0))
+    height = min(height * miniature_scale, max(0.01, 0.98 - y0))
+    return x0, y0, width, height
+
+
+def _add_spectral_gap_beta_inset(
+    fig: plt.Figure,
+    ax: plt.Axes,
+    fixed_n: int,
+    inset_bounds: tuple[float, float, float, float],
+    inset_tick_labelsize: int,
+    **kwargs,
+) -> plt.Axes:
+    inset_kwargs = dict(kwargs)
+    inset_kwargs.pop("beta_plot_min", None)
+    inset_kwargs.pop("beta_plot_max", None)
+    inset_kwargs.pop("show_legend", None)
+    inset_kwargs.pop("title", None)
+    inset_kwargs.pop("fig", None)
+    inset_kwargs.pop("ax", None)
+
+    inset_ax = ax.inset_axes(inset_bounds)
+    plot_spectral_gap_vs_beta(
+        fixed_n=fixed_n,
+        fig=fig,
+        ax=inset_ax,
+        title="",
+        show_legend=False,
+        beta_plot_min=0.25,
+        beta_plot_max=4.0,
+        **inset_kwargs,
+    )
+    inset_ax.set_xlim(0.25, 4.0)
+    inset_ax.set_ylim(1e-4, 1.0)
+    inset_ax.set_xlabel("")
+    inset_ax.set_ylabel("")
+    inset_ax.set_title("")
+    inset_ax.set_xticks([0.25, 1.0, 4.0])
+    inset_ax.set_xticklabels([r"$0.25$", r"$1$", r"$4$"])
+    inset_ax.set_yticks([1e-1, 1e-4])
+    inset_ax.yaxis.set_major_formatter(LogFormatterMathtext(base=10))
+    inset_ax.tick_params(axis="both", which="major", labelsize=inset_tick_labelsize, pad=1)
+    inset_ax.tick_params(axis="both", which="minor", labelsize=max(1, inset_tick_labelsize - 2), pad=1)
+    inset_ax.grid(True, which="major", color="0.90", alpha=0.55, linewidth=0.55)
+    inset_ax.grid(False, which="minor")
+    return inset_ax
+
+
+
+def _spectral_gap_n_legend_label(label: str) -> str:
+    if ": fit " not in label:
+        return _fit_only_label(label)
+
+    fit_text = label.split(": fit ", 1)[1]
+    match = re.search(r"2\^\{([^}]*)\}", fit_text)
+    if match is None:
+        return _fit_only_label(label)
+
+    exponent_text = match.group(1)
+    alpha_match = re.search(r"[-+]?\d+(?:\.\d*)?(?:[eE][-+]?\d+)?", exponent_text)
+    if alpha_match is None:
+        return _fit_only_label(label)
+
+    alpha = abs(float(alpha_match.group(0)))
+    return rf"$\lambda={alpha:.3f}$"
+
+
+def _split_fit_lines_at_n(
+    ax: plt.Axes,
+    extrapolation_start_n: float,
+    extrapolation_alpha_factor: float = 0.55,
+    extrapolation_linewidth_factor: float = 0.95,
+) -> None:
+    for line in list(ax.lines):
+        x = np.asarray(line.get_xdata(), dtype=float)
+        y = np.asarray(line.get_ydata(), dtype=float)
+        if x.size < 4 or y.size != x.size:
+            continue
+        if not np.all(np.isfinite(x)) or not np.all(np.isfinite(y)):
+            continue
+        if np.nanmax(x) <= extrapolation_start_n:
+            continue
+        if np.nanmin(x) >= extrapolation_start_n:
+            continue
+
+        order = np.argsort(x)
+        x = x[order]
+        y = y[order]
+        y_start = np.interp(extrapolation_start_n, x, y)
+
+        solid_mask = x <= extrapolation_start_n
+        projected_mask = x >= extrapolation_start_n
+
+        x_solid = np.concatenate([x[solid_mask], [extrapolation_start_n]])
+        y_solid = np.concatenate([y[solid_mask], [y_start]])
+        x_projected = np.concatenate([[extrapolation_start_n], x[projected_mask]])
+        y_projected = np.concatenate([[y_start], y[projected_mask]])
+
+        color = line.get_color()
+        alpha = line.get_alpha()
+        alpha = 1.0 if alpha is None else alpha
+        linewidth = line.get_linewidth()
+
+        line.set_data(x_solid, y_solid)
+        ax.plot(
+            x_projected,
+            y_projected,
+            color=color,
+            linestyle="-",
+            linewidth=linewidth * extrapolation_linewidth_factor,
+            alpha=alpha * extrapolation_alpha_factor,
+            zorder=line.get_zorder(),
+        )
+
+
+def _soften_plot_elements(
+    ax: plt.Axes,
+    scatter_size: float = 22.0,
+    band_alpha: float = 0.16,
+) -> None:
+    for collection in ax.collections:
+        if isinstance(collection, PathCollection):
+            offsets = collection.get_offsets()
+            if offsets is not None and len(offsets) > 0:
+                collection.set_sizes(np.full(len(offsets), scatter_size))
+        elif isinstance(collection, PolyCollection):
+            collection.set_alpha(band_alpha)
+
+
+def _positive_limits_from_axes(axes: Sequence[plt.Axes]) -> tuple[float, float]:
+    lows = []
+    highs = []
+    for ax in axes:
+        y0, y1 = ax.get_ylim()
+        if np.isfinite(y0) and y0 > 0:
+            lows.append(y0)
+        if np.isfinite(y1) and y1 > 0:
+            highs.append(y1)
+    if not lows or not highs:
+        return 1e-16, 1.0
+
+    lower = min(lows)
+    upper = max(highs)
+    lower = 10.0 ** np.floor(np.log10(lower))
+    upper = 10.0 ** np.ceil(np.log10(upper))
+    if lower >= upper:
+        lower = upper * 1e-3
+    return lower, upper
+
+
+def _apply_rowwise_y_limits(axes: np.ndarray, n_items: int, ncols: int) -> None:
+    nrows = int(np.ceil(n_items / ncols))
+    for row in range(nrows):
+        row_start = row * ncols
+        row_end = min((row + 1) * ncols, n_items)
+        row_axes = list(axes[row_start:row_end])
+        y_limits = _positive_limits_from_axes(row_axes)
+        for ax in row_axes:
+            ax.set_ylim(y_limits)
+
+
+def _ceil_to_multiple(value: float, step: float) -> float:
+    return step * np.ceil(value / step)
+
+
+def _plain_one_log_formatter(value: float, position: int | None = None) -> str:
+    if np.isclose(value, 1.0):
+        return "1"
+    if value <= 0.0 or not np.isfinite(value):
+        return ""
+    exponent = int(np.round(np.log10(value)))
+    return rf"$10^{{{exponent}}}$"
+
+
+def _measurement_y_values_from_axes(axes: Sequence[plt.Axes]) -> np.ndarray:
+    values = []
+    for ax in axes:
+        for collection in ax.collections:
+            if not isinstance(collection, PathCollection):
+                continue
+            offsets = collection.get_offsets()
+            if offsets is None or len(offsets) == 0:
+                continue
+            y = np.asarray(offsets[:, 1], dtype=float)
+            y = y[np.isfinite(y) & (y > 0.0)]
+            if y.size:
+                values.append(y)
+
+    if not values:
+        return np.array([], dtype=float)
+
+    return np.concatenate(values)
+
+
+def _spectral_gap_n_row_y_limit_from_measurements(
+    row_axes: Sequence[plt.Axes],
+    measurement_scale: float,
+    max_extra_orders: float,
+    tick_order_step: int,
+) -> tuple[float, float, np.ndarray]:
+    if measurement_scale < 1.0:
+        raise ValueError("measurement_scale must be at least 1.0.")
+    if max_extra_orders < 0.0:
+        raise ValueError("max_extra_orders must be non-negative.")
+    if tick_order_step <= 0:
+        raise ValueError("tick_order_step must be positive.")
+
+    y = _measurement_y_values_from_axes(row_axes)
+    if y.size == 0:
+        lower, _ = _positive_limits_from_axes(row_axes)
+        data_orders = max(0.0, np.log10(1.0 / lower))
+    else:
+        data_min = min(float(np.min(y)), 1.0)
+        data_orders = max(0.0, np.log10(1.0 / data_min))
+
+    scaled_orders = measurement_scale * data_orders
+    capped_orders = min(scaled_orders, data_orders + max_extra_orders)
+    limit_orders = int(max(tick_order_step, _ceil_to_multiple(capped_orders, tick_order_step)))
+
+    lower = 10.0 ** (-limit_orders)
+    upper = 1.0
+    ticks = 10.0 ** (-np.arange(0, limit_orders + 1, tick_order_step, dtype=float))
+    return lower, upper, ticks
+
+
+def _apply_rowwise_spectral_gap_n_y_limits_from_measurements(
+    axes: np.ndarray,
+    n_items: int,
+    ncols: int,
+    measurement_scale: float = 1.5,
+    max_extra_orders: float = 6.0,
+    tick_order_step: int = 3,
+) -> None:
+    nrows = int(np.ceil(n_items / ncols))
+    formatter = FuncFormatter(_plain_one_log_formatter)
+    for row in range(nrows):
+        row_start = row * ncols
+        row_end = min((row + 1) * ncols, n_items)
+        row_axes = list(axes[row_start:row_end])
+        lower, upper, ticks = _spectral_gap_n_row_y_limit_from_measurements(
+            row_axes,
+            measurement_scale=measurement_scale,
+            max_extra_orders=max_extra_orders,
+            tick_order_step=tick_order_step,
+        )
+        for ax in row_axes:
+            ax.set_yscale("log")
+            ax.set_ylim(lower, upper)
+            ax.set_yticks(ticks)
+            ax.yaxis.set_major_formatter(formatter)
+
+
+def _apply_spectral_gap_n_x_scale(ax: plt.Axes, n_plot_min: float, n_plot_max: float) -> None:
+    left = max(1.0, float(n_plot_min))
+    right = float(n_plot_max)
+    ax.set_xlim(left, right)
+
+    ticks = [float(k) for k in range(1, 11) if left <= k <= right]
+    if left <= 20.0 <= right:
+        ticks.append(20.0)
+
+    ax.set_xticks(ticks)
+    ax.set_xticklabels([str(int(tick)) for tick in ticks])
+
+
+_LOCAL_MOVE_COLOR_KEYS = [key for key in PROPOSAL_COLORS if key.startswith("local1_")]
+_LOCAL_MOVE_COLORS = [PROPOSAL_COLORS[key] for key in _LOCAL_MOVE_COLOR_KEYS]
+
+
+def _rgba_close(color, target_color: str, tol: float = 1e-2) -> bool:
+    try:
+        rgba = np.asarray(to_rgba(color), dtype=float)
+        target = np.asarray(to_rgba(target_color), dtype=float)
+        return bool(np.allclose(rgba[:3], target[:3], atol=tol, rtol=0.0))
+    except (TypeError, ValueError):
+        return False
+
+
+def _rgba_close_to_any(color, target_colors: Sequence[str], tol: float = 1e-2) -> bool:
+    return any(_rgba_close(color, target_color, tol=tol) for target_color in target_colors)
+
+
+def _collection_has_color(collection, target_colors: Sequence[str]) -> bool:
+    for getter_name in ("get_facecolors", "get_edgecolors"):
+        if not hasattr(collection, getter_name):
+            continue
+        colors = getattr(collection, getter_name)()
+        if colors is None or len(colors) == 0:
+            continue
+        if any(_rgba_close_to_any(color, target_colors) for color in colors):
+            return True
+    return False
+
+
+def _remove_artists_with_colors(ax: plt.Axes, target_colors: Sequence[str]) -> None:
+    for line in list(ax.lines):
+        if _rgba_close_to_any(line.get_color(), target_colors):
+            line.remove()
+
+    for collection in list(ax.collections):
+        if _collection_has_color(collection, target_colors):
+            collection.remove()
+
+
+def _remove_local_move_artists(ax: plt.Axes, ax_gap: plt.Axes | None = None) -> None:
+    _remove_artists_with_colors(ax, _LOCAL_MOVE_COLORS)
+    if ax_gap is not None:
+        _remove_artists_with_colors(ax_gap, _LOCAL_MOVE_COLORS)
+
+
+def _last_step_scaling_label(label: str) -> str:
+    if " queries: " not in label and " inverse gap: " not in label:
+        return _fit_only_label(label)
+
+    match = re.search(r"2\^\{([^}]*)\}", label)
+    if match is None:
+        return _fit_only_label(label)
+
+    exponent_text = match.group(1)
+    lambda_match = re.search(r"[-+]?\d+(?:\.\d*)?(?:[eE][-+]?\d+)?", exponent_text)
+    if lambda_match is None:
+        return _fit_only_label(label)
+
+    lam = abs(float(lambda_match.group(0)))
+    return rf"$\lambda={lam:.3f}$"
+
+
+def _last_step_row_header(label: str) -> str:
+    if " queries: " in label:
+        return r"$Q(n)$"
+    if " inverse gap: " in label:
+        return r"$\delta(n)$"
+    return ""
+
+def _style_last_step_observable_lines(
+    ax: plt.Axes,
+    ax_gap: plt.Axes | None,
+    query_linewidth: float,
+    gap_linewidth: float,
+    query_alpha: float,
+    gap_alpha: float,
+) -> None:
+    for line in ax.lines:
+        x = np.asarray(line.get_xdata(), dtype=float)
+        y = np.asarray(line.get_ydata(), dtype=float)
+        if x.size < 4 or y.size != x.size:
+            continue
+        line.set_linestyle("-")
+        line.set_linewidth(query_linewidth)
+        line.set_alpha(query_alpha)
+
+    if ax_gap is None:
+        return
+
+    for line in ax_gap.lines:
+        x = np.asarray(line.get_xdata(), dtype=float)
+        y = np.asarray(line.get_ydata(), dtype=float)
+        if x.size < 4 or y.size != x.size:
+            continue
+        line.set_linestyle("-")
+        line.set_linewidth(gap_linewidth)
+        line.set_alpha(gap_alpha)
+
+
+def _replace_last_step_legend_with_scaling_rows(
+    ax: plt.Axes,
+    ncol: int = 3,
+    y: float = -0.17,
+    row_gap: float = 0.030,
+    group_gap: float = 0.145,
+    line_half_width: float = 0.050,
+    fontsize: int = 12,
+    remove_local: bool = False,
+    query_linewidth: float = 2.0,
+    gap_linewidth: float = 1.2,
+    query_alpha: float = 0.95,
+    gap_alpha: float = 0.60,
+    x_center: float = 0.5,
+    x_span: float = 0.54,
+    two_column_x_span: float = 0.34,
+    row_header_gap: float = 0.075,
+    show_row_headers: bool = True,
+) -> None:
+    legend = ax.get_legend()
+    if legend is None:
+        return
+
+    handles = getattr(legend, "legend_handles", None)
+    if handles is None:
+        handles = getattr(legend, "legendHandles", None)
+    if handles is None:
+        return
+
+    labels = [text.get_text() for text in legend.get_texts()]
+    legend.remove()
+
+    filtered_handles = []
+    filtered_labels = []
+    filtered_raw_labels = []
+    for handle, label in zip(handles, labels):
+        if remove_local and label.startswith("Local spin-flip"):
+            continue
+        filtered_handles.append(handle)
+        filtered_labels.append(_last_step_scaling_label(label))
+        filtered_raw_labels.append(label)
+
+    for group_start in range(0, len(filtered_handles), ncol):
+        group_handles = filtered_handles[group_start:group_start + ncol]
+        group_labels = filtered_labels[group_start:group_start + ncol]
+        group_raw_labels = filtered_raw_labels[group_start:group_start + ncol]
+        count = len(group_handles)
+        if count == 0:
+            continue
+
+        span = two_column_x_span if count == 2 else x_span
+        xs = np.linspace(x_center - 0.5 * span, x_center + 0.5 * span, count) if count > 1 else np.array([x_center])
+        y_line = y - (group_start // ncol) * group_gap
+        y_text = y_line - row_gap
+        row_header = _last_step_row_header(group_raw_labels[0])
+        if show_row_headers and row_header:
+            ax.text(
+                xs[0] - line_half_width - row_header_gap,
+                y_text,
+                row_header,
+                transform=ax.transAxes,
+                ha="right",
+                va="top",
+                fontsize=fontsize,
+                clip_on=False,
+            )
+
+        for x, handle, label, raw_label in zip(xs, group_handles, group_labels, group_raw_labels):
+            is_gap = " inverse gap: " in raw_label
+            ax.plot(
+                [x - line_half_width, x + line_half_width],
+                [y_line, y_line],
+                transform=ax.transAxes,
+                color=_line_color(handle),
+                linestyle="-",
+                linewidth=gap_linewidth if is_gap else query_linewidth,
+                alpha=gap_alpha if is_gap else query_alpha,
+                solid_capstyle="butt",
+                clip_on=False,
+            )
+            ax.text(
+                x,
+                y_text,
+                label,
+                transform=ax.transAxes,
+                ha="center",
+                va="top",
+                fontsize=fontsize,
+                clip_on=False,
+            )
+
+def _positive_y_values_from_axes(axes: Sequence[plt.Axes]) -> np.ndarray:
+    values = []
+    for ax in axes:
+        if ax is None:
+            continue
+
+        for line in ax.lines:
+            y = np.asarray(line.get_ydata(), dtype=float)
+            y = y[np.isfinite(y) & (y > 0.0)]
+            if y.size:
+                values.append(y)
+
+        for collection in ax.collections:
+            if isinstance(collection, PathCollection):
+                offsets = collection.get_offsets()
+                if offsets is None or len(offsets) == 0:
+                    continue
+                y = np.asarray(offsets[:, 1], dtype=float)
+                y = y[np.isfinite(y) & (y > 0.0)]
+                if y.size:
+                    values.append(y)
+
+    if not values:
+        return np.array([], dtype=float)
+
+    return np.concatenate(values)
+
+
+def _log_limits_and_ticks_for_last_step_row(
+    row_axes: Sequence[plt.Axes],
+    row_gap_axes: Sequence[plt.Axes | None],
+    tick_order_step: int,
+    include_unit_tick: bool = False,
+) -> tuple[float, float, np.ndarray]:
+    if tick_order_step <= 0:
+        raise ValueError("tick_order_step must be positive.")
+
+    y = _positive_y_values_from_axes(list(row_axes) + [ax for ax in row_gap_axes if ax is not None])
+    if y.size == 0:
+        return 1.0, 1e3, np.array([1.0, 1e3], dtype=float)
+
+    lower = float(np.min(y))
+    upper = float(np.max(y))
+
+    if lower <= 0.0 or not np.isfinite(lower):
+        lower = 1.0
+    if upper <= lower or not np.isfinite(upper):
+        upper = lower * 10.0 ** tick_order_step
+
+    if include_unit_tick:
+        lower = min(lower, 1.0)
+        upper = max(upper, 1.0)
+
+    min_order = int(np.floor(np.log10(lower)))
+    max_order = int(np.ceil(np.log10(upper)))
+    first_tick_order = int(tick_order_step * np.ceil(min_order / tick_order_step))
+    last_tick_order = int(tick_order_step * np.floor(max_order / tick_order_step))
+
+    if first_tick_order > last_tick_order:
+        ticks = np.array([], dtype=float)
+    else:
+        ticks = 10.0 ** np.arange(first_tick_order, last_tick_order + 1, tick_order_step, dtype=float)
+        ticks = ticks[(ticks >= lower) & (ticks <= upper)]
+
+    if include_unit_tick:
+        ticks = np.unique(np.concatenate([ticks, np.array([1.0], dtype=float)]))
+        ticks = ticks[(ticks >= lower) & (ticks <= upper)]
+
+    if ticks.size == 0:
+        middle_order = tick_order_step * np.round((np.log10(lower) + np.log10(upper)) / (2.0 * tick_order_step))
+        tick = 10.0 ** middle_order
+        ticks = np.array([tick], dtype=float) if lower <= tick <= upper else np.array([], dtype=float)
+
+    return lower, upper, ticks
+
+
+def _apply_rowwise_last_step_y_limits(
+    axes: np.ndarray,
+    gap_axes: Sequence[plt.Axes | None],
+    n_items: int,
+    ncols: int,
+    y_tick_order_step: int = 3,
+    include_unit_tick: bool = False,
+) -> None:
+    nrows = int(np.ceil(n_items / ncols))
+    formatter = FuncFormatter(_plain_one_log_formatter)
+
+    for row in range(nrows):
+        row_start = row * ncols
+        row_end = min((row + 1) * ncols, n_items)
+        row_axes = list(axes[row_start:row_end])
+        row_gap_axes = [gap_axes[idx] if idx < len(gap_axes) else None for idx in range(row_start, row_end)]
+        lower, upper, ticks = _log_limits_and_ticks_for_last_step_row(
+            row_axes,
+            row_gap_axes,
+            y_tick_order_step,
+            include_unit_tick=include_unit_tick,
+        )
+
+        for idx in range(row_start, row_end):
+            ax = axes[idx]
+            ax.set_yscale("log")
+            ax.set_ylim(lower, upper)
+            ax.set_yticks(ticks)
+            ax.yaxis.set_major_formatter(formatter)
+
+            if idx < len(gap_axes) and gap_axes[idx] is not None:
+                ax_gap = gap_axes[idx]
+                ax_gap.set_yscale("log")
+                ax_gap.set_ylim(lower, upper)
+                ax_gap.set_yticks(ticks)
+                ax_gap.yaxis.set_major_formatter(formatter)
+
+
+def _keep_last_step_axis_labels_only_on_outer_edges(
+    axes: np.ndarray,
+    n_items: int,
+    ncols: int,
+    gap_axes: Sequence[plt.Axes | None],
+) -> None:
+    nrows = int(np.ceil(n_items / ncols))
+    for idx, ax in enumerate(axes[:n_items]):
+        row = idx // ncols
+        col = idx % ncols
+        if row != nrows - 1:
+            ax.set_xlabel("")
+        if col != 0:
+            ax.set_ylabel("")
+            ax.tick_params(axis="y", which="both", labelleft=False)
+
+        if idx < len(gap_axes) and gap_axes[idx] is not None:
+            ax_gap = gap_axes[idx]
+            if col != ncols - 1 and idx != n_items - 1:
+                ax_gap.set_ylabel("")
+                ax_gap.tick_params(axis="y", which="both", labelright=False)
+
+
+def plot_spectral_gap_vs_n_table(
+    fixed_betas: Sequence[float],
+    ncols: int = 2,
+    figsize: tuple[float, float] | None = None,
+    hspace: float = 0.42,
+    wspace: float = 0.28,
+    legend_y: float = -0.14,
+    last_row_legend_y: float | None = -0.18,
+    show_legend: bool = True,
+    label_fontsize: int = 14,
+    tick_labelsize: int = 12,
+    title_fontsize: int = 14,
+    legend_fontsize: int = 12,
+    extrapolation_start_n: float | None = None,
+    extrapolation_alpha_factor: float = 0.55,
+    scatter_size: float = 22.0,
+    band_alpha: float = 0.16,
+    rowwise_y_limits: bool = True,
+    y_limit_measurement_scale: float = 1.5,
+    y_limit_max_extra_orders: float = 6.0,
+    y_tick_order_step: int = 3,
+    **kwargs,
+) -> tuple[plt.Figure, np.ndarray]:
+    fig, axes = _make_table_axes(len(fixed_betas), ncols, figsize)
+
+    n_plot_min = kwargs.setdefault("n_plot_min", 1)
+    n_plot_max = kwargs.setdefault("n_plot_max", 20)
+
+    if extrapolation_start_n is None:
+        extrapolation_start_n = kwargs.get("n_fit_max", 10)
+        if extrapolation_start_n is None:
+            extrapolation_start_n = 10
+
+    n_items = len(fixed_betas)
+    nrows = int(np.ceil(n_items / ncols))
+
+    for idx, (fixed_beta, ax) in enumerate(zip(fixed_betas, axes)):
+        row = idx // ncols
+        is_last_row = row == nrows - 1
+        current_legend_y = legend_y
+        if is_last_row and last_row_legend_y is not None:
+            current_legend_y = last_row_legend_y
+
+        plot_spectral_gap_vs_n(
+            fixed_beta=fixed_beta,
+            fig=fig,
+            ax=ax,
+            title=rf"$\beta={fixed_beta}$",
+            show_legend=show_legend,
+            **kwargs,
+        )
+        _split_fit_lines_at_n(
+            ax,
+            extrapolation_start_n=float(extrapolation_start_n),
+            extrapolation_alpha_factor=extrapolation_alpha_factor,
+        )
+        _soften_plot_elements(ax, scatter_size=scatter_size, band_alpha=band_alpha)
+        _apply_spectral_gap_n_x_scale(ax, n_plot_min=n_plot_min, n_plot_max=n_plot_max)
+        if show_legend:
+            _replace_legend_with_line_fit_rows(
+                ax,
+                ncol=3,
+                y=current_legend_y,
+                fontsize=legend_fontsize,
+                label_formatter=_spectral_gap_n_legend_label,
+            )
+        _lighten_grid(ax)
+        _enlarge_axis_labels(ax, label_fontsize, tick_labelsize, title_fontsize)
+
+    if rowwise_y_limits:
+        _apply_rowwise_spectral_gap_n_y_limits_from_measurements(
+            axes,
+            len(fixed_betas),
+            ncols,
+            measurement_scale=y_limit_measurement_scale,
+            max_extra_orders=y_limit_max_extra_orders,
+            tick_order_step=y_tick_order_step,
+        )
+
+    _keep_single_axis_y_ticks_only_on_outer_edges(axes, len(fixed_betas), ncols)
+    _finish_table(fig, hspace, wspace)
+    return fig, axes[:len(fixed_betas)]
+
+def plot_spectral_gap_vs_beta_table(
+    fixed_ns: Sequence[int],
+    ncols: int = 2,
+    figsize: tuple[float, float] | None = None,
+    hspace: float = 0.38,
+    wspace: float = 0.28,
+    legend_y: float = -0.18,
+    show_legend: bool = True,
+    label_fontsize: int = 14,
+    tick_labelsize: int = 12,
+    title_fontsize: int = 14,
+    legend_fontsize: int = 12,
+    add_inset: bool = True,
+    inset_bounds: tuple[float, float, float, float] = (0.075, 0.075, 0.438, 0.369),
+    miniature_scale: float = 1.0,
+    inset_tick_labelsize: int = 8,
+    **kwargs,
+) -> tuple[plt.Figure, np.ndarray]:
+    fig, axes = _make_table_axes(len(fixed_ns), ncols, figsize)
+
+    for fixed_n, ax in zip(fixed_ns, axes):
+        plot_spectral_gap_vs_beta(fixed_n=fixed_n, fig=fig, ax=ax, title=rf"$n={fixed_n}$", show_legend=False, **kwargs)
+        _apply_spectral_gap_beta_y_scale(ax)
+        if add_inset:
+            scaled_inset_bounds = _scale_inset_bounds(inset_bounds, miniature_scale)
+            _add_spectral_gap_beta_inset(fig, ax, fixed_n, scaled_inset_bounds, inset_tick_labelsize, **kwargs)
+        _lighten_grid(ax)
+        _enlarge_axis_labels(ax, label_fontsize, tick_labelsize, title_fontsize)
+
+    if show_legend:
+        legend_handles = [Line2D([0], [0], color=_proposal_base_color(proposal), linewidth=2.0, linestyle="-", alpha=0.90) for proposal in PROPOSALS_SORTED]
+        fig.legend(legend_handles, MOVE_LEGEND_LABELS, frameon=False, loc="upper center", bbox_to_anchor=(0.5, legend_y), ncol=len(MOVE_LEGEND_LABELS), fontsize=legend_fontsize, borderaxespad=0.0, handlelength=2.4, columnspacing=1.6)
+
+    _keep_single_axis_y_ticks_only_on_outer_edges(axes, len(fixed_ns), ncols)
+    _finish_table(fig, hspace, wspace)
+    return fig, axes[:len(fixed_ns)]
+
+
+
+
+def _exponential_fit_label(n_vals: np.ndarray, y_vals: np.ndarray) -> str:
+    n_vals = np.asarray(n_vals, dtype=float)
+    y_vals = np.asarray(y_vals, dtype=float)
+    mask = np.isfinite(n_vals) & np.isfinite(y_vals) & (y_vals > 0.0)
+    if np.count_nonzero(mask) < 2:
+        return r"$\lambda=\mathrm{nan}$"
+
+    b, log_a = np.polyfit(n_vals[mask], np.log(y_vals[mask]), deg=1)
+    a = float(np.exp(log_a))
+    return rf"${a:.3g} \times 2^{{{b / np.log(2):.3f} n}}$"
+
+
+def plot_last_step_classical_queries_and_quantum_queries_vs_n(
+    beta: float,
+    epsilon: float,
+    classical_query_file: Path = CLASSICAL_QUERY_FILE,
+    spectral_gap_file: Path = SPECTRAL_GAP_FILE,
+    statistic: str = "mean+std",
+    show_spread: bool = True,
+    min_count: int = 1,
+    n_fit_min: int | None = 5,
+    n_fit_max: int | None = 10,
+    n_plot_min: int | None = None,
+    n_plot_max: int | None = None,
+    fig: plt.Figure | None = None,
+    ax: plt.Axes | None = None,
+    title: str | None = None,
+    show_legend: bool = True,
+    line_width: float = 2.0,
+    line_alpha: float = 0.95,
+) -> tuple[plt.Figure, plt.Axes]:
+    """
+    Plot classical and quantum-walk query estimates versus n for the last annealing step.
+
+    Classical curves use query-count fits. Quantum curves use the spectral-gap fits
+    converted to quantum-walk queries for a one-step schedule.
+    """
+    if n_plot_min is None or n_plot_max is None:
+        n_plot_min = 1
+        n_plot_max = 100
+
+    if fig is None or ax is None:
+        fig, ax = plt.subplots(figsize=(8.5, 4.8))
+
+    n_grid = _n_plot_grid(n_plot_min, n_plot_max)
+    handles = []
+    labels = []
+
+    for proposal in PROPOSALS_SORTED:
+        classical_color = _proposal_color(proposal, "classical")
+        quantum_color = _proposal_color(proposal, "quantum")
+
+        n_vals, center, spread = _compact_classical_query_points(proposal, beta, epsilon, statistic, classical_query_file, min_count)
+        if show_spread:
+            lower, upper = _positive_band(center, spread)
+            ax.fill_between(n_vals, lower, upper, color=classical_color, alpha=0.20, linewidth=0.0, zorder=1)
+        ax.scatter(n_vals, center, s=36, color=classical_color, edgecolors="none", alpha=0.95, zorder=3)
+
+        A_q, b_q = get_classical_query_fit_by_n(proposal=proposal, a=np.inf, q0_mode="bhattacharyya", epsilon=epsilon, beta=beta, in_file=classical_query_file, statistic=statistic, n_min=n_fit_min, n_max=n_fit_max)
+        classical_fit = A_q * np.exp(b_q * n_grid)
+        (classical_line,) = ax.plot(n_grid, classical_fit, color=classical_color, linewidth=line_width, linestyle="-", alpha=line_alpha, zorder=2)
+        handles.append(classical_line)
+        labels.append(rf"{PROPOSAL_LABELS[proposal]} classical queries: ${A_q:.3g} \times 2^{{{b_q / np.log(2):.3f} n}}$")
+
+        A_g, b_g = get_spectral_gap_fit_by_n(proposal=proposal, a=np.inf, fixed_beta=beta, in_file=spectral_gap_file, statistic=statistic, n_min=n_fit_min, n_max=n_fit_max)
+        b_g = max(float(b_g), 0.0)
+        spectral_gaps = A_g * np.exp(-b_g * n_grid)
+        quantum_fit = np.asarray([get_one_step_quantum_walk_queries(int(n), epsilon, float(delta)) for n, delta in zip(n_grid, spectral_gaps)], dtype=float)
+        (quantum_line,) = ax.plot(n_grid, quantum_fit, color=quantum_color, linewidth=line_width, linestyle="-", alpha=line_alpha, zorder=2)
+        handles.append(quantum_line)
+        labels.append(rf"{PROPOSAL_LABELS[proposal]} quantum queries: {_exponential_fit_label(n_grid, quantum_fit)}")
+
+    ax.set_yscale("log")
+    ax.set_xlabel(r"$n$")
+    ax.set_ylabel(r"Queries")
+    ax.set_title(title if title is not None else rf"Last-step queries, $\beta={beta}$, $\epsilon={epsilon:g}$")
+
+    ax.set_axisbelow(True)
+    ax.grid(False)
+
+    if show_legend:
+        ax.legend(handles, labels, frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.18), ncol=1, borderaxespad=0.0, handlelength=2.4)
+
+    return fig, ax
+
+
+def _last_step_query_scaling_label(label: str) -> str:
+    if " classical queries: " not in label and " quantum queries: " not in label:
+        return _fit_only_label(label)
+
+    match = re.search(r"2\^\{([^}]*)\}", label)
+    if match is None:
+        return _fit_only_label(label)
+
+    exponent_text = match.group(1)
+    lambda_match = re.search(r"[-+]?\d+(?:\.\d*)?(?:[eE][-+]?\d+)?", exponent_text)
+    if lambda_match is None:
+        return _fit_only_label(label)
+
+    lam = abs(float(lambda_match.group(0)))
+    return rf"$\lambda={lam:.3f}$"
+
+
+def _last_step_query_row_header(label: str) -> str:
+    if " classical queries: " in label:
+        return r"$Q_{\mathrm{cl}}(n)$"
+    if " quantum queries: " in label:
+        return r"$Q_{\mathrm{q}}(n)$"
+    return ""
+
+
+def _replace_last_step_query_legend_with_scaling_rows(
+    ax: plt.Axes,
+    ncol: int = 3,
+    y: float = -0.17,
+    row_gap: float = 0.030,
+    group_gap: float = 0.145,
+    line_half_width: float = 0.050,
+    fontsize: int = 12,
+    remove_local: bool = False,
+    line_width: float = 2.0,
+    line_alpha: float = 0.95,
+    x_center: float = 0.5,
+    x_span: float = 0.54,
+    two_column_x_span: float = 0.34,
+    row_header_gap: float = 0.075,
+    show_row_headers: bool = True,
+) -> None:
+    legend = ax.get_legend()
+    if legend is None:
+        return
+
+    handles = getattr(legend, "legend_handles", None)
+    if handles is None:
+        handles = getattr(legend, "legendHandles", None)
+    if handles is None:
+        return
+
+    labels = [text.get_text() for text in legend.get_texts()]
+    legend.remove()
+
+    grouped: dict[str, list[tuple[object, str, str]]] = {"classical": [], "quantum": []}
+    for handle, label in zip(handles, labels):
+        if remove_local and label.startswith("Local spin-flip"):
+            continue
+        if " classical queries: " in label:
+            grouped["classical"].append((handle, _last_step_query_scaling_label(label), label))
+        elif " quantum queries: " in label:
+            grouped["quantum"].append((handle, _last_step_query_scaling_label(label), label))
+
+    for row_idx, key in enumerate(["classical", "quantum"]):
+        entries = grouped[key]
+        count = len(entries)
+        if count == 0:
+            continue
+
+        span = two_column_x_span if count == 2 else x_span
+        xs = np.linspace(x_center - 0.5 * span, x_center + 0.5 * span, count) if count > 1 else np.array([x_center])
+        y_line = y - row_idx * group_gap
+        y_text = y_line - row_gap
+        row_header = _last_step_query_row_header(entries[0][2])
+        if show_row_headers and row_header:
+            ax.text(
+                xs[0] - line_half_width - row_header_gap,
+                y_text,
+                row_header,
+                transform=ax.transAxes,
+                ha="right",
+                va="top",
+                fontsize=fontsize,
+                clip_on=False,
+            )
+
+        for x, (handle, label, _) in zip(xs, entries):
+            ax.plot(
+                [x - line_half_width, x + line_half_width],
+                [y_line, y_line],
+                transform=ax.transAxes,
+                color=_line_color(handle),
+                linestyle="-",
+                linewidth=line_width,
+                alpha=line_alpha,
+                solid_capstyle="butt",
+                clip_on=False,
+            )
+            ax.text(
+                x,
+                y_text,
+                label,
+                transform=ax.transAxes,
+                ha="center",
+                va="top",
+                fontsize=fontsize,
+                clip_on=False,
+            )
+
+
+def plot_last_step_classical_queries_and_quantum_queries_vs_n_table(
+    betas: Sequence[float],
+    epsilon: float | Sequence[float],
+    ncols: int = 2,
+    figsize: tuple[float, float] | None = None,
+    hspace: float = 0.56,
+    wspace: float = 0.34,
+    legend_y: float = -0.14,
+    last_row_legend_y: float | None = -0.22,
+    show_legend: bool = True,
+    label_fontsize: int = 14,
+    tick_labelsize: int = 12,
+    title_fontsize: int = 14,
+    legend_fontsize: int = 12,
+    extrapolation_start_n: float | None = None,
+    extrapolation_alpha_factor: float = 0.30,
+    extrapolation_linewidth_factor: float = 0.85,
+    line_width: float = 2.0,
+    line_alpha: float = 0.95,
+    legend_x_span: float = 0.54,
+    legend_two_column_x_span: float = 0.34,
+    legend_line_half_width: float = 0.050,
+    scatter_size: float = 22.0,
+    band_alpha: float = 0.16,
+    rowwise_y_limits: bool = True,
+    y_tick_order_step: int = 3,
+    include_unit_y_tick: bool = True,
+    remove_local_beta_threshold: float | None = 4.0,
+    **kwargs,
+) -> tuple[plt.Figure, np.ndarray]:
+    betas = list(betas)
+    if np.isscalar(epsilon):
+        epsilons = [float(epsilon)] * len(betas)
+    else:
+        epsilons = [float(eps) for eps in epsilon]
+        if len(epsilons) != len(betas):
+            raise ValueError(f"epsilon must be a scalar or a sequence with len(epsilon) == len(betas). Got len(epsilon)={len(epsilons)} and len(betas)={len(betas)}.")
+
+    fig, axes = _make_table_axes(len(betas), ncols, figsize)
+    dummy_gap_axes = [None] * len(betas)
+
+    n_plot_min = kwargs.setdefault("n_plot_min", 1)
+    n_plot_max = kwargs.setdefault("n_plot_max", 20)
+
+    if extrapolation_start_n is None:
+        extrapolation_start_n = kwargs.get("n_fit_max", 10)
+        if extrapolation_start_n is None:
+            extrapolation_start_n = 10
+
+    n_items = len(betas)
+    nrows = int(np.ceil(n_items / ncols))
+
+    for idx, (beta, eps, ax) in enumerate(zip(betas, epsilons, axes)):
+        row = idx // ncols
+        is_last_row = row == nrows - 1
+        current_legend_y = legend_y
+        if is_last_row and last_row_legend_y is not None:
+            current_legend_y = last_row_legend_y
+
+        plot_last_step_classical_queries_and_quantum_queries_vs_n(
+            beta=beta,
+            epsilon=eps,
+            fig=fig,
+            ax=ax,
+            title=rf"$\beta={beta}$, $\epsilon={eps:g}$",
+            show_legend=show_legend,
+            line_width=line_width,
+            line_alpha=line_alpha,
+            **kwargs,
+        )
+
+        remove_local = remove_local_beta_threshold is not None and float(beta) > float(remove_local_beta_threshold)
+        if remove_local:
+            _remove_local_move_artists(ax, None)
+
+        _split_fit_lines_at_n(
+            ax,
+            extrapolation_start_n=float(extrapolation_start_n),
+            extrapolation_alpha_factor=extrapolation_alpha_factor,
+            extrapolation_linewidth_factor=extrapolation_linewidth_factor,
+        )
+
+        _soften_plot_elements(ax, scatter_size=scatter_size, band_alpha=band_alpha)
+        _apply_spectral_gap_n_x_scale(ax, n_plot_min=n_plot_min, n_plot_max=n_plot_max)
+
+        if show_legend:
+            _replace_last_step_query_legend_with_scaling_rows(
+                ax,
+                ncol=2 if remove_local else 3,
+                y=current_legend_y,
+                fontsize=legend_fontsize,
+                remove_local=remove_local,
+                line_width=line_width,
+                line_alpha=line_alpha,
+                line_half_width=legend_line_half_width,
+                x_span=legend_x_span,
+                two_column_x_span=legend_two_column_x_span,
+                show_row_headers=(idx % ncols == 0),
+            )
+
+        _lighten_grid(ax)
+        _enlarge_axis_labels(ax, label_fontsize, tick_labelsize, title_fontsize)
+
+    if rowwise_y_limits:
+        _apply_rowwise_last_step_y_limits(
+            axes,
+            dummy_gap_axes,
+            len(betas),
+            ncols,
+            y_tick_order_step=y_tick_order_step,
+            include_unit_tick=include_unit_y_tick,
+        )
+
+    _keep_last_step_axis_labels_only_on_outer_edges(axes, len(betas), ncols, dummy_gap_axes)
+    _finish_table(fig, hspace, wspace)
+    return fig, axes[:len(betas)]
+
+def plot_last_step_classical_queries_and_spectral_gap_vs_n_table(
+    betas: Sequence[float],
+    epsilon: float | Sequence[float],
+    ncols: int = 2,
+    figsize: tuple[float, float] | None = None,
+    hspace: float = 0.56,
+    wspace: float = 0.34,
+    legend_y: float = -0.14,
+    last_row_legend_y: float | None = -0.22,
+    show_legend: bool = True,
+    label_fontsize: int = 14,
+    tick_labelsize: int = 12,
+    title_fontsize: int = 14,
+    legend_fontsize: int = 12,
+    extrapolation_start_n: float | None = None,
+    extrapolation_alpha_factor: float = 0.30,
+    extrapolation_linewidth_factor: float = 0.85,
+    query_linewidth: float = 2.0,
+    gap_linewidth: float = 1.2,
+    query_alpha: float = 0.95,
+    gap_alpha: float = 0.60,
+    legend_x_span: float = 0.54,
+    legend_two_column_x_span: float = 0.34,
+    legend_line_half_width: float = 0.050,
+    scatter_size: float = 22.0,
+    band_alpha: float = 0.16,
+    rowwise_y_limits: bool = True,
+    y_tick_order_step: int = 3,
+    include_unit_y_tick: bool = True,
+    remove_local_beta_threshold: float | None = 4.0,
+    **kwargs,
+) -> tuple[plt.Figure, np.ndarray, list[plt.Axes | None]]:
+    betas = list(betas)
+    if np.isscalar(epsilon):
+        epsilons = [float(epsilon)] * len(betas)
+    else:
+        epsilons = [float(eps) for eps in epsilon]
+        if len(epsilons) != len(betas):
+            raise ValueError(f"epsilon must be a scalar or a sequence with len(epsilon) == len(betas). Got len(epsilon)={len(epsilons)} and len(betas)={len(betas)}.")
+
+    fig, axes = _make_table_axes(len(betas), ncols, figsize)
+    gap_axes = []
+
+    n_plot_min = kwargs.setdefault("n_plot_min", 1)
+    n_plot_max = kwargs.setdefault("n_plot_max", 20)
+
+    if extrapolation_start_n is None:
+        extrapolation_start_n = kwargs.get("n_fit_max", 10)
+        if extrapolation_start_n is None:
+            extrapolation_start_n = 10
+
+    n_items = len(betas)
+    nrows = int(np.ceil(n_items / ncols))
+
+    for idx, (beta, eps, ax) in enumerate(zip(betas, epsilons, axes)):
+        row = idx // ncols
+        is_last_row = row == nrows - 1
+        current_legend_y = legend_y
+        if is_last_row and last_row_legend_y is not None:
+            current_legend_y = last_row_legend_y
+
+        _, _, ax_gap = plot_last_step_classical_queries_and_spectral_gap_vs_n(
+            beta=beta,
+            epsilon=eps,
+            fig=fig,
+            ax=ax,
+            title=rf"$\beta={beta}$, $\epsilon={eps:g}$",
+            show_legend=show_legend,
+            **kwargs,
+        )
+
+        remove_local = remove_local_beta_threshold is not None and float(beta) > float(remove_local_beta_threshold)
+        if remove_local:
+            _remove_local_move_artists(ax, ax_gap)
+
+        _style_last_step_observable_lines(
+            ax,
+            ax_gap,
+            query_linewidth=query_linewidth,
+            gap_linewidth=gap_linewidth,
+            query_alpha=query_alpha,
+            gap_alpha=gap_alpha,
+        )
+
+        _split_fit_lines_at_n(
+            ax,
+            extrapolation_start_n=float(extrapolation_start_n),
+            extrapolation_alpha_factor=extrapolation_alpha_factor,
+            extrapolation_linewidth_factor=extrapolation_linewidth_factor,
+        )
+        if ax_gap is not None:
+            _split_fit_lines_at_n(
+                ax_gap,
+                extrapolation_start_n=float(extrapolation_start_n),
+                extrapolation_alpha_factor=extrapolation_alpha_factor,
+                extrapolation_linewidth_factor=extrapolation_linewidth_factor,
+            )
+
+        _soften_plot_elements(ax, scatter_size=scatter_size, band_alpha=band_alpha)
+        _apply_spectral_gap_n_x_scale(ax, n_plot_min=n_plot_min, n_plot_max=n_plot_max)
+
+        if show_legend:
+            _replace_last_step_legend_with_scaling_rows(
+                ax,
+                ncol=2 if remove_local else 3,
+                y=current_legend_y,
+                fontsize=legend_fontsize,
+                remove_local=remove_local,
+                query_linewidth=query_linewidth,
+                gap_linewidth=gap_linewidth,
+                query_alpha=query_alpha,
+                gap_alpha=gap_alpha,
+                line_half_width=legend_line_half_width,
+                x_span=legend_x_span,
+                two_column_x_span=legend_two_column_x_span,
+                show_row_headers=(idx % ncols == 0),
+            )
+
+        _lighten_grid(ax)
+        _enlarge_axis_labels(ax, label_fontsize, tick_labelsize, title_fontsize)
+        if ax_gap is not None:
+            ax_gap.yaxis.label.set_size(label_fontsize)
+            ax_gap.tick_params(axis="y", which="major", labelsize=tick_labelsize)
+            ax_gap.grid(False)
+        gap_axes.append(ax_gap)
+
+    if rowwise_y_limits:
+        _apply_rowwise_last_step_y_limits(
+            axes,
+            gap_axes,
+            len(betas),
+            ncols,
+            y_tick_order_step=y_tick_order_step,
+            include_unit_tick=include_unit_y_tick,
+        )
+
+    _keep_last_step_axis_labels_only_on_outer_edges(axes, len(betas), ncols, gap_axes)
+    _finish_table(fig, hspace, wspace)
+    return fig, axes[:len(betas)], gap_axes
+
+def plot_annealing_classical_and_quantum_queries_vs_n_table(
+    betas: Sequence[float],
+    epsilon: float | Sequence[float],
+    annealing_schedule_generator: Callable[[int, float], list[float]],
+    ncols: int = 2,
+    figsize: tuple[float, float] | None = None,
+    hspace: float = 0.38,
+    wspace: float = 0.28,
+    legend_y: float = -0.18,
+    show_legend: bool = False,
+    label_fontsize: int = 14,
+    tick_labelsize: int = 12,
+    title_fontsize: int = 14,
+    legend_fontsize: int = 12,
+    **kwargs,
+) -> tuple[plt.Figure, np.ndarray]:
+    betas = list(betas)
+    if np.isscalar(epsilon):
+        epsilons = [float(epsilon)] * len(betas)
+    else:
+        epsilons = [float(eps) for eps in epsilon]
+        if len(epsilons) != len(betas):
+            raise ValueError(f"epsilon must be a scalar or a sequence with len(epsilon) == len(betas). Got len(epsilon)={len(epsilons)} and len(betas)={len(betas)}.")
+
+    fig, axes = _make_table_axes(len(betas), ncols, figsize)
+
+    for beta, eps, ax in zip(betas, epsilons, axes):
+        plot_annealing_classical_and_quantum_queries_vs_n(beta=beta, epsilon=eps, annealing_schedule_generator=annealing_schedule_generator, fig=fig, ax=ax, title=rf"$\beta_F={beta}$, $\epsilon={eps:g}$", show_legend=show_legend, **kwargs)
+        if show_legend:
+            _replace_legend_with_line_fit_rows(ax, ncol=3, y=legend_y, fontsize=legend_fontsize)
+        _lighten_grid(ax)
+        _enlarge_axis_labels(ax, label_fontsize, tick_labelsize, title_fontsize)
+
+    _keep_axis_labels_only_on_outer_edges(axes, len(betas), ncols)
+    _finish_table(fig, hspace, wspace)
+    return fig, axes[:len(betas)]
+
+
+def _resolve_beta_epsilon_pairs(betas: Sequence[float], epsilon: float | Sequence[float]) -> tuple[list[float], list[float]]:
+    """Return matched ``(beta, epsilon)`` lists for table plots.
+
+    :param betas: Final inverse temperatures.
+    :param epsilon: Scalar error value or one error per beta.
+    :return: Tuple ``(betas, epsilons)`` as lists of floats.
+    """
+    betas = [float(beta) for beta in betas]
+    if np.isscalar(epsilon):
+        epsilons = [float(epsilon)] * len(betas)
+    else:
+        epsilons = [float(eps) for eps in epsilon]
+        if len(epsilons) != len(betas):
+            raise ValueError(f"epsilon must be a scalar or a sequence with len(epsilon) == len(betas). Got len(epsilon)={len(epsilons)} and len(betas)={len(betas)}.")
+    return betas, epsilons
+
+
+def plot_annealing_classical_and_quantum_runtime_vs_n_table(
+    betas: Sequence[float],
+    epsilon: float | Sequence[float],
+    annealing_schedule_generator: Callable[[int, float], list[float]],
+    ncols: int = 2,
+    figsize: tuple[float, float] | None = None,
+    hspace: float = 0.38,
+    wspace: float = 0.28,
+    show_legend: bool = False,
+    label_fontsize: int = 14,
+    tick_labelsize: int = 12,
+    title_fontsize: int = 14,
+    classical_device: str = "cpu",
+    arithmetic_type: str = "HYBRID",
+    **kwargs,
+) -> tuple[plt.Figure, np.ndarray]:
+    """Plot a table of annealing runtime curves over many ``(beta, epsilon)`` pairs.
+
+    This is the table wrapper for ``plot_annealing_classical_and_quantum_runtime_vs_n``.
+    The quantum-walk runtime is evaluated with the selected arithmetic implementation.
+
+    :param betas: Final inverse temperatures.
+    :param epsilon: Scalar error value or one error per beta.
+    :param annealing_schedule_generator: Schedule generator used for the plotted curves.
+    :param ncols: Number of table columns.
+    :param figsize: Optional figure size.
+    :param hspace: Vertical subplot spacing.
+    :param wspace: Horizontal subplot spacing.
+    :param show_legend: Whether each panel should keep its legend.
+    :param label_fontsize: Axis-label font size.
+    :param tick_labelsize: Tick-label font size.
+    :param title_fontsize: Panel-title font size.
+    :param classical_device: Classical device model, one of ``"cpu"``, ``"gpu"``, or ``"fpga"``.
+    :param arithmetic_type: Arithmetic implementation, either ``"HYBRID"`` or ``"FULLY_PHASE"``.
+    :return: Tuple ``(fig, axes)``.
+    """
+    if arithmetic_type not in {"HYBRID", "FULLY_PHASE"}:
+        raise ValueError(f"Unknown arithmetic_type={arithmetic_type!r}. Expected 'HYBRID' or 'FULLY_PHASE'.")
+
+    betas, epsilons = _resolve_beta_epsilon_pairs(betas, epsilon)
+    fig, axes = _make_table_axes(len(betas), ncols, figsize)
+
+    kwargs.setdefault("show_schedule_panel", False)
+    kwargs.setdefault("legend_placement", "legend_out")
+
+    for beta, eps, ax in zip(betas, epsilons, axes):
+        plot_annealing_classical_and_quantum_runtime_vs_n(
+            beta=beta,
+            epsilon=eps,
+            annealing_schedule_generator=annealing_schedule_generator,
+            classical_device=classical_device,
+            arithmetic_type=arithmetic_type,
+            fig=fig,
+            ax=ax,
+            title=rf"$\beta_F={beta:g}$, $\epsilon={eps:g}$",
+            show_legend=show_legend,
+            **kwargs,
+        )
+        _lighten_grid(ax)
+        _enlarge_axis_labels(ax, label_fontsize, tick_labelsize, title_fontsize)
+
+    _keep_single_axis_y_ticks_only_on_outer_edges(axes, len(betas), ncols)
+    _finish_table(fig, hspace, wspace)
+    return fig, axes[:len(betas)]
+
+
+def _runtime_time_ticks() -> tuple[list[float], list[str], float, float]:
+    """Return standard runtime ticks, labels, one year, and one thousand years."""
+    one_second = 1.0
+    one_minute = 60.0
+    one_hour = 60.0 * one_minute
+    one_day = 24.0 * one_hour
+    one_year = 365.25 * one_day
+    one_month = one_year / 12.0
+    ten_years = 10.0 * one_year
+    hundred_years = 100.0 * one_year
+    thousand_years = 1000.0 * one_year
+    return [one_second, one_minute, one_hour, one_day, one_month, one_year, ten_years, hundred_years, thousand_years], ["one second", "one minute", "one hour", "one day", "one month", "one year", "10 years", "100 years", "1000 years"], one_year, thousand_years
+
+
+def _positive_runtime_values(values: list[float] | np.ndarray) -> np.ndarray:
+    values = np.asarray(values, dtype=float)
+    positive = values[np.isfinite(values) & (values > 0.0)]
+    floor = np.min(positive) * 1e-4 if positive.size else np.finfo(float).tiny
+    return np.maximum(values, floor)
+
+
+def _plot_projected_runtime_line(
+    ax: plt.Axes,
+    n_vals: np.ndarray,
+    values: list[float] | np.ndarray,
+    *,
+    color: str,
+    label: str,
+    linestyle: str = "-",
+    line_width: float = 2.0,
+    calibrated_alpha: float = 0.94,
+    projected_alpha: float = 0.58,
+    n_fit_max: int | None = 10,
+    zorder: int = 5,
+) -> plt.Line2D:
+    values = _positive_runtime_values(values)
+    if n_fit_max is None:
+        (line,) = ax.plot(n_vals, values, color=color, linewidth=line_width, linestyle=linestyle, alpha=calibrated_alpha, label=label, zorder=zorder)
+        return line
+    fit_mask = n_vals <= int(n_fit_max)
+    proj_mask = n_vals >= int(n_fit_max)
+    line = None
+    if np.any(fit_mask):
+        (line,) = ax.plot(n_vals[fit_mask], values[fit_mask], color=color, linewidth=line_width, linestyle=linestyle, alpha=calibrated_alpha, label=label, zorder=zorder)
+    if np.any(proj_mask):
+        (proj_line,) = ax.plot(n_vals[proj_mask], values[proj_mask], color=color, linewidth=line_width, linestyle=linestyle, alpha=projected_alpha, label=label if line is None else None, zorder=zorder)
+        if line is None:
+            line = proj_line
+    return line
+
+
+def _annealing_schedule_fits(
+    proposal: str,
+    n: int,
+    schedule: list[float],
+    epsilon: float,
+    classical_query_file: Path,
+    spectral_gap_file: Path,
+    statistic: str,
+    n_fit_min: int | None,
+    n_fit_max: int | None,
+) -> tuple[list[float], list[float]]:
+    """Return classical query fits and spectral-gap fits along one schedule."""
+    vec_queries = []
+    spectral_gaps = []
+    for beta_t in schedule:
+        A_q, b_q = get_classical_query_fit_by_n(proposal=proposal, a=np.inf, q0_mode="bhattacharyya", epsilon=epsilon, beta=beta_t, in_file=classical_query_file, statistic=statistic, n_min=n_fit_min, n_max=n_fit_max)
+        vec_queries.append(A_q * np.exp(b_q * n))
+        A_g, b_g = get_spectral_gap_fit_by_n(proposal=proposal, a=np.inf, fixed_beta=beta_t, in_file=spectral_gap_file, statistic=statistic, n_min=n_fit_min, n_max=n_fit_max)
+        b_g = max(float(b_g), 0.0)
+        spectral_gaps.append(A_g * np.exp(-b_g * n))
+    return vec_queries, spectral_gaps
+
+
+def plot_uniform_classical_and_qemc_arithmetic_runtime_vs_n(
+    beta: float,
+    epsilon: float,
+    annealing_schedule_generator: Callable[[int, float], list[float]],
+    classical_device: str = "cpu",
+    physical_error_rate_min: float = 1e-4,
+    physical_error_rate_max: float = 1e-4,
+    physical_operation_time_min: float = 200e-9,
+    physical_operation_time_max: float = 20_000e-9,
+    physical_measurement_time_min: float = 20e-9,
+    physical_measurement_time_max: float = 2_000e-9,
+    num_trotter_steps: int = 50,
+    classical_query_file: Path = CLASSICAL_QUERY_FILE,
+    spectral_gap_file: Path = SPECTRAL_GAP_FILE,
+    statistic: str = "mean+std",
+    n_fit_min: int | None = 5,
+    n_fit_max: int | None = 10,
+    n_plot_min: int | None = None,
+    n_plot_max: int | None = None,
+    fig: plt.Figure | None = None,
+    ax: plt.Axes | None = None,
+    title: str | None = None,
+    show_legend: bool = True,
+    line_width: float = 2.0,
+    calibrated_alpha: float = 0.94,
+    projected_alpha: float = 0.58,
+    grid_color: str = "0.92",
+    grid_linewidth: float = 0.55,
+    runtime_ymin_seconds: float | None = 1.0,
+    runtime_ymax_years: float | None = 1000.0,
+) -> tuple[plt.Figure, plt.Axes]:
+    """Plot uniform classical runtime and QEMC quantum runtime for both arithmetic types.
+
+    The plot deliberately omits local curves and the quantum walk built from the uniform proposal.
+    It keeps a single uniform classical line and overlays the QEMC quantum-walk runtime using
+    ``"HYBRID"`` arithmetic as a solid line and ``"FULLY_PHASE"`` arithmetic as a dashed line,
+    both with the same QEMC quantum color.
+
+    :param beta: Final inverse temperature.
+    :param epsilon: Target TV-distance error.
+    :param annealing_schedule_generator: Schedule generator used for the plotted curves.
+    :param classical_device: Classical device model, one of ``"cpu"``, ``"gpu"``, or ``"fpga"``.
+    :return: Tuple ``(fig, ax)``.
+    """
+    if n_plot_min is None:
+        n_plot_min = 3
+    if n_plot_max is None:
+        n_plot_max = 120
+
+    n_vals = np.arange(int(n_plot_min), int(n_plot_max) + 1, dtype=int)
+
+    if fig is None or ax is None:
+        fig, ax = plt.subplots(figsize=(8.5, 4.8))
+
+    uniform_classical = []
+    qemc_quantum = {"HYBRID": [], "FULLY_PHASE": []}
+
+    for n in n_vals:
+        schedule = annealing_schedule_generator(int(n), beta)
+        uniform_queries, _ = _annealing_schedule_fits("uniform", int(n), schedule, epsilon, classical_query_file, spectral_gap_file, statistic, n_fit_min, n_fit_max)
+        uniform_classical.append(get_annealing_time_classical_walk_uniform(int(n), uniform_queries, device=classical_device))
+
+        _, qemc_gaps = _annealing_schedule_fits("layden", int(n), schedule, epsilon, classical_query_file, spectral_gap_file, statistic, n_fit_min, n_fit_max)
+        for arithmetic_type in ("HYBRID", "FULLY_PHASE"):
+            q_min = get_annealing_time_quantum_walk_qemc(int(n), epsilon, schedule, qemc_gaps, physical_operation_time_min, physical_measurement_time_min, physical_error_rate_min, num_trotter_steps=num_trotter_steps, arithmetic_type=arithmetic_type)
+            q_max = get_annealing_time_quantum_walk_qemc(int(n), epsilon, schedule, qemc_gaps, physical_operation_time_max, physical_measurement_time_max, physical_error_rate_max, num_trotter_steps=num_trotter_steps, arithmetic_type=arithmetic_type)
+            qemc_quantum[arithmetic_type].append(float(np.sqrt(q_min * q_max)))
+
+    handles = []
+    labels = []
+
+    classical_line = _plot_projected_runtime_line(
+        ax,
+        n_vals,
+        uniform_classical,
+        color=_proposal_color("uniform", "classical"),
+        label=f"Uniform classical ({classical_device})",
+        linestyle="-",
+        line_width=line_width,
+        calibrated_alpha=calibrated_alpha,
+        projected_alpha=projected_alpha,
+        n_fit_max=n_fit_max,
+        zorder=4,
+    )
+    handles.append(classical_line)
+    labels.append(f"Uniform classical ({classical_device})")
+
+    qemc_color = _proposal_color("layden", "quantum")
+    for arithmetic_type, linestyle, label in [("HYBRID", "-", "QEMC quantum, hybrid arithmetic"), ("FULLY_PHASE", "--", "QEMC quantum, fully-phase arithmetic")]:
+        line = _plot_projected_runtime_line(
+            ax,
+            n_vals,
+            qemc_quantum[arithmetic_type],
+            color=qemc_color,
+            label=label,
+            linestyle=linestyle,
+            line_width=line_width,
+            calibrated_alpha=calibrated_alpha,
+            projected_alpha=projected_alpha,
+            n_fit_max=n_fit_max,
+            zorder=5,
+        )
+        handles.append(line)
+        labels.append(label)
+
+    time_ticks, time_tick_labels, one_year, thousand_years = _runtime_time_ticks()
+    ax.set_yscale("log")
+    ax.set_xlim(float(n_plot_min), float(n_plot_max))
+    ax.set_yticks(time_ticks)
+    ax.set_yticklabels(time_tick_labels)
+    if runtime_ymin_seconds is not None or runtime_ymax_years is not None:
+        current_bottom, current_top = ax.get_ylim()
+        y_bottom = current_bottom if runtime_ymin_seconds is None else float(runtime_ymin_seconds)
+        y_top = current_top if runtime_ymax_years is None else float(runtime_ymax_years) * one_year
+        ax.set_ylim(y_bottom, y_top)
+    ax.set_xlabel(r"$n$")
+    ax.set_ylabel(r"Runtime [s]")
+    if title is not None:
+        ax.set_title(title)
+    ax.set_axisbelow(True)
+    ax.grid(True, which="major", axis="y", color=grid_color, linewidth=grid_linewidth, zorder=0)
+    ax.grid(False, which="major", axis="x")
+    for spine in ["top", "right"]:
+        ax.spines[spine].set_visible(False)
+    if show_legend:
+        ax.legend(handles, labels, frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.18), ncol=1, borderaxespad=0.0, handlelength=2.4)
+    return fig, ax
+
+
+def plot_uniform_classical_and_qemc_arithmetic_runtime_vs_n_table(
+    betas: Sequence[float],
+    epsilon: float | Sequence[float],
+    annealing_schedule_generator: Callable[[int, float], list[float]],
+    ncols: int = 2,
+    figsize: tuple[float, float] | None = None,
+    hspace: float = 0.38,
+    wspace: float = 0.28,
+    show_legend: bool = False,
+    label_fontsize: int = 14,
+    tick_labelsize: int = 12,
+    title_fontsize: int = 14,
+    classical_device: str = "cpu",
+    **kwargs,
+) -> tuple[plt.Figure, np.ndarray]:
+    """Plot a table comparing uniform classical runtime with QEMC arithmetic choices.
+
+    Each panel contains only three lines: the classical uniform line, the QEMC quantum-walk
+    line with ``"HYBRID"`` arithmetic, and the QEMC quantum-walk line with ``"FULLY_PHASE"``
+    arithmetic. The two quantum arithmetic lines use the same color; ``"HYBRID"`` is solid
+    and ``"FULLY_PHASE"`` is dashed.
+
+    :param betas: Final inverse temperatures.
+    :param epsilon: Scalar error value or one error per beta.
+    :param annealing_schedule_generator: Schedule generator used for the plotted curves.
+    :param ncols: Number of table columns.
+    :param figsize: Optional figure size.
+    :param hspace: Vertical subplot spacing.
+    :param wspace: Horizontal subplot spacing.
+    :param show_legend: Whether each panel should keep its legend.
+    :param label_fontsize: Axis-label font size.
+    :param tick_labelsize: Tick-label font size.
+    :param title_fontsize: Panel-title font size.
+    :param classical_device: Classical device model, one of ``"cpu"``, ``"gpu"``, or ``"fpga"``.
+    :return: Tuple ``(fig, axes)``.
+    """
+    betas, epsilons = _resolve_beta_epsilon_pairs(betas, epsilon)
+    fig, axes = _make_table_axes(len(betas), ncols, figsize)
+
+    for beta, eps, ax in zip(betas, epsilons, axes):
+        plot_uniform_classical_and_qemc_arithmetic_runtime_vs_n(
+            beta=beta,
+            epsilon=eps,
+            annealing_schedule_generator=annealing_schedule_generator,
+            classical_device=classical_device,
+            fig=fig,
+            ax=ax,
+            title=rf"$\beta_F={beta:g}$, $\epsilon={eps:g}$",
+            show_legend=show_legend,
+            **kwargs,
+        )
+        _lighten_grid(ax)
+        _enlarge_axis_labels(ax, label_fontsize, tick_labelsize, title_fontsize)
+
+    _keep_single_axis_y_ticks_only_on_outer_edges(axes, len(betas), ncols)
+    _finish_table(fig, hspace, wspace)
+    return fig, axes[:len(betas)]
+
