@@ -22,6 +22,10 @@ from monaqa2.data.runtime import (
     get_annealing_time_quantum_walk_qemc,
     get_annealing_time_quantum_walk_uniform,
     get_time_direct_enumeration,
+    get_quantum_annealing_error_budget,
+    quantum_walk_qemc_circuit,
+    quantum_walk_uniform_circuit,
+    rotated_surface_code_distance,
     split_quantum_error_budget,
 )
 from monaqa2.data.spectral_gap import get_spectral_gap_fit_by_beta, get_spectral_gap_fit_by_n, get_spectral_gap_stats
@@ -3982,3 +3986,1031 @@ def plot_uniform_classical_and_qemc_arithmetic_runtime_vs_n_table(
     _keep_single_axis_y_ticks_only_on_outer_edges(axes, len(betas), ncols)
     _finish_table(fig, hspace, wspace)
     return fig, axes[:len(betas)]
+
+
+def _normalize_physical_cost_multipliers(
+    physical_cost_multipliers: Sequence[int],
+) -> list[int]:
+    """Return sorted, unique physical-cost multipliers including the implicit 1."""
+    multipliers = {1}
+    for value in physical_cost_multipliers:
+        if isinstance(value, bool):
+            raise TypeError(
+                "physical_cost_multipliers must contain positive integers."
+            )
+        multiplier = int(value)
+        if float(value) != float(multiplier) or multiplier < 1:
+            raise ValueError(
+                "physical_cost_multipliers must contain integers greater than "
+                "or equal to 1."
+            )
+        multipliers.add(multiplier)
+    return sorted(multipliers)
+
+
+def _positive_floor(values: np.ndarray) -> np.ndarray:
+    """Return positive runtime values, preserving the existing runtime floor rule."""
+    return _positive_runtime_values(values)
+
+
+def _add_multiplier_label(
+    ax: plt.Axes,
+    n_vals: np.ndarray,
+    values: np.ndarray,
+    multiplier: int,
+    color: str,
+    x_fraction: float,
+    alpha: float,
+) -> None:
+    """Place a label above a curve, rotated along its local display-space slope."""
+    x = np.asarray(n_vals, dtype=float)
+    y = _positive_floor(np.asarray(values, dtype=float))
+    if x.size < 2:
+        return
+
+    index = int(round(float(x_fraction) * (x.size - 1)))
+    index = int(np.clip(index, 0, x.size - 1))
+    left_index = max(0, index - 1)
+    right_index = min(x.size - 1, index + 1)
+    if left_index == right_index:
+        return
+
+    left_display = ax.transData.transform(
+        (float(x[left_index]), float(y[left_index]))
+    )
+    right_display = ax.transData.transform(
+        (float(x[right_index]), float(y[right_index]))
+    )
+    angle = float(
+        np.degrees(
+            np.arctan2(
+                right_display[1] - left_display[1],
+                right_display[0] - left_display[0],
+            )
+        )
+    )
+
+    if multiplier != 1:
+        ax.annotate(
+            rf"$\times {multiplier}$",
+            xy=(float(x[index]), float(y[index])),
+            xytext=(0.0, 2.0),
+            textcoords="offset points",
+            color=color,
+            alpha=alpha,
+            fontsize="small",
+            ha="center",
+            va="bottom",
+            rotation=angle,
+            rotation_mode="anchor",
+            clip_on=True,
+            zorder=10,
+        )
+
+
+def _add_shadowed_runtime_family_table(
+    ax: plt.Axes,
+    n_vals: np.ndarray,
+    curves_by_multiplier: dict[int, np.ndarray],
+    multipliers: Sequence[int],
+    *,
+    color: str,
+    label: str,
+    line_width: float,
+    line_alpha: float,
+    shadow_alpha: float,
+    zorder: int,
+) -> plt.Line2D:
+    """Draw multiplier lines and progressively lighter shadows between them."""
+    multipliers = list(multipliers)
+    interval_count = max(1, len(multipliers) - 1)
+
+    for index, (lower_multiplier, upper_multiplier) in enumerate(
+        zip(multipliers[:-1], multipliers[1:])
+    ):
+        lower_raw = np.asarray(
+            curves_by_multiplier[lower_multiplier], dtype=float
+        )
+        upper_raw = np.asarray(
+            curves_by_multiplier[upper_multiplier], dtype=float
+        )
+        lower = _positive_runtime_values(np.minimum(lower_raw, upper_raw))
+        upper = _positive_runtime_values(np.maximum(lower_raw, upper_raw))
+        fade = 1.0 - 0.70 * index / max(1, interval_count - 1)
+        ax.fill_between(
+            n_vals,
+            lower,
+            upper,
+            color=color,
+            alpha=float(shadow_alpha) * fade,
+            edgecolor="none",
+            linewidth=0.0,
+            zorder=zorder,
+        )
+
+    family_handle: plt.Line2D | None = None
+    line_count = max(1, len(multipliers) - 1)
+    for index, multiplier in enumerate(multipliers):
+        fade = 1.0 - 0.35 * index / line_count
+        (line,) = ax.plot(
+            n_vals,
+            curves_by_multiplier[multiplier],
+            color=color,
+            linewidth=line_width,
+            alpha=float(line_alpha) * fade,
+            linestyle="-",
+            label=label if multiplier == 1 else None,
+            zorder=zorder + 1,
+        )
+        if multiplier == 1:
+            family_handle = line
+
+    if family_handle is None:
+        raise RuntimeError("The implicit multiplier 1 is missing.")
+    return family_handle
+
+
+def plot_annealing_classical_and_quantum_runtime_vs_n_table_shadowed(
+    betas: Sequence[float],
+    epsilon: float | Sequence[float],
+    annealing_schedule_generator: Callable[[int, float], list[float]],
+    ncols: int = 2,
+    figsize: tuple[float, float] | None = (33.0 / 2.54, 18.0 / 2.54),
+    hspace: float = 0.56,
+    wspace: float = 0.12,
+    legend_y: float = -0.14,
+    last_row_legend_y: float | None = -0.18,
+    show_legend: bool = True,
+    legend_placement: str = "legend_out",
+    label_fontsize: int = 14,
+    tick_labelsize: int = 12,
+    title_fontsize: int = 14,
+    legend_fontsize: int = 12,
+    line_width: float = 2.0,
+    line_alpha: float = 0.95,
+    shadow_alpha: float = 0.20,
+    rowwise_y_limits: bool = True,
+    remove_local_beta_threshold: float | None = 3.9,
+    classical_device: str = "fpga",
+    physical_error_rate: float = 1e-4,
+    physical_operation_time_min: float = 200e-9,
+    physical_measurement_time_min: float = 20e-9,
+    physical_cost_multipliers: list[int] = [10, 100, 1000],
+    num_trotter_steps: int = 50,
+    arithmetic_type: str = "HYBRID",
+    classical_query_file: Path = CLASSICAL_QUERY_FILE,
+    spectral_gap_file: Path = SPECTRAL_GAP_FILE,
+    statistic: str = "mean+std",
+    n_fit_min: int | None = 5,
+    n_fit_max: int | None = 10,
+    n_plot_min: int | None = 3,
+    n_plot_max: int | None = 120,
+    mode: str = "full",
+    runtime_ymin_seconds: float | None = 1.0,
+    runtime_ymax_years: float | None = 1000.0,
+    show_time_reference_lines: bool = False,
+    grid_color: str = "0.92",
+    grid_linewidth: float = 0.55,
+    xlabel_labelpad: float = 18,
+    show_multiplier_label: bool = True,
+    multiplier_label_x_fractions: dict[str, float] | None = None,
+    debug: bool = False,
+) -> tuple[plt.Figure, np.ndarray]:
+    """Plot runtime panels with physical-cost multiplier lines and shadows.
+
+    The implicit multiplier is one. Each explicit multiplier scales both
+    ``physical_operation_time_min`` and ``physical_measurement_time_min`` while
+    keeping ``physical_error_rate`` fixed. All curves use one visual style over
+    the complete n-range: this method does not distinguish calibrated and
+    extrapolated regimes, does not fade the n > n_fit_max region, and does not
+    draw a separator at n_fit_max or at schedule changes.
+    """
+    if arithmetic_type not in {"HYBRID", "FULLY_PHASE"}:
+        raise ValueError(
+            f"Unknown arithmetic_type={arithmetic_type!r}. "
+            "Expected 'HYBRID' or 'FULLY_PHASE'."
+        )
+    if mode not in {"full", "compact", "compact_no_layden"}:
+        raise ValueError(
+            f"Unknown mode={mode!r}. Expected 'full', 'compact', "
+            "or 'compact_no_layden'."
+        )
+    if legend_placement not in {"legend_out", "top_left", "bottom_right"}:
+        raise ValueError(
+            "legend_placement must be 'legend_out', 'top_left', "
+            "or 'bottom_right'."
+        )
+    if n_plot_min is None:
+        n_plot_min = 3
+    if n_plot_max is None:
+        n_plot_max = 120
+    if int(n_plot_max) < int(n_plot_min):
+        raise ValueError("n_plot_max must be greater than or equal to n_plot_min.")
+
+    betas, epsilons = _resolve_beta_epsilon_pairs(betas, epsilon)
+    multipliers = _normalize_physical_cost_multipliers(
+        physical_cost_multipliers
+    )
+    n_vals = np.arange(
+        int(n_plot_min), int(n_plot_max) + 1, dtype=int
+    )
+    fig, axes = _make_table_axes(len(betas), ncols, figsize)
+
+    if mode == "full":
+        base_proposals = ["local1", "uniform", "layden"]
+    else:
+        base_proposals = ["uniform", "layden"]
+    hide_layden_classical = mode == "compact_no_layden"
+
+    default_label_positions = {
+        "local1_quantum": 0.84,
+        "uniform_quantum": 0.72,
+        "layden_quantum": 0.60,
+        "layden_classical": 0.48,
+    }
+    if multiplier_label_x_fractions is not None:
+        default_label_positions.update(
+            {
+                str(key): float(value)
+                for key, value in multiplier_label_x_fractions.items()
+            }
+        )
+    for key, value in default_label_positions.items():
+        if not 0.0 <= value <= 1.0:
+            raise ValueError(
+                f"multiplier_label_x_fractions[{key!r}] must be in [0, 1]."
+            )
+
+    n_items = len(betas)
+    nrows = int(np.ceil(n_items / ncols))
+    one_year = 365.25 * 24.0 * 60.0 * 60.0
+    time_ticks, time_tick_labels, _, _ = _runtime_time_ticks()
+
+    def _curve_label(proposal: str, kind: str) -> str:
+        if mode == "compact_no_layden":
+            if proposal == "uniform" and kind == "classical":
+                return "Best classical"
+            if proposal == "uniform" and kind == "quantum":
+                return "Quantized best classical"
+            if proposal == "layden" and kind == "quantum":
+                return "Our approach"
+        return _walk_label(proposal, kind)
+
+    for idx, (beta, eps, ax) in enumerate(zip(betas, epsilons, axes)):
+        row = idx // ncols
+        is_last_row = row == nrows - 1
+        current_legend_y = (
+            last_row_legend_y
+            if is_last_row and last_row_legend_y is not None
+            else legend_y
+        )
+        proposals = [
+            proposal
+            for proposal in base_proposals
+            if not (
+                proposal == "local1"
+                and remove_local_beta_threshold is not None
+                and float(beta) > float(remove_local_beta_threshold)
+            )
+        ]
+
+        handles: list[plt.Line2D] = []
+        labels: list[str] = []
+        multiplier_label_records: list[
+            tuple[dict[int, np.ndarray], str, float]
+        ] = []
+        eps_SF = float(eps) / 4.0
+
+        for proposal_index, proposal in enumerate(proposals):
+            classical_color = _proposal_color(proposal, "classical")
+            quantum_color = _proposal_color(proposal, "quantum")
+            classical_values: list[float] = []
+            classical_by_multiplier: dict[int, list[float]] = {
+                multiplier: [] for multiplier in multipliers
+            }
+            quantum_by_multiplier: dict[int, list[float]] = {
+                multiplier: [] for multiplier in multipliers
+            }
+
+            for n in n_vals:
+                schedule = [
+                    float(beta_t)
+                    for beta_t in annealing_schedule_generator(
+                        int(n), float(beta)
+                    )
+                ]
+                vec_queries, spectral_gaps = _annealing_schedule_fits(
+                    proposal=proposal,
+                    n=int(n),
+                    schedule=schedule,
+                    epsilon=float(eps),
+                    classical_query_file=classical_query_file,
+                    spectral_gap_file=spectral_gap_file,
+                    statistic=statistic,
+                    n_fit_min=n_fit_min,
+                    n_fit_max=n_fit_max,
+                )
+
+                if proposal == "local1":
+                    classical_values.append(
+                        float(
+                            get_annealing_time_classical_walk_local(
+                                int(n), vec_queries, device=classical_device
+                            )
+                        )
+                    )
+                    for multiplier in multipliers:
+                        operation_time = (
+                            float(physical_operation_time_min) * multiplier
+                        )
+                        measurement_time = (
+                            float(physical_measurement_time_min) * multiplier
+                        )
+                        quantum_by_multiplier[multiplier].append(
+                            float(
+                                get_annealing_time_quantum_walk_local(
+                                    int(n),
+                                    float(eps),
+                                    schedule,
+                                    spectral_gaps,
+                                    operation_time,
+                                    measurement_time,
+                                    physical_error_rate,
+                                    arithmetic_type=arithmetic_type,
+                                )
+                            )
+                        )
+
+                elif proposal == "uniform":
+                    classical_values.append(
+                        float(
+                            get_annealing_time_classical_walk_uniform(
+                                int(n), vec_queries, device=classical_device
+                            )
+                        )
+                    )
+                    for multiplier in multipliers:
+                        operation_time = (
+                            float(physical_operation_time_min) * multiplier
+                        )
+                        measurement_time = (
+                            float(physical_measurement_time_min) * multiplier
+                        )
+                        quantum_by_multiplier[multiplier].append(
+                            float(
+                                get_annealing_time_quantum_walk_uniform(
+                                    int(n),
+                                    float(eps),
+                                    schedule,
+                                    spectral_gaps,
+                                    operation_time,
+                                    measurement_time,
+                                    physical_error_rate,
+                                    arithmetic_type=arithmetic_type,
+                                )
+                            )
+                        )
+
+                elif proposal == "layden":
+                    for multiplier in multipliers:
+                        operation_time = (
+                            float(physical_operation_time_min) * multiplier
+                        )
+                        measurement_time = (
+                            float(physical_measurement_time_min) * multiplier
+                        )
+                        classical_by_multiplier[multiplier].append(
+                            float(
+                                get_annealing_time_classical_walk_qemc(
+                                    int(n),
+                                    vec_queries,
+                                    operation_time,
+                                    measurement_time,
+                                    physical_error_rate,
+                                    eps_SF,
+                                    num_trotter_steps=num_trotter_steps,
+                                )
+                            )
+                        )
+                        quantum_by_multiplier[multiplier].append(
+                            float(
+                                get_annealing_time_quantum_walk_qemc(
+                                    int(n),
+                                    float(eps),
+                                    schedule,
+                                    spectral_gaps,
+                                    operation_time,
+                                    measurement_time,
+                                    physical_error_rate,
+                                    num_trotter_steps=num_trotter_steps,
+                                    arithmetic_type=arithmetic_type,
+                                )
+                            )
+                        )
+
+                if debug:
+                    print(
+                        f"[debug] panel={idx}, n={int(n)}, beta={beta:g}, "
+                        f"epsilon={eps:g}, proposal={proposal}, "
+                        f"schedule={schedule}, multipliers={multipliers}"
+                    )
+
+            if proposal in {"local1", "uniform"}:
+                classical_curve = _positive_runtime_values(
+                    np.asarray(classical_values, dtype=float)
+                )
+                classical_label = _curve_label(proposal, "classical")
+                (classical_handle,) = ax.plot(
+                    n_vals,
+                    classical_curve,
+                    color=classical_color,
+                    linewidth=line_width,
+                    alpha=line_alpha,
+                    linestyle="--",
+                    label=classical_label,
+                    zorder=4 + proposal_index,
+                )
+                handles.append(classical_handle)
+                labels.append(classical_label)
+
+            if proposal == "layden" and not hide_layden_classical:
+                classical_curves = {
+                    multiplier: _positive_runtime_values(
+                        np.asarray(values, dtype=float)
+                    )
+                    for multiplier, values in classical_by_multiplier.items()
+                }
+                classical_label = _curve_label(proposal, "classical")
+                classical_handle = _add_shadowed_runtime_family_table(
+                    ax=ax,
+                    n_vals=n_vals,
+                    curves_by_multiplier=classical_curves,
+                    multipliers=multipliers,
+                    color=classical_color,
+                    label=classical_label,
+                    line_width=line_width,
+                    line_alpha=line_alpha,
+                    shadow_alpha=shadow_alpha,
+                    zorder=2,
+                )
+                handles.append(classical_handle)
+                labels.append(classical_label)
+                # multiplier_label_records.append(
+                #     (
+                #         classical_curves,
+                #         classical_color,
+                #         default_label_positions["layden_classical"],
+                #     )
+                # )
+
+            quantum_curves = {
+                multiplier: _positive_runtime_values(
+                    np.asarray(values, dtype=float)
+                )
+                for multiplier, values in quantum_by_multiplier.items()
+            }
+            quantum_label = _curve_label(proposal, "quantum")
+            quantum_handle = _add_shadowed_runtime_family_table(
+                ax=ax,
+                n_vals=n_vals,
+                curves_by_multiplier=quantum_curves,
+                multipliers=multipliers,
+                color=quantum_color,
+                label=quantum_label,
+                line_width=line_width,
+                line_alpha=line_alpha,
+                shadow_alpha=shadow_alpha,
+                zorder=3 + proposal_index,
+            )
+            handles.append(quantum_handle)
+            labels.append(quantum_label)
+            multiplier_label_records.append(
+                (
+                    quantum_curves,
+                    quantum_color,
+                    default_label_positions[f"{proposal}_quantum"],
+                )
+            )
+
+        ax.set_yscale("log")
+        ax.set_xlim(float(n_vals[0]), float(n_vals[-1]))
+        xticks = _runtime_xticks_for_axis(n_vals, [])
+        if not xticks:
+            xticks = sorted({int(n_vals[0]), int(n_vals[-1])})
+        ax.set_xticks(xticks)
+
+        current_lower, current_upper = ax.get_ylim()
+        lower = (
+            current_lower
+            if runtime_ymin_seconds is None
+            else float(runtime_ymin_seconds)
+        )
+        upper = (
+            current_upper
+            if runtime_ymax_years is None
+            else float(runtime_ymax_years) * one_year
+        )
+        if lower <= 0.0 or upper <= lower:
+            raise ValueError(
+                "Runtime y-limits must satisfy 0 < runtime_ymin_seconds "
+                "< runtime_ymax_years * one_year."
+            )
+        ax.set_yticks(time_ticks)
+        ax.set_yticklabels(time_tick_labels)
+        ax.set_ylim(lower, upper)
+        ax.set_title(rf"$\bar\beta={beta:g}$, $\epsilon={eps:g}$")
+        ax.set_xlabel(r"$n$", labelpad=xlabel_labelpad)
+        ax.set_ylabel(r"Runtime")
+        ax.set_axisbelow(True)
+        ax.grid(
+            True,
+            which="major",
+            axis="y",
+            color=grid_color,
+            alpha=0.45,
+            linewidth=grid_linewidth,
+            zorder=0,
+        )
+        ax.grid(False, which="major", axis="x")
+        ax.grid(False, which="minor")
+
+        if show_time_reference_lines:
+            for y_value in time_ticks:
+                ax.axhline(
+                    y_value,
+                    color="black",
+                    linestyle=":",
+                    linewidth=1.1,
+                    alpha=0.75,
+                    zorder=0,
+                )
+
+        for spine in ("top", "right"):
+            ax.spines[spine].set_visible(False)
+
+        if show_multiplier_label:
+            line_count = max(1, len(multipliers) - 1)
+            for curves, color, x_fraction in multiplier_label_records:
+                for multiplier_index, multiplier in enumerate(multipliers):
+                    fade = 1.0 - 0.35 * multiplier_index / line_count
+                    _add_multiplier_label(
+                        ax=ax,
+                        n_vals=n_vals,
+                        values=curves[multiplier],
+                        multiplier=multiplier,
+                        color=color,
+                        x_fraction=x_fraction,
+                        alpha=float(line_alpha) * fade,
+                    )
+
+        if show_legend and handles:
+            if legend_placement == "legend_out":
+                legend_ncol = 3 if mode == "full" else 2
+                ax.legend(
+                    handles,
+                    labels,
+                    frameon=False,
+                    loc="upper center",
+                    bbox_to_anchor=(0.5, float(current_legend_y)),
+                    ncol=legend_ncol,
+                    borderaxespad=0.0,
+                    handlelength=2.4,
+                    columnspacing=1.6,
+                    fontsize=legend_fontsize,
+                )
+            elif legend_placement == "top_left":
+                ax.legend(
+                    handles,
+                    labels,
+                    frameon=False,
+                    loc="upper left",
+                    ncol=1,
+                    borderaxespad=0.35,
+                    handlelength=2.0,
+                    labelspacing=0.35,
+                    fontsize=legend_fontsize,
+                )
+            else:
+                ax.legend(
+                    handles,
+                    labels,
+                    frameon=False,
+                    loc="lower right",
+                    ncol=1,
+                    borderaxespad=0.35,
+                    handlelength=2.0,
+                    labelspacing=0.35,
+                    fontsize=legend_fontsize,
+                )
+
+        _enlarge_axis_labels(
+            ax,
+            label_fontsize=label_fontsize,
+            tick_labelsize=tick_labelsize,
+            title_fontsize=title_fontsize,
+        )
+
+    if rowwise_y_limits:
+        for row in range(nrows):
+            row_start = row * ncols
+            row_end = min((row + 1) * ncols, n_items)
+            row_axes = list(axes[row_start:row_end])
+            lower = min(ax.get_ylim()[0] for ax in row_axes)
+            upper = max(ax.get_ylim()[1] for ax in row_axes)
+            for ax in row_axes:
+                ax.set_ylim(lower, upper)
+
+    _keep_single_axis_y_ticks_only_on_outer_edges(
+        axes, n_items, ncols
+    )
+    _finish_table(fig, hspace, wspace)
+    return fig, axes[:n_items]
+
+
+def _surface_code_distance_for_quantum_annealing_path(
+    n: int,
+    epsilon: float,
+    schedule: list[float],
+    spectral_gaps: list[float],
+    physical_error_rate: float,
+    circuit_resource_fn: Callable[[int, float, float], tuple[float, float]],
+) -> float:
+    """Return the code distance for one complete quantum annealing path.
+
+    The logical depth is accumulated over all scheduled filter queries, while
+    the logical space is the maximum circuit space over the path. This matches
+    the spacetime-volume convention used by ``_get_annealing_time_quantum_walk``
+    in ``monaqa2.data.runtime``.
+    """
+    budget = get_quantum_annealing_error_budget(
+        float(epsilon),
+        spectral_gaps,
+    )
+    eps_SF = float(budget["eps_SF"])
+    eps_W = float(budget["eps_W"])
+    queries_per_step = [float(value) for value in budget["queries_per_step"]]
+
+    logical_time = 0.0
+    logical_space = 0.0
+    for beta_t, queries in zip(schedule, queries_per_step):
+        walk_depth, walk_space = circuit_resource_fn(
+            int(n),
+            eps_W,
+            float(beta_t),
+        )
+        logical_time += queries * float(walk_depth)
+        logical_space = max(logical_space, float(walk_space))
+
+    if logical_time <= 0.0 or logical_space <= 0.0:
+        raise ValueError(
+            "The annealing path must have positive logical time and space."
+        )
+
+    return rotated_surface_code_distance(
+        logical_time * logical_space,
+        float(physical_error_rate),
+        eps_SF,
+    )
+
+
+def _surface_code_distance_for_classical_layden_path(
+    n: int,
+    epsilon: float,
+    classical_queries_per_step: Sequence[float],
+    physical_error_rate: float,
+    num_trotter_steps: int,
+) -> float:
+    """Return the code distance for classical MCMC using the Layden proposal.
+
+    Every classical query invokes the Hamiltonian-simulation proposal circuit.
+    The distance is selected from the total spacetime volume of the complete
+    annealing path, rather than from the volume of one proposal invocation.
+    """
+    if num_trotter_steps < 1:
+        raise ValueError("Use num_trotter_steps >= 1.")
+
+    eps_SF, _, _, _ = split_quantum_error_budget(float(epsilon))
+    proposal_depth = float(num_trotter_steps) * (float(n) + 3.0)
+    logical_time = float(np.sum(np.asarray(classical_queries_per_step, dtype=float))) * proposal_depth
+    logical_space = float(n)
+
+    if logical_time <= 0.0:
+        raise ValueError("The classical Layden annealing path has zero logical time.")
+
+    return rotated_surface_code_distance(
+        logical_time * logical_space,
+        float(physical_error_rate),
+        float(eps_SF),
+    )
+
+
+def plot_annealing_classical_and_quantum_surface_code_distance_vs_n_table(
+    betas: Sequence[float],
+    epsilon: float | Sequence[float],
+    annealing_schedule_generator: Callable[[int, float], list[float]],
+    ncols: int = 2,
+    figsize: tuple[float, float] | None = (33.0 / 2.54, 18.0 / 2.54),
+    hspace: float = 0.56,
+    wspace: float = 0.12,
+    legend_y: float = -0.14,
+    last_row_legend_y: float | None = -0.18,
+    show_legend: bool = True,
+    legend_placement: str = "legend_out",
+    label_fontsize: int = 14,
+    tick_labelsize: int = 12,
+    title_fontsize: int = 14,
+    legend_fontsize: int = 12,
+    line_width: float = 2.0,
+    line_alpha: float = 0.95,
+    rowwise_y_limits: bool = True,
+    physical_error_rate: float = 1e-3,
+    num_trotter_steps: int = 50,
+    arithmetic_type: str = "HYBRID",
+    classical_query_file: Path = CLASSICAL_QUERY_FILE,
+    spectral_gap_file: Path = SPECTRAL_GAP_FILE,
+    statistic: str = "mean+std",
+    n_fit_min: int | None = 5,
+    n_fit_max: int | None = 10,
+    n_plot_min: int | None = 3,
+    n_plot_max: int | None = 120,
+    grid_color: str = "0.92",
+    grid_linewidth: float = 0.55,
+    xlabel_labelpad: float = 18,
+    debug: bool = False,
+) -> tuple[plt.Figure, np.ndarray]:
+    """Plot full-path surface-code distance versus ``n`` in a panel table.
+
+    Each panel contains exactly three solid curves:
+
+    * classical MCMC using the quantum-enhanced Layden proposal;
+    * the quantum walk obtained by quantizing the best classical uniform move;
+    * the quantum walk using the Layden proposal.
+
+    For every method, the distance is selected from the logical spacetime
+    volume of the complete annealing path and the surface-code budget
+    ``epsilon / 4``. Physical operation and measurement times do not enter,
+    because they affect runtime but not the required code distance.
+    """
+    if arithmetic_type != "HYBRID":
+        raise ValueError(
+            f"Unknown arithmetic_type={arithmetic_type!r}. "
+            "The supplied runtime resource model supports only 'HYBRID'."
+        )
+    if legend_placement not in {"legend_out", "top_left", "bottom_right"}:
+        raise ValueError(
+            "legend_placement must be 'legend_out', 'top_left', "
+            "or 'bottom_right'."
+        )
+    if not np.isfinite(physical_error_rate) or not 0.0 < physical_error_rate < 0.01:
+        raise ValueError(
+            "physical_error_rate must satisfy 0 < physical_error_rate < 0.01."
+        )
+    if num_trotter_steps < 1:
+        raise ValueError("Use num_trotter_steps >= 1.")
+
+    if n_plot_min is None:
+        n_plot_min = 3
+    if n_plot_max is None:
+        n_plot_max = 120
+    if int(n_plot_max) < int(n_plot_min):
+        raise ValueError("n_plot_max must be greater than or equal to n_plot_min.")
+
+    betas, epsilons = _resolve_beta_epsilon_pairs(betas, epsilon)
+    n_vals = np.arange(int(n_plot_min), int(n_plot_max) + 1, dtype=int)
+    fig, axes = _make_table_axes(len(betas), ncols, figsize)
+
+    n_items = len(betas)
+    nrows = int(np.ceil(n_items / ncols))
+
+    curve_specs = [
+        (
+            "classical_layden",
+            "Classical MCMC, quantum-enhanced move",
+            _proposal_color("layden", "classical"),
+        ),
+        (
+            "quantum_uniform",
+            "Quantized best classical",
+            _proposal_color("uniform", "quantum"),
+        ),
+        (
+            "quantum_layden",
+            "Our approach",
+            _proposal_color("layden", "quantum"),
+        ),
+    ]
+
+    for panel_index, (beta, eps, ax) in enumerate(zip(betas, epsilons, axes)):
+        row = panel_index // ncols
+        is_last_row = row == nrows - 1
+        current_legend_y = (
+            last_row_legend_y
+            if is_last_row and last_row_legend_y is not None
+            else legend_y
+        )
+
+        curves = {name: [] for name, _, _ in curve_specs}
+
+        for n in n_vals:
+            schedule = [
+                float(beta_t)
+                for beta_t in annealing_schedule_generator(int(n), float(beta))
+            ]
+            if not schedule:
+                raise ValueError(
+                    f"Empty annealing schedule for n={int(n)}, beta={float(beta):g}."
+                )
+
+            layden_queries, layden_gaps = _annealing_schedule_fits(
+                proposal="layden",
+                n=int(n),
+                schedule=schedule,
+                epsilon=float(eps),
+                classical_query_file=classical_query_file,
+                spectral_gap_file=spectral_gap_file,
+                statistic=statistic,
+                n_fit_min=n_fit_min,
+                n_fit_max=n_fit_max,
+            )
+            _, uniform_gaps = _annealing_schedule_fits(
+                proposal="uniform",
+                n=int(n),
+                schedule=schedule,
+                epsilon=float(eps),
+                classical_query_file=classical_query_file,
+                spectral_gap_file=spectral_gap_file,
+                statistic=statistic,
+                n_fit_min=n_fit_min,
+                n_fit_max=n_fit_max,
+            )
+
+            curves["classical_layden"].append(
+                _surface_code_distance_for_classical_layden_path(
+                    n=int(n),
+                    epsilon=float(eps),
+                    classical_queries_per_step=layden_queries,
+                    physical_error_rate=float(physical_error_rate),
+                    num_trotter_steps=num_trotter_steps,
+                )
+            )
+
+            curves["quantum_uniform"].append(
+                _surface_code_distance_for_quantum_annealing_path(
+                    n=int(n),
+                    epsilon=float(eps),
+                    schedule=schedule,
+                    spectral_gaps=uniform_gaps,
+                    physical_error_rate=float(physical_error_rate),
+                    circuit_resource_fn=lambda n_local, eps_W, beta_t: (
+                        quantum_walk_uniform_circuit(
+                            n_local,
+                            eps_W,
+                            beta_t,
+                            arithmetic_type=arithmetic_type,
+                        )
+                    ),
+                )
+            )
+
+            curves["quantum_layden"].append(
+                _surface_code_distance_for_quantum_annealing_path(
+                    n=int(n),
+                    epsilon=float(eps),
+                    schedule=schedule,
+                    spectral_gaps=layden_gaps,
+                    physical_error_rate=float(physical_error_rate),
+                    circuit_resource_fn=lambda n_local, eps_W, beta_t: (
+                        quantum_walk_qemc_circuit(
+                            n_local,
+                            eps_W,
+                            beta_t,
+                            num_trotter_steps=num_trotter_steps,
+                            arithmetic_type=arithmetic_type,
+                        )
+                    ),
+                )
+            )
+
+            if debug:
+                print(
+                    f"[debug] panel={panel_index}, n={int(n)}, "
+                    f"beta={float(beta):g}, epsilon={float(eps):g}, "
+                    f"schedule_len={len(schedule)}, "
+                    f"d_classical_layden={curves['classical_layden'][-1]:g}, "
+                    f"d_quantum_uniform={curves['quantum_uniform'][-1]:g}, "
+                    f"d_quantum_layden={curves['quantum_layden'][-1]:g}"
+                )
+
+        handles: list[plt.Line2D] = []
+        labels: list[str] = []
+        for zorder, (name, label, color) in enumerate(curve_specs, start=3):
+            values = np.asarray(curves[name], dtype=float)
+            (line,) = ax.plot(
+                n_vals,
+                values,
+                color=color,
+                linewidth=float(line_width),
+                alpha=float(line_alpha),
+                linestyle="-",
+                label=label,
+                zorder=zorder,
+            )
+            handles.append(line)
+            labels.append(label)
+
+        ax.set_xlim(float(n_vals[0]), float(n_vals[-1]))
+        xticks = _runtime_xticks_for_axis(n_vals, [])
+        if not xticks:
+            xticks = sorted({int(n_vals[0]), int(n_vals[-1])})
+        ax.set_xticks(xticks)
+
+        all_values = np.concatenate(
+            [np.asarray(curves[name], dtype=float) for name, _, _ in curve_specs]
+        )
+        distance_min = float(np.min(all_values))
+        distance_max = float(np.max(all_values))
+        ax.set_ylim(max(1.0, distance_min - 2.0), distance_max + 2.0)
+
+        ax.set_title(rf"$\bar\beta={beta:g}$, $\epsilon={eps:g}$")
+        ax.set_xlabel(r"$n$", labelpad=xlabel_labelpad)
+        ax.set_ylabel(r"Surface-code distance $d$")
+        ax.set_axisbelow(True)
+        ax.grid(
+            True,
+            which="major",
+            axis="y",
+            color=grid_color,
+            alpha=0.45,
+            linewidth=grid_linewidth,
+            zorder=0,
+        )
+        ax.grid(False, which="major", axis="x")
+        ax.grid(False, which="minor")
+
+        for spine in ("top", "right"):
+            ax.spines[spine].set_visible(False)
+
+        if show_legend:
+            if legend_placement == "legend_out":
+                ax.legend(
+                    handles,
+                    labels,
+                    frameon=False,
+                    loc="upper center",
+                    bbox_to_anchor=(0.5, float(current_legend_y)),
+                    ncol=3,
+                    borderaxespad=0.0,
+                    handlelength=2.4,
+                    columnspacing=1.6,
+                    fontsize=legend_fontsize,
+                )
+            elif legend_placement == "top_left":
+                ax.legend(
+                    handles,
+                    labels,
+                    frameon=False,
+                    loc="upper left",
+                    ncol=1,
+                    borderaxespad=0.35,
+                    handlelength=2.0,
+                    labelspacing=0.35,
+                    fontsize=legend_fontsize,
+                )
+            else:
+                ax.legend(
+                    handles,
+                    labels,
+                    frameon=False,
+                    loc="lower right",
+                    ncol=1,
+                    borderaxespad=0.35,
+                    handlelength=2.0,
+                    labelspacing=0.35,
+                    fontsize=legend_fontsize,
+                )
+
+        _enlarge_axis_labels(
+            ax,
+            label_fontsize=label_fontsize,
+            tick_labelsize=tick_labelsize,
+            title_fontsize=title_fontsize,
+        )
+
+    if rowwise_y_limits:
+        for row in range(nrows):
+            row_start = row * ncols
+            row_end = min((row + 1) * ncols, n_items)
+            row_axes = list(axes[row_start:row_end])
+            lower = min(ax.get_ylim()[0] for ax in row_axes)
+            upper = max(ax.get_ylim()[1] for ax in row_axes)
+            for ax in row_axes:
+                ax.set_ylim(lower, upper)
+
+    _keep_single_axis_y_ticks_only_on_outer_edges(
+        axes,
+        n_items,
+        ncols,
+    )
+    _finish_table(fig, hspace, wspace)
+    return fig, axes[:n_items]
+

@@ -1,4 +1,4 @@
-# Practical advantage beyond the quadratic speedup limit with fully quantum walks
+# Practical advantage beyond the quadratic speedup limit with fully-quantum walks
 
 This repository contains the data, code, and notebooks used to reproduce the results presented in the paper:
 
@@ -14,6 +14,8 @@ The reference configuration used for the Python analysis is:
 Python 3.14.4 (Linux, GCC 11.4.0)
 ```
 
+The Python executable is invoked below as `python3.14`. It may instead be named `python3` in your configuration, and other Python versions may also work.
+
 Create and activate an empty Python 3.14 virtual environment:
 
 ```bash
@@ -24,14 +26,14 @@ source .monaqa_venv/bin/activate
 If `pip` is not available in the environment, install and upgrade it:
 
 ```bash
-python -m ensurepip --upgrade
-python -m pip install --upgrade pip
+python3.14 -m ensurepip --upgrade
+python3.14 -m pip install --upgrade pip
 ```
 
 Then install the project requirements:
 
 ```bash
-python -m pip install -r requirements.txt
+python3.14 -m pip install -r requirements.txt
 ```
 
 Reproducing the timing benchmarks requires additional software and hardware, including the relevant C++ and CUDA compilers and access to the CPU, GPU, and FPGA systems used for the measurements. See the corresponding notebook and benchmark folders for further instructions.
