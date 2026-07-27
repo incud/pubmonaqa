@@ -16,11 +16,16 @@ APS_FIGURESTAR_WIDTH_CM = 17.8
 APS_FIGURESTAR_HEIGHT_CM = 5.8
 
 PROPOSAL_COLORS = {
-    "local1_classical": "#777777",
-    "local1_quantum": "#000000",
-    "uniform_classical": "#66CCEE",
-    "uniform_quantum": "#4477AA",
-    "layden_classical": "#CC6677",
+    # Neutral family: near-black and gray
+    "local1_classical": "#222222",
+    "local1_quantum": "#999999",
+
+    # Cold family: navy blue and cyan
+    "uniform_classical": "#004488",
+    "uniform_quantum": "#66CCEE",
+
+    # Warm family: magenta and orange
+    "layden_classical": "#EE7733",
     "layden_quantum": "#AA3377",
 }
 

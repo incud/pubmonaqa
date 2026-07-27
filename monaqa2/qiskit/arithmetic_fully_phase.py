@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import numpy as np
 from numpy.polynomial import chebyshev as ncheb
 from monaqa2.qiskit.gqsp_gate_generic import GQSP
-from monaqa2.qiskit.primitives import Cry, Ccry, GivensRotation
+from monaqa2.qiskit.primitives import Ccx, ControlledGivensRotation, Cry, Ccry, GivensRotation
 from qiskit.circuit import Gate, QuantumCircuit
 from qiskit.synthesis.multi_controlled.mcx_synthesis import synth_mcx_2_clean_kg24
 
@@ -187,7 +187,7 @@ class ControlledSelectDeltaHamiltonian(Gate):
 
     def _ccz(self, qc: QuantumCircuit, a: int, b: int, target: int) -> None:
         qc.h(target)
-        qc.ccx(a, b, target)
+        qc.append(Ccx(), [a, b, target])
         qc.h(target)
 
     def _fanout_control(self, qc: QuantumCircuit) -> None:
@@ -247,7 +247,7 @@ class ReflectionZero(Gate):
         elif len(controls) == 1:
             qc.cx(controls[0], target)
         elif len(controls) == 2:
-            qc.ccx(controls[0], controls[1], target)
+            qc.append(Ccx(), [controls[0], controls[1], target])
         else:
             qc.append(synth_mcx_2_clean_kg24(len(controls)), controls + [target] + self.clean)
 
@@ -285,7 +285,7 @@ class ControlledReflectionZero(Gate):
         elif len(controls) == 1:
             qc.cx(controls[0], target)
         elif len(controls) == 2:
-            qc.ccx(controls[0], controls[1], target)
+            qc.append(Ccx(), [controls[0], controls[1], target])
         else:
             qc.append(synth_mcx_2_clean_kg24(len(controls)), controls + [target] + self.clean)
 

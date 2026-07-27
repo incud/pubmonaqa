@@ -1,11 +1,8 @@
 import numpy as np
-import mpmath as mp
-from monaqa2.data.utils_interpolation_cache import interpolation_cache
-import monaqa2.data.filename
 from monaqa2.mcmc.search import search_monotone
 
 ALLOWED_DEVICES = {"cpu", "gpu", "fpga"}
-ALLOWED_ARITHMETIC_TYPES = {"HYBRID", "FULLY_PHASE"}
+ALLOWED_ARITHMETIC_TYPES = {"HYBRID"}
 
 
 def _validate_arithmetic_type(arithmetic_type: str) -> str:
@@ -105,7 +102,7 @@ def rotated_surface_code_distance(spacetime_volume: int | float, physical_error_
 
     def total_error(index: int) -> float:
         d = distance(index)
-        logical_error_per_round = d * 0.1 * (100 * physical_error_rate) ** ((d + 1.0) / 2.0)
+        logical_error_per_round = 0.03 * (100 * physical_error_rate) ** ((d + 1.0) / 2.0)
         return spacetime_volume * logical_error_per_round
 
     index = search_monotone(total_error, lambda error: error - eps_SF, 0, 1_000_000, info="rotated_surface_code_distance")
@@ -129,42 +126,102 @@ def rotated_surface_code_time(logical_time: int | float, logical_space: int | fl
     return logical_time * logical_cycle_time
 
 
-def _calculate_auxiliary_quantum_circuit_vars(n: int | float, eps_W: float, beta: float) -> tuple[float, float, float, float, float, float, float, float]:
-    """Return auxiliary parameters used by the quantum-walk circuit formulas.
+def _ceil_log2(x: int | float) -> int:
+    """Return ``ceil(log2(x))`` for a positive argument."""
+    x = float(x)
+    if not np.isfinite(x) or x <= 0.0:
+        raise ValueError(f"Expected a finite positive value, got {x}.")
+    return int(np.ceil(np.log2(x)))
 
-    The hybrid-arithmetic resource formula assumes the active-tail regime ``m >= 3``.
-    For smaller ``beta`` or ``n``, the active-tail expression is not valid as written;
-    we use the conservative floor ``m = 3`` to keep the resource estimate finite.
+
+def _calculate_auxiliary_quantum_circuit_vars(n: int | float, eps_W: float, beta: float) -> tuple[float, float, int, int, float, int, float, int, int, int]:
+    """Return the parameters entering the hybrid walk-resource estimate.
+
+    The per-walk implementation budget ``eps_W`` is used as the complete
+    hybrid-arithmetic budget ``eps_ops``. The fixed-point word size is rounded
+    upward to an integer. The cutoff power is the clipped value implemented by
+    ``SqrtExpArithmetic``.
 
     :param n: Number of spins.
-    :param eps_W: Error budget for a single implementation of ``W`` or ``W-dagger``.
+    :param eps_W: Error budget for one implementation of ``W`` or ``W-dagger``.
     :param beta: Inverse temperature for the current annealing step.
-    :return: Tuple ``(ell_n, ell_eps, ell_2n, S, ell_S, alpha, m, ell_m)`` used in the resource formulas.
+    :return: Tuple ``(S, M, W, ell_W, lambda_scale, s_SK, c, ell_c, d_hyb, ell_n)``.
     """
     n = float(n)
     beta = float(beta)
     eps_W = float(eps_W)
 
-    if not np.isfinite(n) or n <= 0.0:
-        raise ValueError(f"Invalid n={n}")
+    if not np.isfinite(n) or n < 3.0:
+        raise ValueError(f"Invalid n={n}. Expected n >= 3.")
     if not np.isfinite(beta) or beta < 0.0:
-        raise ValueError(f"Invalid beta={beta}")
+        raise ValueError(f"Invalid beta={beta}. Expected beta >= 0.")
     if not np.isfinite(eps_W) or not (0.0 < eps_W < 1.0):
-        raise ValueError(f"Invalid eps_W={eps_W}")
+        raise ValueError(f"Invalid eps_W={eps_W}. Expected 0 < eps_W < 1.")
 
-    ell_n = np.log2(n)
-    ell_eps = np.log2(1.0 / eps_W)
-    ell_2n = np.log2(2.0 * n)
-    S = 1.0 + np.log2(n) + ell_eps
-    ell_S = np.log2(1.0 + 3.5 * S)
-    alpha = 2.0 * n**1.5 / np.sqrt(np.pi)
+    ell_n = _ceil_log2(n)
+    S = 1.0 + np.log2(n) + np.log2(1.0 / eps_W)
+    F = int(np.ceil(3.5 * S))
+    W = F + 1
+    ell_W = _ceil_log2(W)
 
-    m_arg = beta * alpha / (2.0 * np.log(1.0 / eps_W))
-    m_raw = np.log2(m_arg) if m_arg > 0.0 else -np.inf
-    m = max(3.0, float(m_raw))
-    ell_m = np.log2(m)
+    M = n + n * (n - 1.0) / 2.0
+    s_SK = int(np.ceil(np.log(2.0 * M) / np.log(3.0 / 2.0)))
+    lambda_scale = 2.0 * n**1.5 / np.sqrt(np.pi)
 
-    return ell_n, ell_eps, ell_2n, S, ell_S, alpha, m, ell_m
+    eps_tail = eps_W / 2.0
+    if beta <= 0.0 or lambda_scale <= 0.0:
+        c = 0
+    else:
+        cutoff_argument = beta * lambda_scale / (2.0 * np.log(1.0 / eps_tail))
+        c_raw = int(np.floor(np.log2(cutoff_argument))) if cutoff_argument > 0.0 else 0
+        c = max(0, min(W - 1, c_raw))
+
+    ell_c = _ceil_log2(c) if c >= 1 else 0
+    d_hyb = int(np.ceil(0.5 * beta * lambda_scale * 2.0**(-c) + np.log(2.0 / eps_W) + 1.0))
+    return S, M, W, ell_W, lambda_scale, s_SK, c, ell_c, d_hyb, ell_n
+
+
+def _hybrid_cutoff_depth(W: int, c: int, ell_c: int) -> int:
+    """Return the non-Clifford depth of one implemented cutoff-tail block."""
+    if c == 0:
+        return 0
+    if c == 1:
+        return 3 * (W - 2)
+    if c == 2:
+        return 3 + 3 * (W - 3)
+    return 14 * ell_c - 10 + 3 * (W - c - 1)
+
+
+def _hybrid_walk_blocks(n: int | float, eps_W: float, beta: float) -> tuple[float, float, float, float, float, float]:
+    """Return hybrid coin, reflection, and accept-path resources."""
+    S, M, W, ell_W, _, s_SK, c, ell_c, d_hyb, _ = _calculate_auxiliary_quantum_circuit_vars(n, eps_W, beta)
+
+    delta_depth = 18 * s_SK + 18 * W
+    positive_depth = 3
+    cutoff_depth = _hybrid_cutoff_depth(W, c, ell_c)
+    sqrt_exp_depth = d_hyb * (54 * ell_W - 18) + 3
+    boltz_depth = sqrt_exp_depth + 2 * delta_depth + 2 * positive_depth + 2 * cutoff_depth
+    boltz_qubits = 2 * n + 6 * W * M - 2 * M + 2
+
+    reflection_depth = 14 * _ceil_log2(n + W) - 10
+    reflection_qubits = 2 * n + W + 3
+
+    accept_depth = 28 * _ceil_log2(W + 1) - 11
+    accept_qubits = 3 * n + W + 1
+
+    return boltz_depth, boltz_qubits, reflection_depth, reflection_qubits, accept_depth, accept_qubits
+
+
+def _quantum_walk_circuit(n: int | float, eps_W: float, beta: float, proposal_depth: int | float, proposal_qubits: int | float, arithmetic_type: str) -> tuple[float, float]:
+    """Combine proposal, hybrid coin, reflection, and accept-path resources."""
+    arithmetic_type = _validate_arithmetic_type(arithmetic_type)
+    if arithmetic_type != "HYBRID":
+        raise ValueError("The updated full-walk resource model is defined only for the hybrid arithmetic.")
+
+    boltz_depth, boltz_qubits, reflection_depth, reflection_qubits, accept_depth, accept_qubits = _hybrid_walk_blocks(n, eps_W, beta)
+    logical_depth = 2 * proposal_depth + 2 * boltz_depth + reflection_depth + accept_depth
+    logical_qubits = max(proposal_qubits, boltz_qubits, reflection_qubits, accept_qubits)
+    return float(logical_depth), float(logical_qubits)
 
 
 def quantum_walk_local_circuit(n: int | float, eps_W: float, beta: float, arithmetic_type: str = "HYBRID") -> tuple[float, float]:
@@ -173,32 +230,12 @@ def quantum_walk_local_circuit(n: int | float, eps_W: float, beta: float, arithm
     :param n: Number of spins.
     :param eps_W: Error budget for one implementation of ``W`` or ``W-dagger``.
     :param beta: Inverse temperature for the current annealing step.
-    :param arithmetic_type: Arithmetic implementation, either ``"HYBRID"`` or ``"FULLY_PHASE"``.
+    :param arithmetic_type: Arithmetic implementation. The updated model supports ``"HYBRID"``.
     :return: Tuple ``(logical_depth, logical_qubits)`` for one walk application.
     """
-    arithmetic_type = _validate_arithmetic_type(arithmetic_type)
-    ell_n, ell_eps, ell_2n, S, ell_S, alpha, m, ell_m = _calculate_auxiliary_quantum_circuit_vars(n, eps_W, beta)
-
-    proposal_depth, proposal_qubits = 13 * ell_n + 15, 2 * n
-
-    if arithmetic_type == "HYBRID":
-        boltz_depth = 162 * ell_eps * ell_S + 54 * ell_S - 93 * ell_eps + 24 * ell_2n + 49 * S + 28 * ell_m - 12
-        boltz_qubits = 2 * n + 4 * n**2 + 21 * n**2 * S + 2
-        reflection_depth = 14 * np.log2(n + 7 * S + 3) - 13
-        reflection_qubits = 2 * n + 7 * S + 6
-        accept_depth = 28 * np.log2(4 + 7 * S) - 23
-        accept_qubits = 3 * n + 7 * S + 4
-    else:
-        d = 2.0 + max(np.sqrt(0.5 * beta * alpha * ell_eps) + ell_eps, alpha * ell_eps)
-        controlled_qubitized_depth = 58 * n - 58 + 14 * np.log2(6 * n)
-        boltz_depth = 3 * d * controlled_qubitized_depth + 3 * (2 * d + 1)
-        boltz_qubits = 10 * n + 2
-        reflection_depth = 14 * np.log2(n) - 13
-        reflection_qubits = 2 * n + 3
-        accept_depth = 3
-        accept_qubits = 3 * n + 1
-
-    return 2 * proposal_depth + 2 * boltz_depth + reflection_depth + accept_depth, max(proposal_qubits, boltz_qubits, reflection_qubits, accept_qubits)
+    proposal_depth = 2 * _ceil_log2(n)
+    proposal_qubits = 2 * n
+    return _quantum_walk_circuit(n, eps_W, beta, proposal_depth, proposal_qubits, arithmetic_type)
 
 
 def quantum_walk_uniform_circuit(n: int | float, eps_W: float, beta: float, arithmetic_type: str = "HYBRID") -> tuple[float, float]:
@@ -207,68 +244,29 @@ def quantum_walk_uniform_circuit(n: int | float, eps_W: float, beta: float, arit
     :param n: Number of spins.
     :param eps_W: Error budget for one implementation of ``W`` or ``W-dagger``.
     :param beta: Inverse temperature for the current annealing step.
-    :param arithmetic_type: Arithmetic implementation, either ``"HYBRID"`` or ``"FULLY_PHASE"``.
+    :param arithmetic_type: Arithmetic implementation. The updated model supports ``"HYBRID"``.
     :return: Tuple ``(logical_depth, logical_qubits)`` for one walk application.
     """
-    arithmetic_type = _validate_arithmetic_type(arithmetic_type)
-    ell_n, ell_eps, ell_2n, S, ell_S, alpha, m, ell_m = _calculate_auxiliary_quantum_circuit_vars(n, eps_W, beta)
-
-    proposal_depth, proposal_qubits = 0, 2 * n
-
-    if arithmetic_type == "HYBRID":
-        boltz_depth = 162 * ell_eps * ell_S + 54 * ell_S - 93 * ell_eps + 24 * ell_2n + 49 * S + 28 * ell_m - 12
-        boltz_qubits = 2 * n + 4 * n**2 + 21 * n**2 * S + 2
-        reflection_depth = 14 * np.log2(n + 7 * S + 3) - 13
-        reflection_qubits = 2 * n + 7 * S + 6
-        accept_depth = 28 * np.log2(4 + 7 * S) - 23
-        accept_qubits = 3 * n + 7 * S + 4
-    else:
-        d = 2.0 + max(np.sqrt(0.5 * beta * alpha * ell_eps) + ell_eps, alpha * ell_eps)
-        controlled_qubitized_depth = 58 * n - 58 + 14 * np.log2(6 * n)
-        boltz_depth = 3 * d * controlled_qubitized_depth + 3 * (2 * d + 1)
-        boltz_qubits = 10 * n + 2
-        reflection_depth = 14 * np.log2(n) - 13
-        reflection_qubits = 2 * n + 3
-        accept_depth = 3
-        accept_qubits = 3 * n + 1
-
-    return 2 * proposal_depth + 2 * boltz_depth + reflection_depth + accept_depth, max(proposal_qubits, boltz_qubits, reflection_qubits, accept_qubits)
+    proposal_depth = 0
+    proposal_qubits = 2 * n
+    return _quantum_walk_circuit(n, eps_W, beta, proposal_depth, proposal_qubits, arithmetic_type)
 
 
 def quantum_walk_qemc_circuit(n: int | float, eps_W: float, beta: float, num_trotter_steps: int = 50, arithmetic_type: str = "HYBRID") -> tuple[float, float]:
-    """Return resources for one QEMC-proposal Szegedy walk application.
+    """Return resources for one Hamiltonian-simulation-proposal Szegedy walk.
 
     :param n: Number of spins.
     :param eps_W: Error budget for one implementation of ``W`` or ``W-dagger``.
     :param beta: Inverse temperature for the current annealing step.
-    :param num_trotter_steps: Number of Trotter steps used by the QEMC proposal.
-    :param arithmetic_type: Arithmetic implementation, either ``"HYBRID"`` or ``"FULLY_PHASE"``.
+    :param num_trotter_steps: Number of Trotter steps used by the proposal.
+    :param arithmetic_type: Arithmetic implementation. The updated model supports ``"HYBRID"``.
     :return: Tuple ``(logical_depth, logical_qubits)`` for one walk application.
     """
-    arithmetic_type = _validate_arithmetic_type(arithmetic_type)
-    ell_n, ell_eps, ell_2n, S, ell_S, alpha, m, ell_m = _calculate_auxiliary_quantum_circuit_vars(n, eps_W, beta)
-
-    proposal_depth, proposal_qubits = 1 + num_trotter_steps * (n + 2), 2 * n
-
-    if arithmetic_type == "HYBRID":
-        boltz_depth = 162 * ell_eps * ell_S + 54 * ell_S - 93 * ell_eps + 24 * ell_2n + 49 * S + 28 * ell_m - 12
-        boltz_qubits = 2 * n + 4 * n**2 + 21 * n**2 * S + 2
-        reflection_depth = 14 * np.log2(n + 7 * S + 3) - 13
-        reflection_qubits = 2 * n + 7 * S + 6
-        accept_depth = 28 * np.log2(4 + 7 * S) - 23
-        accept_qubits = 3 * n + 7 * S + 4
-    else:
-        d = 2.0 + max(np.sqrt(0.5 * beta * alpha * ell_eps) + ell_eps, alpha * ell_eps)
-        controlled_qubitized_depth = 58 * n - 58 + 14 * np.log2(6 * n)
-        boltz_depth = 3 * d * controlled_qubitized_depth + 3 * (2 * d + 1)
-        boltz_qubits = 10 * n + 2
-        reflection_depth = 14 * np.log2(n) - 13
-        reflection_qubits = 2 * n + 3
-        accept_depth = 3
-        accept_qubits = 3 * n + 1
-
-    return 2 * proposal_depth + 2 * boltz_depth + reflection_depth + accept_depth, max(proposal_qubits, boltz_qubits, reflection_qubits, accept_qubits)
-
+    if num_trotter_steps < 1:
+        raise ValueError("Use num_trotter_steps >= 1.")
+    proposal_depth = num_trotter_steps * (n + 3)
+    proposal_qubits = 2 * n
+    return _quantum_walk_circuit(n, eps_W, beta, proposal_depth, proposal_qubits, arithmetic_type)
 
 
 def get_time_direct_enumeration(n: int):
@@ -324,7 +322,7 @@ def get_annealing_time_classical_walk_qemc(n: int | float, vec_queries: list[flo
     """
     total_time = 0
     for queries in vec_queries:
-        logical_time_per_query = 1 + num_trotter_steps * (n + 2)
+        logical_time_per_query = num_trotter_steps * (n + 3)
         logical_space = n
         physical_time = queries * rotated_surface_code_time(logical_time_per_query, logical_space, physical_operation_time, physical_measurement_time, physical_error_rate, eps_SF)
         total_time += physical_time
@@ -431,7 +429,7 @@ def _get_annealing_time_quantum_walk(n: int | float, eps_TV: float, betas: list[
     :param physical_error_rate: Physical Clifford error rate.
     :param circuit_fn: Function returning one-walk logical resources for a selected proposal rule.
     :param zeno_overlap_probability: Lower bound on the squared overlap used in the Zeno-rewind cost model.
-    :param arithmetic_type: Arithmetic implementation, either ``"HYBRID"`` or ``"FULLY_PHASE"``.
+    :param arithmetic_type: Arithmetic implementation, ``"HYBRID"``.
     :return: Physical runtime in the same time unit as the physical operation and measurement times.
     """
     budget = get_quantum_annealing_error_budget(eps_TV, spectral_gaps, zeno_overlap_probability)
@@ -461,7 +459,7 @@ def get_annealing_time_quantum_walk_local(n: int, eps_TV: float, betas: list[flo
     :param physical_error_rate: Physical Clifford error rate.
     :param zeno_overlap_probability: Lower bound on the squared overlap used in the Zeno-rewind cost model.
     :param num_trotter_steps: Unused for local proposals; kept for signature compatibility.
-    :param arithmetic_type: Arithmetic implementation, either ``"HYBRID"`` or ``"FULLY_PHASE"``.
+    :param arithmetic_type: Arithmetic implementation, ``"HYBRID"``.
     :return: Physical runtime in the same time unit as the physical operation and measurement times.
     """
     return _get_annealing_time_quantum_walk(n, eps_TV, betas, spectral_gaps, physical_operation_time, physical_measurement_time, physical_error_rate, quantum_walk_local_circuit, zeno_overlap_probability, arithmetic_type)
@@ -479,7 +477,7 @@ def get_annealing_time_quantum_walk_uniform(n: int, eps_TV: float, betas: list[f
     :param physical_error_rate: Physical Clifford error rate.
     :param zeno_overlap_probability: Lower bound on the squared overlap used in the Zeno-rewind cost model.
     :param num_trotter_steps: Unused for uniform proposals; kept for signature compatibility.
-    :param arithmetic_type: Arithmetic implementation, either ``"HYBRID"`` or ``"FULLY_PHASE"``.
+    :param arithmetic_type: Arithmetic implementation, ``"HYBRID"``.
     :return: Physical runtime in the same time unit as the physical operation and measurement times.
     """
     return _get_annealing_time_quantum_walk(n, eps_TV, betas, spectral_gaps, physical_operation_time, physical_measurement_time, physical_error_rate, quantum_walk_uniform_circuit, zeno_overlap_probability, arithmetic_type)
@@ -497,7 +495,7 @@ def get_annealing_time_quantum_walk_qemc(n: int, eps_TV: float, betas: list[floa
     :param physical_error_rate: Physical Clifford error rate.
     :param zeno_overlap_probability: Lower bound on the squared overlap used in the Zeno-rewind cost model.
     :param num_trotter_steps: Number of Trotter steps used by the QEMC proposal.
-    :param arithmetic_type: Arithmetic implementation, either ``"HYBRID"`` or ``"FULLY_PHASE"``.
+    :param arithmetic_type: Arithmetic implementation, ``"HYBRID"``.
     :return: Physical runtime in the same time unit as the physical operation and measurement times.
     """
     def circuit_fn(n_local: int | float, eps_W: float, beta: float, arithmetic_type_local: str = "HYBRID") -> tuple[float, float]:
@@ -506,7 +504,7 @@ def get_annealing_time_quantum_walk_qemc(n: int, eps_TV: float, betas: list[floa
         :param n_local: Number of spins.
         :param eps_W: Error budget for one implementation of ``W`` or ``W-dagger``.
         :param beta: Inverse temperature for the current annealing step.
-        :param arithmetic_type_local: Arithmetic implementation, either ``"HYBRID"`` or ``"FULLY_PHASE"``.
+        :param arithmetic_type_local: Arithmetic implementation, ``"HYBRID"``.
         :return: Tuple ``(logical_depth, logical_qubits)`` for one QEMC walk application.
         """
         return quantum_walk_qemc_circuit(n_local, eps_W, beta, num_trotter_steps, arithmetic_type_local)
@@ -560,14 +558,24 @@ def tight_schedule_annealing(n: int | float, beta: float) -> list[float]:
     current = 0.0
     schedule = []
 
-    def delta_beta(n: int | float, beta: float | np.ndarray) -> float | np.ndarray:
-        beta = np.asarray(beta, dtype=float)
-        step = np.where(
-            beta < 1.0,
-            np.exp(-0.111 * beta + 0.615 * beta**2),
-            0.533 * (beta + 0.286)**1.75,
-        ) / np.sqrt(float(n))
-        return step
+
+    def delta_beta(
+        n: int | float,
+        beta: float | np.ndarray,
+    ) -> float | np.ndarray:
+        beta_arr = np.asarray(beta, dtype=float)
+        step = np.empty_like(beta_arr)
+        low_beta = beta_arr < 1.0
+        step[low_beta] = np.exp(
+            -0.111 * beta_arr[low_beta]
+            + 0.615 * beta_arr[low_beta] ** 2
+        )
+        step[~low_beta] = (
+            0.533 * (beta_arr[~low_beta] + 0.286) ** 1.75
+        )
+        step /= np.sqrt(float(n))
+        return float(step) if beta_arr.ndim == 0 else step
+    
 
     while current < beta:
         step = float(delta_beta(n, current))

@@ -2,6 +2,51 @@ import math
 from qiskit.circuit import Gate, QuantumCircuit
 
 
+class Ccx(Gate):
+    """Exact CCX/Toffoli gate with 7 T gates and T-depth 3."""
+
+    def __init__(self, label=None) -> None:
+        super().__init__(name="ccx", num_qubits=3, params=[], label=label)
+        self.definition = self._build_definition()
+
+    @property
+    def layout(self) -> dict[str, int]:
+        return {"control_0": 0, "control_1": 1, "target": 2}
+
+    def _build_definition(self) -> QuantumCircuit:
+        qc = QuantumCircuit(3, name=self.name)
+
+        # Target qubit is 2, Controls are 0 and 1
+        qc.h(2)
+        
+        # --- T-Layer 1 ---
+        qc.t(0)
+        qc.t(1)
+        qc.t(2)
+        
+        qc.cx(1, 0)
+        qc.cx(2, 1)
+        
+        # --- T-Layer 2 ---
+        qc.tdg(0)
+        qc.t(1)
+        qc.tdg(2)
+        
+        qc.cx(1, 0)
+        qc.cx(2, 1)
+        
+        # --- T-Layer 3 ---
+        qc.tdg(1)
+        
+        qc.cx(0, 2)
+        qc.cx(2, 1)
+        qc.cx(0, 1)
+        
+        qc.h(2)
+
+        return qc
+
+
 class Cry(Gate):
     def __init__(self, theta: float, label=None) -> None:
         self.theta = theta
@@ -40,9 +85,9 @@ class Ccry(Gate):
     def _build_definition(self) -> QuantumCircuit:
         qc = QuantumCircuit(3, name=self.name)
         self._ry_rz_clifford(qc, self.theta / 2.0, 2)
-        qc.ccx(0, 1, 2)
+        qc.append(Ccx(), [0, 1, 2])
         self._ry_rz_clifford(qc, -self.theta / 2.0, 2)
-        qc.ccx(0, 1, 2)
+        qc.append(Ccx(), [0, 1, 2])
         return qc
 
 
@@ -88,7 +133,7 @@ class ControlledGivensRotation(Gate):
 
     def _build_definition(self) -> QuantumCircuit:
         qc = QuantumCircuit(3, name=self.name)
-        qc.ccx(0, 1, 2)
+        qc.append(Ccx(), [0, 1, 2])
         qc.append(Ccry(-2.0 * self.theta), [0, 2, 1])
-        qc.ccx(0, 1, 2)
+        qc.append(Ccx(), [0, 1, 2])
         return qc
