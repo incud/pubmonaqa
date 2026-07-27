@@ -1,12 +1,10 @@
-# Achieving practical runtime advantage with quantum Markov chains
+# Practical advantage beyond the quadratic speedup limit with fully quantum walks
 
-This repository contains the code and notebooks used to reproduce the numerical resource estimates for classical and quantum Markov-chain methods in the paper:
+This repository contains the data, code, and notebooks used to reproduce the results presented in the paper:
 
 <center>
-<i>Achieving practical runtime advantage with quantum Markov chains</i>, ...
+<i>Practical advantage beyond the quadratic speedup limit with fully-quantum walks</i>, Incudini and Mazzola (2026), arXiv:
 </center><br/>
-
-The project compares classical Metropolis proposals, quantum-enhanced proposal moves, and QSP/QSVT-based quantum-walk implementations for annealing toward low-temperature Gibbs distributions.
 
 ## Install
 
@@ -23,7 +21,7 @@ python3.14 -m venv .monaqa_venv
 source .monaqa_venv/bin/activate
 ```
 
-If `pip` is not available inside the environment, install and upgrade it:
+If `pip` is not available in the environment, install and upgrade it:
 
 ```bash
 python -m ensurepip --upgrade
@@ -36,11 +34,11 @@ Then install the project requirements:
 python -m pip install -r requirements.txt
 ```
 
-Reproducing the timing benchmarks requires additional software and hardware, such as the relevant C++/CUDA compilers and access to the CPU/GPU/FPGA systems used for the measurements. See the corresponding notebook and benchmark folders for further instructions.
+Reproducing the timing benchmarks requires additional software and hardware, including the relevant C++ and CUDA compilers and access to the CPU, GPU, and FPGA systems used for the measurements. See the corresponding notebook and benchmark folders for further instructions.
 
 ## Reproduce
 
-The main reproducibility entry point is the notebook:
+The main entry point for reproducing the results is:
 
 ```bash
 python3.14 -m jupyter lab notebooks
@@ -50,9 +48,9 @@ Then open and run `notebooks/0_readme.ipynb`.
 
 ## Structure
 
-* `notebooks/`: notebooks used for data generation, analysis, and plotting.
-* `monaqa2/`: Python package containing MCMC, resource-estimation, plotting, and data utilities.
-* `requirements.txt`: Python dependencies needed to run the notebooks.
-* `data/`: generated and cached numerical data used by the notebooks, including spectral gaps, query counts, variance estimates, and fitted runtime data.
-* `estimation_timing/`: CPU/GPU/FPGA timing benchmarks used to estimate the wall-clock cost of classical proposal moves.
-* `estimation_variance/`: exact and approximate energy-variance estimation code used to build annealing schedules.
+* `notebooks/`: notebooks illustrating the implementations and reproducing the plots
+* `monaqa2/`: main Python package containing the code for numerical MCMC simulations, Szegedy quantum walks, and quantum-architecture cost models
+* `requirements.txt`: Python dependencies required to run the notebooks
+* `data/`: generated and cached numerical data used by the notebooks, including spectral gaps, query counts, variance estimates, and fitted runtime data
+* `estimation_timing/`: CPU, GPU, and FPGA timing benchmarks used to estimate the wall-clock cost of classical proposal moves
+* `estimation_variance/`: exact and approximate energy-variance estimation code used to construct the annealing schedules
