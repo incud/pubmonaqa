@@ -3,7 +3,7 @@
 This repository contains the data, code, and notebooks used to reproduce the results presented in the paper:
 
 <center>
-<i>Practical advantage beyond the quadratic speedup limit with fully-quantum walks</i>, Incudini and Mazzola (2026), arXiv:
+<i><a href="https://arxiv.org/abs/2607.22818"> Practical advantage beyond the quadratic speedup limit with fully-quantum walks</a></i>, Incudini and Mazzola (2026), arXiv: 2607.22818
 </center><br/>
 
 ## Install
