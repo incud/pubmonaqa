@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=enumeration
-#SBATCH --account=IscrC_MONAQA
+#SBATCH --account=
 #SBATCH --partition=dcgp_usr_prod
 #SBATCH --qos=normal
 #SBATCH --nodes=1
