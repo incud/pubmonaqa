@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=jgpu
-#SBATCH --account=IscrC_MONAQA
+#SBATCH --account=
 #SBATCH --partition=boost_usr_prod
 #SBATCH --qos=boost_qos_dbg
 #SBATCH --nodes=1
