@@ -13,36 +13,55 @@ class Ccx(Gate):
     def layout(self) -> dict[str, int]:
         return {"control_0": 0, "control_1": 1, "target": 2}
 
-    def _build_definition(self) -> QuantumCircuit:
-        qc = QuantumCircuit(3, name=self.name)
+    @staticmethod
+    def _build_definition() -> QuantumCircuit:
+        qc = QuantumCircuit(3, name="ccx_tdepth3")
 
-        # Target qubit is 2, Controls are 0 and 1
-        qc.h(2)
-        
-        # --- T-Layer 1 ---
-        qc.t(0)
-        qc.t(1)
-        qc.t(2)
-        
-        qc.cx(1, 0)
-        qc.cx(2, 1)
-        
-        # --- T-Layer 2 ---
-        qc.tdg(0)
-        qc.t(1)
-        qc.tdg(2)
-        
-        qc.cx(1, 0)
-        qc.cx(2, 1)
-        
-        # --- T-Layer 3 ---
-        qc.tdg(1)
-        
-        qc.cx(0, 2)
-        qc.cx(2, 1)
-        qc.cx(0, 1)
-        
-        qc.h(2)
+        control_0 = 0
+        control_1 = 1
+        target = 2
+
+        # Convert CCX to CCZ.
+        qc.h(target)
+
+        # T-layer 1:
+        # phases for x, y, z
+        qc.t(control_0)
+        qc.t(control_1)
+        qc.t(target)
+
+        # Compute:
+        # q0 = x xor y
+        # q1 = x xor z
+        # q2 = x xor y xor z
+        qc.cx(control_1, control_0)
+        qc.cx(control_0, target)
+        qc.cx(target, control_1)
+
+        # T-layer 2:
+        # phases for -(x xor y), -(x xor z),
+        # and +(x xor y xor z)
+        qc.tdg(control_0)
+        qc.tdg(control_1)
+        qc.t(target)
+
+        # Transform the wires to:
+        # q0 = x
+        # q1 = y
+        # q2 = y xor z
+        qc.cx(target, control_1)
+        qc.cx(control_1, control_0)
+        qc.cx(control_0, target)
+
+        # T-layer 3:
+        # phase for -(y xor z)
+        qc.tdg(target)
+
+        # Restore q2 = z.
+        qc.cx(control_1, target)
+
+        # Convert CCZ back to CCX.
+        qc.h(target)
 
         return qc
 
