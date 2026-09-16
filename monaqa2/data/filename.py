@@ -27,3 +27,5 @@ SPECTRAL_GAP_FILE = MONAQA2_PARENT / "data/spectral_gaps_merged.pkl"
 CLASSICAL_QUERY_FILE = MONAQA2_PARENT / "data/classical_queries_merged.pkl"
 
 CACHE_PHASE_GAP_FACTOR_FILE = MONAQA2_PARENT / "data/cache_phase_gap_factor.npz"
+
+CONVERGENCE_RANDOMIZED_HYPERPARAMS_FILE = MONAQA2_PARENT / "data/convergence_randomized_hyperparams.json"
