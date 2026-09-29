@@ -14,7 +14,6 @@ while read -r N PROCESSES MEMORY; do
             launch_randomized_grid_search.slurm "$N" "$MIN_INST" "$MAX_INST"
     done
 done <<'JOBS'
-3 1 2
 4 1 2
 5 1 2
 6 1 4

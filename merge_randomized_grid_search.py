@@ -13,7 +13,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from monaqa2.data.filename import GRIDSEARCH_RANDOMIZED_HYPERPARAMS_FILE
-from monaqa2.filename import MONAQA2_PARENT
+from monaqa2.data.filename import MONAQA2_PARENT
 
 NS = range(3, 11)
 IDXS = range(100)
