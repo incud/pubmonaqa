@@ -23,4 +23,4 @@ N=$1
 MIN_INST=$2
 MAX_INST=$3
 
-exec python3 -u launch_randomized_average_behaviour.py "$N" "$MIN_INST" "$MAX_INST"
+exec python3 -u launch_randomized_average_behaviour_2.py "$N" "$MIN_INST" "$MAX_INST"
