@@ -1,0 +1,8 @@
+n 24
+input_file ising_inputs/model_n24_idx8.txt
+states 16777216
+sum 3.18947618316300918195e-10
+seconds_total 5.37135136000000024126
+seconds_per_operation 3.20157489776611342505e-07
+ns_per_operation 320.157489776611328125
+completed 1

@@ -1,0 +1,8 @@
+n 21
+input_file ising_inputs/model_n21_idx9.txt
+states 2097152
+sum 9.07418307161123038895e-11
+seconds_total 0.586467369000000071644
+seconds_per_operation 2.79649433612823520491e-07
+ns_per_operation 279.649433612823543172
+completed 1
