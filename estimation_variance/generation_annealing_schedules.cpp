@@ -136,14 +136,12 @@ vector<tuple<double, long double, double>> tight_schedule_safe(double target = 1
     vector<tuple<double, long double, double>> schedule;
 
     for (double beta = 0.0; beta < target;) {
-        // Start from the average fit with no safety correction.
         double safety = 1.0;
         double next = min(target, beta + delta(beta, safety));
         if (beta < 1.0 && next > 1.0) next = 1.0;
 
         long double overlap = overlap_squared(beta, next);
 
-        // Increase the variance multiplier only if s=1 fails.
         if (overlap < minimum_overlap) {
             safety = binary_search(beta, target);
             next = min(target, beta + delta(beta, safety));
@@ -158,11 +156,24 @@ vector<tuple<double, long double, double>> tight_schedule_safe(double target = 1
     return schedule;
 }
 
+vector<tuple<double, long double, double>> fixed_schedule(double safety, double target = 16.0) {
+    vector<tuple<double, long double, double>> schedule;
+
+    for (double beta = 0.0; beta < target;) {
+        double next = min(target, beta + delta(beta, safety));
+        if (beta < 1.0 && next > 1.0) next = 1.0;
+        schedule.emplace_back(beta, overlap_squared(beta, next), safety);
+        beta = next;
+    }
+
+    return schedule;
+}
+
 int main(int argc, char** argv) {
     cout << unitbuf;
 
-    if (argc < 3) {
-        cerr << "usage: ./validate_schedule <n> <filename.txt>\n";
+    if (argc != 3 && argc != 5) {
+        cerr << "usage: ./generation_annealing_schedules <n> <filename.txt> [--fixed-safety <s>]\n";
         return 1;
     }
 
@@ -174,7 +185,20 @@ int main(int argc, char** argv) {
     }
 
     fill_vectors(argv[2]);
-    auto schedule = tight_schedule_safe();
+
+    bool fixed = argc == 5;
+    if (fixed && string(argv[3]) != "--fixed-safety") {
+        cerr << "expected --fixed-safety <s>\n";
+        return 1;
+    }
+
+    double safety = fixed ? stod(argv[4]) : 1.0;
+    if (safety <= 0.0) {
+        cerr << "safety factor must be positive\n";
+        return 1;
+    }
+
+    auto schedule = fixed ? fixed_schedule(safety) : tight_schedule_safe();
 
     cout << setprecision(17);
     cout << "# beta overlap_squared safety_margin\n";

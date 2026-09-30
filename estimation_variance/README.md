@@ -17,12 +17,28 @@ The code was run on the CINECA cluster. The corresponding SLURM file is included
 
 The file `collect_var_energies.py` collects all variance output files into `var_energies.pkl`. No information is discarded and no statistics are computed at this stage.
 
-The code `generation_annealing_schedules.cpp` reads a single Ising instance and constructs an instance-specific annealing schedule. The schedule starts from the average fitted variance density with safety factor `s=1`. Whenever the exact squared overlap between two consecutive Gibbs states is smaller than $1/e$, the code increases `s` until the overlap condition is satisfied. Partition functions are evaluated by streaming over the `2^n` configurations without storing all energies in memory.
+The code `generation_annealing_schedules.cpp` reads a single Ising instance and constructs an instance-specific annealing schedule. The schedule starts from the average fitted variance density with safety factor `s=1`. Whenever the exact squared overlap between two consecutive Gibbs states is smaller than `exp(-1)`, the code increases `s` until the overlap condition is satisfied. Partition functions are evaluated by streaming over the `2^n` configurations without storing all energies in memory.
 
 The script `generation_annealing_schedules.sh` is intended for local execution. It compiles `generation_annealing_schedules.cpp`, creates the folder `schedule_outputs` if needed, removes empty output files, and processes all instances with `n=5,...,30` and `idx=0,...,99`. Existing output files are skipped.
 
 The file `generation_annealing_schedules.slurm` runs the same workflow on the CINECA cluster.
 
-The schedule results are saved in `schedule_outputs`, with one file per instance. Each file contains the starting beta value of each schedule step, the corresponding squared overlap, and the safety factor required for that step.
+The adaptive schedule results are saved in `schedule_outputs`, with one file per instance. Each file contains the starting beta value of each schedule step, the corresponding squared overlap, and the safety factor required for that step.
 
-The file `collect_schedule.py` collects all schedule outputs into `schedule_summary.pkl`. For each instance, it stores `n`, `idx`, the schedule length `L`, the mean safety factor, its standard deviation, the maximum safety factor, and the number of schedule steps with safety factor greater than 1.
+The executable also supports a fixed-safety mode through the option `--fixed-safety <s>`. In this mode, the same safety factor is used at every annealing step and no adaptive correction is applied.
+
+The script `generation_annealing_schedules_safe.sh` is intended for local execution of the fixed-safety analysis. For example,
+
+    bash generation_annealing_schedules_safe.sh 2
+
+generates schedules with fixed safety factor `s=2`.
+
+The file `generation_annealing_schedules_safe.slurm` runs the same fixed-safety analysis on the CINECA cluster. For example,
+
+    sbatch generation_annealing_schedules_safe.slurm 2
+
+runs the fixed-safety calculation with `s=2`.
+
+The fixed-safety results are saved in `schedule_outputs_fixed_safety`. At the beginning of the calculation, the selected safety factor is written to `schedule_outputs_fixed_safety/chosen_fixed_safety.txt`. The remaining output files contain one fixed schedule per instance.
+
+The file `collect_schedule.py` collects the adaptive schedule outputs into `schedule_summary.pkl`. For each instance, it stores `n`, `idx`, the schedule length `L`, the mean safety factor, its standard deviation, the maximum safety factor, and the number of schedule steps with safety factor greater than 1.
