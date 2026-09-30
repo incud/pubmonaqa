@@ -41,6 +41,14 @@ double delta(double beta, double s) {
     return 2.0 / sqrt(s * n * v(beta));
 }
 
+double v_conservative(double beta) {
+    return (beta < 1.0 ? 4.0 : 16.0) * v(beta);
+}
+
+double delta_conservative(double beta) {
+    return 2.0 / sqrt(n * v_conservative(beta));
+}
+
 int flipped_spin(uint64_t step) {
     // Spin flipped at this step of the Gray-code enumeration.
     int i = 0;
@@ -132,7 +140,7 @@ double binary_search(double beta, double target) {
     return hi / 10.0;
 }
 
-vector<tuple<double, long double, double>> tight_schedule_safe(double target = 16.0) {
+vector<tuple<double, long double, double>> tight_schedule_adaptive(double target = 16.0) {
     vector<tuple<double, long double, double>> schedule;
 
     for (double beta = 0.0; beta < target;) {
@@ -169,11 +177,24 @@ vector<tuple<double, long double, double>> fixed_schedule(double safety, double 
     return schedule;
 }
 
+vector<tuple<double, long double, double>> tight_schedule_conservative(double target = 16.0) {
+    vector<tuple<double, long double, double>> schedule;
+
+    for (double beta = 0.0; beta < target;) {
+        double next = min(target, beta + delta_conservative(beta));
+        if (beta < 1.0 && next > 1.0) next = 1.0;
+        schedule.emplace_back(beta, overlap_squared(beta, next), 1.0);
+        beta = next;
+    }
+
+    return schedule;
+}
+
 int main(int argc, char** argv) {
     cout << unitbuf;
 
-    if (argc != 3 && argc != 5) {
-        cerr << "usage: ./generation_annealing_schedules <n> <filename.txt> [--fixed-safety <s>]\n";
+    if (argc < 3 || argc > 5) {
+        cerr << "usage: ./generation_annealing_schedules <n> <filename.txt> [--fixed-safety <s> | --conservative-fit]\n";
         return 1;
     }
 
@@ -186,9 +207,11 @@ int main(int argc, char** argv) {
 
     fill_vectors(argv[2]);
 
-    bool fixed = argc == 5;
-    if (fixed && string(argv[3]) != "--fixed-safety") {
-        cerr << "expected --fixed-safety <s>\n";
+    bool fixed = argc == 5 && string(argv[3]) == "--fixed-safety";
+    bool conservative = argc == 4 && string(argv[3]) == "--conservative-fit";
+
+    if (argc > 3 && !fixed && !conservative) {
+        cerr << "expected --fixed-safety <s> or --conservative-fit\n";
         return 1;
     }
 
@@ -198,7 +221,10 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    auto schedule = fixed ? fixed_schedule(safety) : tight_schedule_safe();
+    vector<tuple<double, long double, double>> schedule;
+    if (fixed) schedule = fixed_schedule(safety);
+    else if (conservative) schedule = tight_schedule_conservative();
+    else schedule = tight_schedule_adaptive();
 
     cout << setprecision(17);
     cout << "# beta overlap_squared safety_margin\n";
