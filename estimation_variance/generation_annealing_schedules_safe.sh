@@ -1,4 +1,14 @@
+if [ $# -lt 1 ]; then
+    echo "usage: bash generation_annealing_schedules_safe.sh <fixed_safety>"
+    exit 1
+fi
+
 fixed_safety=$1
+
+if ! [[ "$fixed_safety" =~ ^([0-9]+([.][0-9]+)?|[.][0-9]+)$ ]]; then
+    echo "error: fixed_safety must be a positive number"
+    exit 1
+fi
 
 g++ -std=c++20 -O3 -march=native -mtune=native -ffast-math \
     -fno-math-errno -funroll-loops -DNDEBUG \

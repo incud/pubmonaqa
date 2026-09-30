@@ -18,7 +18,20 @@ module purge
 module load profile/base
 module load gcc/12.2.0
 
+# check that the safety value has been specified
+if [ $# -lt 1 ]; then
+    echo "usage: sbatch generation_annealing_schedules_safe.slurm <fixed_safety>"
+    exit 1
+fi
+
 fixed_safety=$1
+
+if ! [[ "$fixed_safety" =~ ^([0-9]+([.][0-9]+)?|[.][0-9]+)$ ]]; then
+    echo "error: fixed_safety must be a positive number"
+    exit 1
+fi
+
+awk "BEGIN {exit !($fixed_safety > 0)}" || { echo "error: fixed_safety must be > 0"; exit 1; }
 
 # we need many parallel executable otherwise we might race all the compilations
 g++ -std=c++20 -O3 -march=native -mtune=native -ffast-math -fno-math-errno -funroll-loops -DNDEBUG generation_annealing_schedules.cpp -o generation_annealing_schedules_${SLURM_ARRAY_TASK_ID}.x
