@@ -95,6 +95,8 @@ vector<double> exact_variances_streaming(uint64_t N, double Emin) {
             long double de = (long double)e - (long double)Emin;
 
             for(int b = 0; b < B; b++) {
+                // this line make sure we are calculating Var_{pi_beta}[]
+                // and not simply Var[]
                 long double w = expl(-(long double)betas[b] * de);
                 local_Z[b] += w;
                 local_M1[b] += w * (long double)e;
