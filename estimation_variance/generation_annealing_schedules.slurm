@@ -8,8 +8,9 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --time=24:00:00
 #SBATCH --mem=4G
-#SBATCH --output=log_annealing_schedules_%j.out
-#SBATCH --error=log_annealing_schedules_%j.err
+#SBATCH --array=0-99
+#SBATCH --output=log_annealing_schedules_%A_%a.out
+#SBATCH --error=log_annealing_schedules_%A_%a.err
 
 set -euo pipefail
 
@@ -17,8 +18,27 @@ module purge
 module load profile/base
 module load gcc/12.2.0
 
-export OMP_NUM_THREADS=1
-export MKL_NUM_THREADS=1
-export OPENBLAS_NUM_THREADS=1
+# we need many parallel executable otherwise we might race all the compilations
+g++ -std=c++20 -O3 -march=native -mtune=native -ffast-math -fno-math-errno -funroll-loops -DNDEBUG generation_annealing_schedules.cpp -o generation_annealing_schedules_${SLURM_ARRAY_TASK_ID}.x
 
-srun --ntasks=1 --cpus-per-task=1 bash generation_annealing_schedules.sh
+mkdir -p schedule_outputs
+find schedule_outputs -type f -name "*.txt" -empty -delete
+
+idx=$SLURM_ARRAY_TASK_ID
+
+for n in $(seq 5 30); do
+    in="ising_inputs/model_n${n}_idx${idx}.txt"
+    out="schedule_outputs/schedule_n${n}_idx${idx}.txt"
+    tmp="${out}.tmp"
+
+    if [ -f "$out" ]; then
+        echo "file <$in>: skipped because present"
+        continue
+    fi
+
+    echo "file <$in>: processing"
+    ./generation_annealing_schedules_${SLURM_ARRAY_TASK_ID}.x "$n" "$in" > "$tmp"
+    mv "$tmp" "$out"
+done
+
+rm generation_annealing_schedules_${SLURM_ARRAY_TASK_ID}.x
