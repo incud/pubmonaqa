@@ -1,13 +1,16 @@
 #!/bin/bash
-#SBATCH --job-name=annealing_conservative
+#SBATCH --account=
+#SBATCH --job-name=cons_annealing
 #SBATCH --partition=dcgp_usr_prod
+#SBATCH --qos=normal
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --time=24:00:00
+#SBATCH --mem=4G
 #SBATCH --array=0-99
-#SBATCH --output=annealing_conservative_%A_%a.out
-#SBATCH --error=annealing_conservative_%A_%a.err
+#SBATCH --output=cons_annealing_%A_%a.out
+#SBATCH --error=cons_annealing_%A_%a.err
 
 set -euo pipefail
 
