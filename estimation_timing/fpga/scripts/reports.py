@@ -54,18 +54,23 @@ def parse(root):
     return rows
 
 
-def clean(root):
+def clean(root, *directories):
     # Vitis creates journals internally; retain reports, not logs.
-    for path in (root / "build").rglob("*"):
-        if path.is_file() and path.suffix.lower() in (".log", ".jou", ".str"):
-            path.unlink()
-    for path in sorted((root / "build").rglob("logs"), reverse=True):
-        if path.is_dir():
-            shutil.rmtree(path)
-    for pattern in ("vitis*.log", "vitis*.jou", "vitis*.str"):
-        for path in root.glob(pattern):
-            path.unlink()
+    for directory in map(Path, directories or (root / "build",)):
+        for path in directory.rglob("*"):
+            if path.is_file() and path.suffix.lower() in (".log", ".jou", ".str"):
+                path.unlink()
+        for path in sorted(directory.rglob("logs"), reverse=True):
+            if path.is_dir():
+                shutil.rmtree(path)
+    if not directories:
+        for pattern in ("vitis*.log", "vitis*.jou", "vitis*.str"):
+            for path in root.glob(pattern):
+                path.unlink()
 
 
 if __name__ == "__main__":
-    {"collect": collect, "parse": parse, "clean": clean}[sys.argv[1]](ROOT)
+    if sys.argv[1] == "clean":
+        clean(ROOT, *sys.argv[2:])
+    else:
+        {"collect": collect, "parse": parse}[sys.argv[1]](ROOT)
