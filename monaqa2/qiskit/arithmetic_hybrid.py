@@ -4,7 +4,7 @@ from qiskit.circuit import Gate, QuantumCircuit
 import matplotlib.pyplot as plt
 from monaqa2.qiskit.arithmetic_fully_phase import ReflectionZero, ControlledReflectionZero
 from monaqa2.qiskit.gqsp_gate_generic import GQSP
-from monaqa2.qiskit.primitives import Cry, Ccry, GivensRotation
+from monaqa2.qiskit.primitives import Ccx, Cry, Ccry, GivensRotation
 from monaqa2.qiskit.utils_qiskit import get_unitary
 from monaqa2.qiskit.utils_numpy import ket, bra, kron
 from qiskit.synthesis.multi_controlled import synth_mcx_2_clean_kg24
@@ -26,9 +26,9 @@ class ThreeTwoCompressor(Gate):
         qc.cx(a, s)
         qc.cx(b, s)
         qc.cx(c, s)
-        qc.ccx(a, b, k)
-        qc.ccx(a, c, k)
-        qc.ccx(b, c, k)
+        qc.append(Ccx(), [a, b, k])
+        qc.append(Ccx(), [a, c, k])
+        qc.append(Ccx(), [b, c, k])
         return qc
 
 
@@ -49,7 +49,7 @@ class Majority(Gate):
         target = self.num_controls
         for i in range(len(controls)):
             for j in range(i + 1, len(controls)):
-                qc.ccx(controls[i], controls[j], target)
+                qc.append(Ccx(), [controls[i], controls[j], target])
         return qc
 
 
@@ -443,7 +443,7 @@ class ControlledSelectOneBodyHamiltonian(Gate):
     @staticmethod
     def _ccz(qc: QuantumCircuit, a: int, b: int, target: int) -> None:
         qc.h(target)
-        qc.ccx(a, b, target)
+        qc.append(Ccx(), [a, b, target])
         qc.h(target)
 
     def _build_definition(self) -> QuantumCircuit:
@@ -670,7 +670,7 @@ class CutoffTail(Gate):
         if m == 1:
             qc.cx(high[0], tail)
         elif m == 2:
-            qc.ccx(high[0], high[1], tail)
+            qc.append(Ccx(), [high[0], high[1], tail])
         else:
             qc.append(synth_mcx_2_clean_kg24(m), high + [tail] + aux)
         for q in high:
@@ -678,7 +678,7 @@ class CutoffTail(Gate):
 
         qc.x(tail)
         for j in range(F - m):
-            qc.ccx(tail, delta[j], signal[j + m])
+            qc.append(Ccx(), [tail, delta[j], signal[j + m]])
         qc.x(tail)
 
         qc.cx(tail, signal[F])
@@ -938,7 +938,9 @@ class PositivePartSelector(Gate):
         fanout(signs[0], signs[1:])
 
         for c, d, z in zip(signs, delta, zero):
-            qc.cswap(c, d, z)
+            qc.cx(z, d)
+            qc.append(Ccx(), [c, d, z])
+            qc.cx(z, d)
 
         return qc
 

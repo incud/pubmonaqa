@@ -151,3 +151,23 @@ def expected_glauber_amplitude(x: int, y: int, n: int, h: np.ndarray, J: np.ndar
         log_acceptance = log_r - np.logaddexp(0.0, a * log_r) / a
 
     return float(np.exp(0.5 * log_acceptance))
+
+
+def boltzmann_rotation_angles(W: int, beta: float, alpha: float) -> np.ndarray:
+    """Return bitwise Ry angles for the normalized little-endian Q1.F word.
+
+    F = W - 1. Bit j represents the physical energy alpha * 2**(j-F).
+    The all-zero coin amplitude is exp(-beta * positive_energy / 2).
+    expm1 preserves small angles when beta * energy is close to zero.
+    """
+    if not isinstance(W, (int, np.integer)) or isinstance(W, bool) or W < 1:
+        raise ValueError("W must be a positive integer.")
+    beta, alpha = float(beta), float(alpha)
+    if not np.isfinite(beta) or beta < 0.0:
+        raise ValueError("beta must be finite and nonnegative.")
+    if not np.isfinite(alpha) or alpha < 0.0:
+        raise ValueError("alpha must be finite and nonnegative.")
+    with np.errstate(over="ignore", under="ignore"):
+        energies = alpha * np.exp2(np.arange(W, dtype=float) - (W - 1))
+        exponents = beta * energies
+        return 2.0 * np.arctan2(np.sqrt(-np.expm1(-exponents)), np.exp(-0.5 * exponents))

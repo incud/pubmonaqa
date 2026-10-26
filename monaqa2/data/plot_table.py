@@ -13,6 +13,7 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from monaqa2.data.classical_query import get_classical_query_fit_by_n, get_classical_query_stats
 from monaqa2.data.filename import CLASSICAL_QUERY_FILE, SPECTRAL_GAP_FILE
 from monaqa2.data.runtime import (
+    ALLOWED_ARITHMETIC_TYPES,
     get_annealing_queries_quantum_walks,
     get_one_step_quantum_walk_queries,
     get_annealing_time_classical_walk_local,
@@ -917,7 +918,7 @@ def plot_annealing_classical_and_quantum_runtime_vs_n(
     physical_measurement_time_min: float = 20e-9,
     physical_measurement_time_max: float = 2_000e-9,
     num_trotter_steps: int = 50,
-    arithmetic_type: str = "HYBRID",
+    arithmetic_type: str = "FIXED_POINT",
     classical_query_file: Path = CLASSICAL_QUERY_FILE,
     spectral_gap_file: Path = SPECTRAL_GAP_FILE,
     statistic: str = "mean+std",
@@ -964,14 +965,14 @@ def plot_annealing_classical_and_quantum_runtime_vs_n(
     - ``"compact"``: uniform and quantum-enhanced proposals.
     - ``"compact_no_layden"``: uniform proposals and quantum-enhanced quantum-walk proposal only.
 
-    :param arithmetic_type: Arithmetic implementation for the quantum-walk runtime, either ``"HYBRID"`` or ``"FULLY_PHASE"``.
+    :param arithmetic_type: Arithmetic implementation for the quantum-walk runtime, ``"FIXED_POINT"``.
     """
     if mode not in {"full", "compact", "compact_no_layden"}:
         raise ValueError(f"Unknown mode={mode}. Expected 'full', 'compact', or 'compact_no_layden'.")
     if legend_placement not in {"legend_out", "legend_line"}:
         raise ValueError(f"Unknown legend_placement={legend_placement}. Expected 'legend_out' or 'legend_line'.")
-    if arithmetic_type not in {"HYBRID", "FULLY_PHASE"}:
-        raise ValueError(f"Unknown arithmetic_type={arithmetic_type!r}. Expected 'HYBRID' or 'FULLY_PHASE'.")
+    if arithmetic_type not in ALLOWED_ARITHMETIC_TYPES:
+        raise ValueError(f"Unknown arithmetic_type={arithmetic_type!r}. Expected 'FIXED_POINT'.")
 
     if n_plot_min is None:
         n_plot_min = 3
@@ -3259,7 +3260,7 @@ def plot_annealing_classical_and_quantum_runtime_vs_n_table(
     physical_measurement_time_min: float = 20e-9,
     physical_measurement_time_max: float = 2_000e-9,
     num_trotter_steps: int = 50,
-    arithmetic_type: str = "HYBRID",
+    arithmetic_type: str = "FIXED_POINT",
     classical_query_file: Path = CLASSICAL_QUERY_FILE,
     spectral_gap_file: Path = SPECTRAL_GAP_FILE,
     statistic: str = "mean+std",
@@ -3301,10 +3302,10 @@ def plot_annealing_classical_and_quantum_runtime_vs_n_table(
     range, proposal mode, projection styling, schedule diagnostics, and runtime
     thresholds are forwarded to the single-panel runtime function.
     """
-    if arithmetic_type not in {"HYBRID", "FULLY_PHASE"}:
+    if arithmetic_type not in ALLOWED_ARITHMETIC_TYPES:
         raise ValueError(
             f"Unknown arithmetic_type={arithmetic_type!r}. "
-            "Expected 'HYBRID' or 'FULLY_PHASE'."
+            "Expected 'FIXED_POINT'."
         )
     if legend_placement not in {"legend_out", "legend_line"}:
         raise ValueError(
@@ -3805,13 +3806,13 @@ def plot_uniform_classical_and_qemc_arithmetic_runtime_vs_n(
     runtime_ymax_years: float | None = 1000.0,
     debug: bool = False,
 ) -> tuple[plt.Figure, plt.Axes]:
-    """Plot uniform classical runtime and QEMC quantum runtime for both arithmetic types.
+    """Plot uniform classical runtime and QEMC quantum runtime with fixed-point arithmetic.
 
     The plot deliberately omits local curves and the quantum walk built from the uniform proposal.
     It uses the same runtime-band convention as ``plot_main_runtime.py``: the classical uniform
-    curve is a deterministic line, while each QEMC quantum curve is an optimistic/pessimistic
+    curve is a deterministic line, while the QEMC quantum curve is an optimistic/pessimistic
     band obtained from the supplied physical error-rate, operation-time, and measurement-time
-    ranges. ``"HYBRID"`` is solid and ``"FULLY_PHASE"`` is dashed.
+    ranges. ``"FIXED_POINT"`` uses a solid line.
     """
     if n_plot_min is None:
         n_plot_min = 3
@@ -3826,8 +3827,8 @@ def plot_uniform_classical_and_qemc_arithmetic_runtime_vs_n(
             fig.subplots_adjust(bottom=0.34)
 
     uniform_classical = []
-    qemc_quantum_min = {"HYBRID": [], "FULLY_PHASE": []}
-    qemc_quantum_max = {"HYBRID": [], "FULLY_PHASE": []}
+    qemc_quantum_min = {"FIXED_POINT": []}
+    qemc_quantum_max = {"FIXED_POINT": []}
 
     for n in n_vals:
         schedule = [float(beta_t) for beta_t in annealing_schedule_generator(int(n), float(beta))]
@@ -3835,7 +3836,7 @@ def plot_uniform_classical_and_qemc_arithmetic_runtime_vs_n(
         _, qemc_gaps = _annealing_schedule_fits("layden", int(n), schedule, epsilon, classical_query_file, spectral_gap_file, statistic, n_fit_min, n_fit_max)
 
         uniform_classical.append(get_annealing_time_classical_walk_uniform(int(n), uniform_queries, device=classical_device))
-        for arithmetic_type in ("HYBRID", "FULLY_PHASE"):
+        for arithmetic_type in ("FIXED_POINT",):
             qemc_quantum_min[arithmetic_type].append(get_annealing_time_quantum_walk_qemc(int(n), epsilon, schedule, qemc_gaps, physical_operation_time_min, physical_measurement_time_min, physical_error_rate_min, num_trotter_steps=num_trotter_steps, arithmetic_type=arithmetic_type))
             qemc_quantum_max[arithmetic_type].append(get_annealing_time_quantum_walk_qemc(int(n), epsilon, schedule, qemc_gaps, physical_operation_time_max, physical_measurement_time_max, physical_error_rate_max, num_trotter_steps=num_trotter_steps, arithmetic_type=arithmetic_type))
 
@@ -3856,7 +3857,7 @@ def plot_uniform_classical_and_qemc_arithmetic_runtime_vs_n(
     labels.append(classical_label)
 
     qemc_color = _proposal_color("layden", "quantum")
-    for arithmetic_type, linestyle, label, zorder in [("HYBRID", "-", "This work, hybrid arithmetic", 5), ("FULLY_PHASE", "--", "This work, fully-phase arithmetic", 6)]:
+    for arithmetic_type, linestyle, label, zorder in [("FIXED_POINT", "-", "This work, fixed-point arithmetic", 5)]:
         handle = _add_main_style_runtime_band(ax, n_vals, qemc_quantum_min[arithmetic_type], qemc_quantum_max[arithmetic_type], color=qemc_color, label=label, linestyle=linestyle, line_width=line_width, band_alpha=band_alpha, line_alpha=line_alpha, zorder=zorder)
         handles.append(handle)
         labels.append(label)
@@ -3866,7 +3867,7 @@ def plot_uniform_classical_and_qemc_arithmetic_runtime_vs_n(
         handles.append(direct_line)
         labels.append("Direct enumeration")
 
-    intercept_ticks = _uniform_qemc_intercept_ticks(n_vals, uniform_classical, [qemc_quantum_min["HYBRID"], qemc_quantum_max["HYBRID"], qemc_quantum_min["FULLY_PHASE"], qemc_quantum_max["FULLY_PHASE"]], optimistic_pessimistic_intercept)
+    intercept_ticks = _uniform_qemc_intercept_ticks(n_vals, uniform_classical, [qemc_quantum_min["FIXED_POINT"], qemc_quantum_max["FIXED_POINT"]], optimistic_pessimistic_intercept)
     _finish_uniform_qemc_runtime_axis(ax, n_vals, title=title, xlabel=r"$n$", ylabel=r"Runtime", show_regime_separator=show_regime_separator, regime_separator_n=regime_separator_n, show_one_year_line=show_one_year_line, grid_color=grid_color, grid_linewidth=grid_linewidth, x_right_padding=x_right_padding, y_top_padding=y_top_padding, intercept_ticks=intercept_ticks, runtime_ymin_seconds=runtime_ymin_seconds, runtime_ymax_years=runtime_ymax_years)
     ax.xaxis.labelpad = xlabel_labelpad
 
@@ -3930,8 +3931,8 @@ def plot_uniform_classical_and_qemc_arithmetic_runtime_vs_n_table(
 ) -> tuple[plt.Figure, np.ndarray]:
     """Plot a table comparing uniform classical runtime with QEMC arithmetic choices.
 
-    Each panel contains the deterministic uniform classical line and the QEMC quantum runtime
-    bands for ``"HYBRID"`` and ``"FULLY_PHASE"`` arithmetic. The band construction and
+    Each panel contains the deterministic uniform classical line and a QEMC quantum runtime
+    band for ``"FIXED_POINT"`` arithmetic. The band construction and
     physical-parameter controls follow ``plot_main_runtime.py``.
     """
     betas, epsilons = _resolve_beta_epsilon_pairs(betas, epsilon)
@@ -4157,7 +4158,7 @@ def plot_annealing_classical_and_quantum_runtime_vs_n_table_shadowed(
     physical_measurement_time_min: float = 20e-9,
     physical_cost_multipliers: list[int] = [10, 100, 1000],
     num_trotter_steps: int = 50,
-    arithmetic_type: str = "HYBRID",
+    arithmetic_type: str = "FIXED_POINT",
     classical_query_file: Path = CLASSICAL_QUERY_FILE,
     spectral_gap_file: Path = SPECTRAL_GAP_FILE,
     statistic: str = "mean+std",
@@ -4185,10 +4186,10 @@ def plot_annealing_classical_and_quantum_runtime_vs_n_table_shadowed(
     extrapolated regimes, does not fade the n > n_fit_max region, and does not
     draw a separator at n_fit_max or at schedule changes.
     """
-    if arithmetic_type not in {"HYBRID", "FULLY_PHASE"}:
+    if arithmetic_type not in ALLOWED_ARITHMETIC_TYPES:
         raise ValueError(
             f"Unknown arithmetic_type={arithmetic_type!r}. "
-            "Expected 'HYBRID' or 'FULLY_PHASE'."
+            "Expected 'FIXED_POINT'."
         )
     if mode not in {"full", "compact", "compact_no_layden"}:
         raise ValueError(
@@ -4725,7 +4726,7 @@ def plot_annealing_classical_and_quantum_surface_code_distance_vs_n_table(
     rowwise_y_limits: bool = True,
     physical_error_rate: float = 1e-3,
     num_trotter_steps: int = 50,
-    arithmetic_type: str = "HYBRID",
+    arithmetic_type: str = "FIXED_POINT",
     classical_query_file: Path = CLASSICAL_QUERY_FILE,
     spectral_gap_file: Path = SPECTRAL_GAP_FILE,
     statistic: str = "mean+std",
@@ -4751,10 +4752,10 @@ def plot_annealing_classical_and_quantum_surface_code_distance_vs_n_table(
     ``epsilon / 4``. Physical operation and measurement times do not enter,
     because they affect runtime but not the required code distance.
     """
-    if arithmetic_type != "HYBRID":
+    if arithmetic_type not in ALLOWED_ARITHMETIC_TYPES:
         raise ValueError(
             f"Unknown arithmetic_type={arithmetic_type!r}. "
-            "The supplied runtime resource model supports only 'HYBRID'."
+            "The supplied runtime resource model supports only 'FIXED_POINT'."
         )
     if legend_placement not in {"legend_out", "top_left", "bottom_right"}:
         raise ValueError(

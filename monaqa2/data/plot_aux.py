@@ -1,8 +1,10 @@
+import json
 from pathlib import Path
 from typing import Callable
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.colors import to_rgb
 
 from monaqa2.mcmc.model import IsingModel, RandomIsingModel
 
@@ -167,3 +169,225 @@ def plot_sk_upper_bounds(
         fig.savefig(output_file, dpi=int(dpi), bbox_inches="tight")
 
     return fig, ax
+
+
+def plot_spectral_gaps_randomized_subset_parameters(
+    spectral_gaps: dict[str, np.ndarray],
+    is_transition: bool = False,
+    ns: range | list[int] | np.ndarray = range(3, 11),
+    ks: list[int] | tuple[int, ...] | np.ndarray | None = None,
+    output_file: Path | str | None = None,
+    title: str | None = None,
+    jitter: float = 0.06,
+    marker_size: float = 3.8,
+    capsize: float = 2.4,
+    line_width: float = 1.35,
+    grid_color: str = "0.92",
+    grid_linewidth: float = 0.55,
+    dpi: int = 300,
+) -> tuple[plt.Figure, plt.Axes]:
+    """Plot median spectral gaps and interquartile ranges for each grid size."""
+    prefix = "P" if is_transition else "T"
+    ns = np.asarray(list(ns), dtype=float)
+
+    if ks is None:
+        key_prefix = f"{prefix}_grid_k"
+        ks = sorted(int(key[len(key_prefix):]) for key in spectral_gaps if key.startswith(key_prefix))
+    else:
+        ks = sorted(int(k) for k in ks)
+
+    # Grid estimates move from light to dark and from left to right toward Layden.
+    base_color = np.asarray(to_rgb(AUX_COLORS["one_norm"]))
+    white = np.ones(3)
+    shades = [tuple((1.0 - weight) * white + weight * base_color)
+              for weight in np.linspace(0.35, 0.85, len(ks))]
+    approaches = [
+        (f"grid_k{k}", rf"Discretized parameter grid, $k={k}$",
+         shades[i], -(len(ks) - i) * jitter)
+        for i, k in enumerate(ks)
+    ]
+    approaches.append(("exact", "Layden implementation", tuple(base_color), 0.0))
+
+    fig, ax = plt.subplots(figsize=(2 * APS_FIGURE_WIDTH_CM * CM,
+                                    1.5 * APS_FIGURE_HEIGHT_CM * CM))
+    fig.subplots_adjust(left=0.12, right=0.985, top=0.985, bottom=0.34)
+
+    for name, label, color, offset in approaches:
+        values = np.asarray(spectral_gaps[f"{prefix}_{name}"], dtype=float)
+        if values.ndim == 1:
+            values = values[:, None]
+        x = ns[:len(values)]
+        valid = np.any(np.isfinite(values), axis=1)
+        values, x = values[valid], x[valid]
+        if not len(x):
+            continue
+
+        median = np.nanmedian(values, axis=1)
+        q25 = np.nanpercentile(values, 25, axis=1)
+        q75 = np.nanpercentile(values, 75, axis=1)
+        ax.errorbar(
+            x + offset,
+            median,
+            yerr=[median - q25, q75 - median],
+            fmt="o",
+            markersize=marker_size,
+            capsize=capsize,
+            color=color,
+            linewidth=line_width,
+            label=label,
+            zorder=3,
+        )
+
+    ax.set_yscale("log")
+    ax.set_xticks(ns)
+    ax.set_yticks([0.1, 0.01])
+    _finish_aux_axis(
+        ax,
+        title,
+        r"$n$",
+        "spectral gap",
+        grid_color,
+        grid_linewidth,
+    )
+    ax.legend(
+        frameon=False,
+        loc="upper center",
+        bbox_to_anchor=(0.5, -0.22),
+        ncol=2,
+        borderaxespad=0.0,
+        handlelength=1.4,
+        labelspacing=0.35,
+    )
+
+    if output_file is not None:
+        output_file = Path(output_file)
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(output_file, dpi=int(dpi), bbox_inches="tight")
+
+    return fig, ax
+
+
+def plot_randomized_grid_search_log_ratio(
+    grid_search_file: Path | str,
+    averaged_matrix_file: Path | str,
+    ns: range | list[int] | np.ndarray = range(3, 11),
+    k: int = 3,
+    output_file: Path | str | None = None,
+    title: str | None = None,
+    jitter: float = 0.05,
+    marker_size: float = 3.8,
+    capsize: float = 2.4,
+    line_width: float = 1.35,
+    grid_color: str = "0.92",
+    grid_linewidth: float = 0.55,
+    dpi: int = 300,
+) -> tuple[plt.Figure, plt.Axes]:
+    """Compare fixed-grid P gaps with the averaged-matrix gap through log ratios."""
+    with Path(grid_search_file).open() as f:
+        grid_search = json.load(f)
+    with Path(averaged_matrix_file).open() as f:
+        averaged = json.load(f)
+
+    ns = np.asarray(list(ns), dtype=int)
+    grid_by_n = grid_search[f"k={k}"]
+    averaged_values = averaged[f"P_grid_k{k}"]
+
+    all_stats, best_stats, valid_ns = [], [], []
+    n0 = int(ns.min()) if len(ns) else 0
+    for n in ns:
+        if n - n0 >= len(averaged_values) or f"n={n}" not in grid_by_n:
+            continue
+
+        log_ratios, best_log_ratios = [], []
+        average_row = averaged_values[n - n0]
+        grid_row = grid_by_n[f"n={n}"]
+        for idx, average_gap in enumerate(average_row):
+            if average_gap is None:
+                continue
+            average_gap = float(average_gap)
+            if not np.isfinite(average_gap) or average_gap <= 0.0:
+                continue
+
+            grid_gaps = grid_row.get(f"inst{idx:03d}")
+            if grid_gaps is None:
+                continue
+
+            grid_gaps = np.asarray(grid_gaps, dtype=float).ravel()
+            valid = np.isfinite(grid_gaps) & (grid_gaps > 0.0)
+            if not np.any(valid):
+                continue
+
+            values = np.log(grid_gaps[valid] / average_gap)
+            log_ratios.extend(values)
+            best_log_ratios.append(np.max(values))
+
+        if not log_ratios:
+            continue
+
+        log_ratios = np.asarray(log_ratios, dtype=float)
+        best_log_ratios = np.asarray(best_log_ratios, dtype=float)
+        all_stats.append((np.median(log_ratios), *np.percentile(log_ratios, [25, 75])))
+        best_stats.append((np.median(best_log_ratios), *np.percentile(best_log_ratios, [25, 75])))
+        valid_ns.append(n)
+
+    valid_ns = np.asarray(valid_ns, dtype=float)
+    all_stats = np.asarray(all_stats, dtype=float)
+    best_stats = np.asarray(best_stats, dtype=float)
+
+    fig, ax = plt.subplots(figsize=(2 * APS_FIGURE_WIDTH_CM * CM,
+                                    1.5 * APS_FIGURE_HEIGHT_CM * CM))
+    fig.subplots_adjust(left=0.12, right=0.985, top=0.985, bottom=0.34)
+
+    if len(valid_ns):
+        for stats, color, label, offset in [
+            (all_stats, AUX_COLORS["one_norm"], "All grid points", -jitter / 2),
+            (best_stats, AUX_COLORS["op_norm"], "Best grid point", jitter / 2),
+        ]:
+            median, q25, q75 = stats.T
+            ax.errorbar(
+                valid_ns + offset,
+                median,
+                yerr=[median - q25, q75 - median],
+                fmt="o",
+                markersize=marker_size,
+                capsize=capsize,
+                color=color,
+                linewidth=line_width,
+                label=label,
+                zorder=3,
+            )
+
+    ax.axhline(0.0, color="0.65", linewidth=0.8, linestyle="--", zorder=1)
+    ax.set_xticks(ns)
+    _finish_aux_axis(
+        ax,
+        title,
+        r"$n$",
+        r"$\log(\delta_{\mathrm{grid}}/\delta_{\mathrm{avg}})$",
+        grid_color,
+        grid_linewidth,
+    )
+    from matplotlib.ticker import FuncFormatter
+    ax.yaxis.set_major_formatter(
+        FuncFormatter(lambda y, _: rf"{y:g} ($\times${np.exp(y):.2f})")
+    )
+    ax.legend(
+        frameon=False,
+        loc="upper center",
+        bbox_to_anchor=(0.5, -0.22),
+        ncol=2,
+        borderaxespad=0.0,
+        handlelength=1.4,
+        labelspacing=0.35,
+    )
+
+    if output_file is not None:
+        output_file = Path(output_file)
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(output_file, dpi=int(dpi), bbox_inches="tight")
+
+    return fig, ax
+
+
+plot_randomized_grid_search_difference = plot_randomized_grid_search_log_ratio
+

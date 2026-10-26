@@ -2,7 +2,7 @@ import numpy as np
 from monaqa2.mcmc.search import search_monotone
 
 ALLOWED_DEVICES = {"cpu", "gpu", "fpga"}
-ALLOWED_ARITHMETIC_TYPES = {"HYBRID"}
+ALLOWED_ARITHMETIC_TYPES = {"FIXED_POINT"}
 
 
 def _validate_arithmetic_type(arithmetic_type: str) -> str:
@@ -134,18 +134,17 @@ def _ceil_log2(x: int | float) -> int:
     return int(np.ceil(np.log2(x)))
 
 
-def _calculate_auxiliary_quantum_circuit_vars(n: int | float, eps_W: float, beta: float) -> tuple[float, float, int, int, float, int, float, int, int, int]:
-    """Return the parameters entering the hybrid walk-resource estimate.
+def _calculate_auxiliary_quantum_circuit_vars(n: int | float, eps_W: float, beta: float) -> tuple[float, float, int, int, int, int]:
+    """Return the parameters entering the fixed-point walk-resource estimate.
 
-    The per-walk implementation budget ``eps_W`` is used as the complete
-    hybrid-arithmetic budget ``eps_ops``. The fixed-point word size is rounded
-    upward to an integer. The cutoff power is the clipped value implemented by
-    ``SqrtExpArithmetic``.
+    The coefficient precision retains the previous convention:
+    ``S = 1 + log2(n) + log2(1/eps_W)``, ``F = ceil(3.5*S)``, ``W = F+1``.
+    The rotation coin needs neither a polynomial degree nor a tail cutoff.
 
     :param n: Number of spins.
     :param eps_W: Error budget for one implementation of ``W`` or ``W-dagger``.
     :param beta: Inverse temperature for the current annealing step.
-    :return: Tuple ``(S, M, W, ell_W, lambda_scale, s_SK, c, ell_c, d_hyb, ell_n)``.
+    :return: Tuple ``(S, M, W, ell_W, s_SK, ell_n)``.
     """
     n = float(n)
     beta = float(beta)
@@ -166,71 +165,60 @@ def _calculate_auxiliary_quantum_circuit_vars(n: int | float, eps_W: float, beta
 
     M = n + n * (n - 1.0) / 2.0
     s_SK = int(np.ceil(np.log(2.0 * M) / np.log(3.0 / 2.0)))
-    lambda_scale = 2.0 * n**1.5 / np.sqrt(np.pi)
-
-    eps_tail = eps_W / 2.0
-    if beta <= 0.0 or lambda_scale <= 0.0:
-        c = 0
-    else:
-        cutoff_argument = beta * lambda_scale / (2.0 * np.log(1.0 / eps_tail))
-        c_raw = int(np.floor(np.log2(cutoff_argument))) if cutoff_argument > 0.0 else 0
-        c = max(0, min(W - 1, c_raw))
-
-    ell_c = _ceil_log2(c) if c >= 1 else 0
-    d_hyb = int(np.ceil(0.5 * beta * lambda_scale * 2.0**(-c) + np.log(2.0 / eps_W) + 1.0))
-    return S, M, W, ell_W, lambda_scale, s_SK, c, ell_c, d_hyb, ell_n
+    return S, M, W, ell_W, s_SK, ell_n
 
 
-def _hybrid_cutoff_depth(W: int, c: int, ell_c: int) -> int:
-    """Return the non-Clifford depth of one implemented cutoff-tail block."""
-    if c == 0:
-        return 0
-    if c == 1:
-        return 3 * (W - 2)
-    if c == 2:
-        return 3 + 3 * (W - 3)
-    return 14 * ell_c - 10 + 3 * (W - c - 1)
+def fixed_point_arithmetic_circuit(n: int | float, eps_W: float, beta: float) -> tuple[float, float]:
+    """Return non-Clifford depth and qubits for FixedPointArithmetic.
 
-
-def _hybrid_walk_blocks(n: int | float, eps_W: float, beta: float) -> tuple[float, float, float, float, float, float]:
-    """Return hybrid coin, reflection, and accept-path resources."""
-    S, M, W, ell_W, _, s_SK, c, ell_c, d_hyb, _ = _calculate_auxiliary_quantum_circuit_vars(n, eps_W, beta)
+    Each controlled Ry decomposes into two sequential Rz rotations. The W
+    bit/coin pairs are disjoint, so all pairs run in parallel: two rotation
+    layers and 2W rotations, or zero at beta=0. As in the other resource
+    estimates, an arbitrary Rz counts as one non-Clifford layer; synthesis
+    into discrete T gates and factory throughput are not modeled here.
+    The existing Wallace-tree/final-carry and positive-selector costs are
+    retained, with both arithmetic blocks computed and uncomputed.
+    """
+    _, M, W, _, s_SK, _ = _calculate_auxiliary_quantum_circuit_vars(n, eps_W, beta)
 
     delta_depth = 18 * s_SK + 18 * W
     positive_depth = 3
-    cutoff_depth = _hybrid_cutoff_depth(W, c, ell_c)
-    sqrt_exp_depth = d_hyb * (54 * ell_W - 18) + 3
-    boltz_depth = sqrt_exp_depth + 2 * delta_depth + 2 * positive_depth + 2 * cutoff_depth
-    boltz_qubits = 2 * n + 6 * W * M - 2 * M + 2
+    rotation_depth = 0 if beta == 0.0 else 2
+    boltz_depth = rotation_depth + 2 * delta_depth + 2 * positive_depth
+    boltz_qubits = 2 * n + 6 * W * M - 2 * M + W + 1
+    return float(boltz_depth), float(boltz_qubits)
 
-    reflection_depth = 14 * _ceil_log2(n + W) - 10
-    reflection_qubits = 2 * n + W + 3
 
-    accept_depth = 28 * _ceil_log2(W + 1) - 11
-    accept_qubits = 3 * n + W + 1
+def _fixed_point_walk_blocks(n: int | float, eps_W: float, beta: float) -> tuple[float, float, float, float, float, float]:
+    """Return fixed-point coin, reflection, and accept-path resources."""
+    _, _, W, ell_W, _, _ = _calculate_auxiliary_quantum_circuit_vars(n, eps_W, beta)
+    boltz_depth, boltz_qubits = fixed_point_arithmetic_circuit(n, eps_W, beta)
+
+    reflection_depth = 14 * _ceil_log2(n + W - 1) - 10
+    reflection_qubits = 2 * n + W + 2
+
+    accept_depth = 28 * ell_W - 11
+    accept_qubits = 3 * n + W
 
     return boltz_depth, boltz_qubits, reflection_depth, reflection_qubits, accept_depth, accept_qubits
 
 
 def _quantum_walk_circuit(n: int | float, eps_W: float, beta: float, proposal_depth: int | float, proposal_qubits: int | float, arithmetic_type: str) -> tuple[float, float]:
-    """Combine proposal, hybrid coin, reflection, and accept-path resources."""
-    arithmetic_type = _validate_arithmetic_type(arithmetic_type)
-    if arithmetic_type != "HYBRID":
-        raise ValueError("The updated full-walk resource model is defined only for the hybrid arithmetic.")
-
-    boltz_depth, boltz_qubits, reflection_depth, reflection_qubits, accept_depth, accept_qubits = _hybrid_walk_blocks(n, eps_W, beta)
+    """Combine proposal, fixed-point coin, reflection, and accept-path resources."""
+    _validate_arithmetic_type(arithmetic_type)
+    boltz_depth, boltz_qubits, reflection_depth, reflection_qubits, accept_depth, accept_qubits = _fixed_point_walk_blocks(n, eps_W, beta)
     logical_depth = 2 * proposal_depth + 2 * boltz_depth + reflection_depth + accept_depth
     logical_qubits = max(proposal_qubits, boltz_qubits, reflection_qubits, accept_qubits)
     return float(logical_depth), float(logical_qubits)
 
 
-def quantum_walk_local_circuit(n: int | float, eps_W: float, beta: float, arithmetic_type: str = "HYBRID") -> tuple[float, float]:
+def quantum_walk_local_circuit(n: int | float, eps_W: float, beta: float, arithmetic_type: str = "FIXED_POINT") -> tuple[float, float]:
     """Return resources for one local-proposal Szegedy walk application.
 
     :param n: Number of spins.
     :param eps_W: Error budget for one implementation of ``W`` or ``W-dagger``.
     :param beta: Inverse temperature for the current annealing step.
-    :param arithmetic_type: Arithmetic implementation. The updated model supports ``"HYBRID"``.
+    :param arithmetic_type: Arithmetic implementation. The updated model supports ``"FIXED_POINT"``.
     :return: Tuple ``(logical_depth, logical_qubits)`` for one walk application.
     """
     proposal_depth = 2 * _ceil_log2(n)
@@ -238,13 +226,13 @@ def quantum_walk_local_circuit(n: int | float, eps_W: float, beta: float, arithm
     return _quantum_walk_circuit(n, eps_W, beta, proposal_depth, proposal_qubits, arithmetic_type)
 
 
-def quantum_walk_uniform_circuit(n: int | float, eps_W: float, beta: float, arithmetic_type: str = "HYBRID") -> tuple[float, float]:
+def quantum_walk_uniform_circuit(n: int | float, eps_W: float, beta: float, arithmetic_type: str = "FIXED_POINT") -> tuple[float, float]:
     """Return resources for one uniform-proposal Szegedy walk application.
 
     :param n: Number of spins.
     :param eps_W: Error budget for one implementation of ``W`` or ``W-dagger``.
     :param beta: Inverse temperature for the current annealing step.
-    :param arithmetic_type: Arithmetic implementation. The updated model supports ``"HYBRID"``.
+    :param arithmetic_type: Arithmetic implementation. The updated model supports ``"FIXED_POINT"``.
     :return: Tuple ``(logical_depth, logical_qubits)`` for one walk application.
     """
     proposal_depth = 0
@@ -252,20 +240,34 @@ def quantum_walk_uniform_circuit(n: int | float, eps_W: float, beta: float, arit
     return _quantum_walk_circuit(n, eps_W, beta, proposal_depth, proposal_qubits, arithmetic_type)
 
 
-def quantum_walk_qemc_circuit(n: int | float, eps_W: float, beta: float, num_trotter_steps: int = 50, arithmetic_type: str = "HYBRID") -> tuple[float, float]:
+def quantum_walk_qemc_circuit(n: int | float, eps_W: float, beta: float, num_trotter_steps: int = 50, arithmetic_type: str = "FIXED_POINT", k_randomized_grid: int = 2) -> tuple[float, float]:
     """Return resources for one Hamiltonian-simulation-proposal Szegedy walk.
 
     :param n: Number of spins.
     :param eps_W: Error budget for one implementation of ``W`` or ``W-dagger``.
     :param beta: Inverse temperature for the current annealing step.
     :param num_trotter_steps: Number of Trotter steps used by the proposal.
-    :param arithmetic_type: Arithmetic implementation. The updated model supports ``"HYBRID"``.
+    :param arithmetic_type: Arithmetic implementation. The updated model supports ``"FIXED_POINT"``.
+    :param k_randomized_grid: Randomized-grid level. Use 0 for a single fixed choice of ``(t, gamma)``.
     :return: Tuple ``(logical_depth, logical_qubits)`` for one walk application.
     """
     if num_trotter_steps < 1:
         raise ValueError("Use num_trotter_steps >= 1.")
-    proposal_depth = num_trotter_steps * (n + 3)
-    proposal_qubits = 2 * n
+    if k_randomized_grid < 0:
+        raise ValueError("Use k_randomized_grid >= 0.")
+
+    r = num_trotter_steps
+    k = k_randomized_grid
+
+    if k == 0:
+        # Single fixed choice of (t, gamma).
+        proposal_depth = r * (n + 3)
+        proposal_qubits = 2 * n
+    else:
+        # Coherent randomized proposal over a 2^k x 2^k grid.
+        proposal_depth = r * (n + 1) * (1 + 4 * k + 4 * k**2) + (r + 1) * (1 + 4 * k + 6 * k**2)
+        proposal_qubits = 2 * n * (k + 1)
+
     return _quantum_walk_circuit(n, eps_W, beta, proposal_depth, proposal_qubits, arithmetic_type)
 
 
@@ -417,7 +419,7 @@ def get_quantum_annealing_error_budget(eps_TV: float, spectral_gaps: list[float]
     }
 
 
-def _get_annealing_time_quantum_walk(n: int | float, eps_TV: float, betas: list[float], spectral_gaps: list[float], physical_operation_time: float, physical_measurement_time: float, physical_error_rate: float, circuit_fn, zeno_overlap_probability: float = 1.0 / np.e, arithmetic_type: str = "HYBRID") -> float:
+def _get_annealing_time_quantum_walk(n: int | float, eps_TV: float, betas: list[float], spectral_gaps: list[float], physical_operation_time: float, physical_measurement_time: float, physical_error_rate: float, circuit_fn, zeno_overlap_probability: float = 1.0 / np.e, arithmetic_type: str = "FIXED_POINT") -> float:
     """Return the surface-code runtime for a quantum annealing schedule.
 
     :param n: Number of spins.
@@ -429,7 +431,7 @@ def _get_annealing_time_quantum_walk(n: int | float, eps_TV: float, betas: list[
     :param physical_error_rate: Physical Clifford error rate.
     :param circuit_fn: Function returning one-walk logical resources for a selected proposal rule.
     :param zeno_overlap_probability: Lower bound on the squared overlap used in the Zeno-rewind cost model.
-    :param arithmetic_type: Arithmetic implementation, ``"HYBRID"``.
+    :param arithmetic_type: Arithmetic implementation, ``"FIXED_POINT"``.
     :return: Physical runtime in the same time unit as the physical operation and measurement times.
     """
     budget = get_quantum_annealing_error_budget(eps_TV, spectral_gaps, zeno_overlap_probability)
@@ -447,7 +449,7 @@ def _get_annealing_time_quantum_walk(n: int | float, eps_TV: float, betas: list[
     return rotated_surface_code_time(logical_time, logical_space, physical_operation_time, physical_measurement_time, physical_error_rate, eps_SF)
 
 
-def get_annealing_time_quantum_walk_local(n: int, eps_TV: float, betas: list[float], spectral_gaps: list[float], physical_operation_time: float, physical_measurement_time: float, physical_error_rate: float, *, zeno_overlap_probability: float = 1.0 / np.e, num_trotter_steps: int = 50, arithmetic_type: str = "HYBRID") -> float:
+def get_annealing_time_quantum_walk_local(n: int, eps_TV: float, betas: list[float], spectral_gaps: list[float], physical_operation_time: float, physical_measurement_time: float, physical_error_rate: float, *, zeno_overlap_probability: float = 1.0 / np.e, num_trotter_steps: int = 50, arithmetic_type: str = "FIXED_POINT") -> float:
     """Return the surface-code runtime for quantum annealing with local-proposal Szegedy walks.
 
     :param n: Number of spins.
@@ -459,13 +461,13 @@ def get_annealing_time_quantum_walk_local(n: int, eps_TV: float, betas: list[flo
     :param physical_error_rate: Physical Clifford error rate.
     :param zeno_overlap_probability: Lower bound on the squared overlap used in the Zeno-rewind cost model.
     :param num_trotter_steps: Unused for local proposals; kept for signature compatibility.
-    :param arithmetic_type: Arithmetic implementation, ``"HYBRID"``.
+    :param arithmetic_type: Arithmetic implementation, ``"FIXED_POINT"``.
     :return: Physical runtime in the same time unit as the physical operation and measurement times.
     """
     return _get_annealing_time_quantum_walk(n, eps_TV, betas, spectral_gaps, physical_operation_time, physical_measurement_time, physical_error_rate, quantum_walk_local_circuit, zeno_overlap_probability, arithmetic_type)
 
 
-def get_annealing_time_quantum_walk_uniform(n: int, eps_TV: float, betas: list[float], spectral_gaps: list[float], physical_operation_time: float, physical_measurement_time: float, physical_error_rate: float, *, zeno_overlap_probability: float = 1.0 / np.e, num_trotter_steps: int = 50, arithmetic_type: str = "HYBRID") -> float:
+def get_annealing_time_quantum_walk_uniform(n: int, eps_TV: float, betas: list[float], spectral_gaps: list[float], physical_operation_time: float, physical_measurement_time: float, physical_error_rate: float, *, zeno_overlap_probability: float = 1.0 / np.e, num_trotter_steps: int = 50, arithmetic_type: str = "FIXED_POINT") -> float:
     """Return the surface-code runtime for quantum annealing with uniform-proposal Szegedy walks.
 
     :param n: Number of spins.
@@ -477,13 +479,13 @@ def get_annealing_time_quantum_walk_uniform(n: int, eps_TV: float, betas: list[f
     :param physical_error_rate: Physical Clifford error rate.
     :param zeno_overlap_probability: Lower bound on the squared overlap used in the Zeno-rewind cost model.
     :param num_trotter_steps: Unused for uniform proposals; kept for signature compatibility.
-    :param arithmetic_type: Arithmetic implementation, ``"HYBRID"``.
+    :param arithmetic_type: Arithmetic implementation, ``"FIXED_POINT"``.
     :return: Physical runtime in the same time unit as the physical operation and measurement times.
     """
     return _get_annealing_time_quantum_walk(n, eps_TV, betas, spectral_gaps, physical_operation_time, physical_measurement_time, physical_error_rate, quantum_walk_uniform_circuit, zeno_overlap_probability, arithmetic_type)
 
 
-def get_annealing_time_quantum_walk_qemc(n: int, eps_TV: float, betas: list[float], spectral_gaps: list[float], physical_operation_time: float, physical_measurement_time: float, physical_error_rate: float, *, zeno_overlap_probability: float = 1.0 / np.e, num_trotter_steps: int = 50, arithmetic_type: str = "HYBRID") -> float:
+def get_annealing_time_quantum_walk_qemc(n: int, eps_TV: float, betas: list[float], spectral_gaps: list[float], physical_operation_time: float, physical_measurement_time: float, physical_error_rate: float, *, zeno_overlap_probability: float = 1.0 / np.e, num_trotter_steps: int = 50, arithmetic_type: str = "FIXED_POINT") -> float:
     """Return the surface-code runtime for quantum annealing with QEMC-proposal Szegedy walks.
 
     :param n: Number of spins.
@@ -495,16 +497,16 @@ def get_annealing_time_quantum_walk_qemc(n: int, eps_TV: float, betas: list[floa
     :param physical_error_rate: Physical Clifford error rate.
     :param zeno_overlap_probability: Lower bound on the squared overlap used in the Zeno-rewind cost model.
     :param num_trotter_steps: Number of Trotter steps used by the QEMC proposal.
-    :param arithmetic_type: Arithmetic implementation, ``"HYBRID"``.
+    :param arithmetic_type: Arithmetic implementation, ``"FIXED_POINT"``.
     :return: Physical runtime in the same time unit as the physical operation and measurement times.
     """
-    def circuit_fn(n_local: int | float, eps_W: float, beta: float, arithmetic_type_local: str = "HYBRID") -> tuple[float, float]:
+    def circuit_fn(n_local: int | float, eps_W: float, beta: float, arithmetic_type_local: str = "FIXED_POINT") -> tuple[float, float]:
         """Wrap the QEMC circuit resource function with a fixed Trotter-step count.
 
         :param n_local: Number of spins.
         :param eps_W: Error budget for one implementation of ``W`` or ``W-dagger``.
         :param beta: Inverse temperature for the current annealing step.
-        :param arithmetic_type_local: Arithmetic implementation, ``"HYBRID"``.
+        :param arithmetic_type_local: Arithmetic implementation, ``"FIXED_POINT"``.
         :return: Tuple ``(logical_depth, logical_qubits)`` for one QEMC walk application.
         """
         return quantum_walk_qemc_circuit(n_local, eps_W, beta, num_trotter_steps, arithmetic_type_local)
