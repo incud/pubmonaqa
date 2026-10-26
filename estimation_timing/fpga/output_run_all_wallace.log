@@ -1,0 +1,7 @@
+FPGA Metropolis: test Wallace.
+RUN_STAGE=wallace
+SK_N_VAL=all
+FPGA_ROOT=/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga
+PYTHON=python3
+CXX=g++
+PASS Wallace: 131072 prefix cases; 2640 multioperand cases; signed, carry propagation, remainders and modular overflow

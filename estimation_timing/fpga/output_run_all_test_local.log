@@ -1,0 +1,230 @@
+FPGA Metropolis: test local moves at all configured precisions.
+RUN_STAGE=csim
+SK_N_VAL=all
+MOVE=local
+FPGA_ROOT=/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga
+PYTHON=python3
+VITIS_SETTINGS=/scratch/mincudin/xlnx/2025.2/Vitis/settings64.sh
+HLS_PART=xcvu19p-fsva3824-2-e
+CLOCK_NS=3.000
+FPGA_LAUNCH=/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/launch_csim_local_Nall
+SK_N_VAL=10
+FPGA_COMPONENT=/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_local_N10
+
+****** vitis-run v2025.2 (64-bit)
+  **** SW Build 6295257 on 2025-11-13-01:29:13
+  **** Start of session at: Sun Oct 25 16:10:36 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+
+  **** HLS Build v2025.2 6295257
+Sourcing Tcl script '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/scripts/run_hls.tcl'
+stage=csim move=local n=10 top=local_spin_flip_operation component=/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_local_N10
+INFO: [HLS 200-1510] Running: open_project -reset /u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_local_N10 
+WARNING: [HLS 200-2182] The 'csim_local_N10' project will not automatically appear within Vitis IDE workspaces and is meant only for TCL batch use.  Please use open_component instead of open_project/open_solution to generate Vitis IDE compatible component files and directory structure.
+Resolution: For help on HLS 200-2182 see docs.amd.com/access/sources/dita/topic?Doc_Version=2025.2%20English&url=ug1448-hls-guidance&resourceid=200-2182.html
+INFO: [HLS 200-10] Creating and opening solution '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_local_N10'.
+INFO: [HLS 200-1510] Running: set_top local_spin_flip_operation 
+INFO: [HLS 200-1510] Running: open_solution -reset solution -flow_target vivado 
+INFO: [HLS 200-10] Creating and opening solution '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_local_N10/solution'.
+INFO: [HLS 200-10] Cleaning up the solution database.
+INFO: [HLS 200-1505] Using flow_target 'vivado'
+Resolution: For help on HLS 200-1505 see docs.amd.com/access/sources/dita/topic?Doc_Version=2025.2%20English&url=ug1448-hls-guidance&resourceid=200-1505.html
+INFO: [HLS 200-1510] Running: set_part xcvu19p-fsva3824-2-e 
+INFO: [HLS 200-1611] Setting target device to 'xcvu19p-fsva3824-2-e'
+INFO: [HLS 200-1510] Running: create_clock -period 3.000 -name default 
+INFO: [SYN 201-201] Setting up clock 'default' with a period of 3ns.
+INFO: [HLS 200-1510] Running: add_files -tb /u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src/local_move_hls.cpp -cflags -std=c++17 -I/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src -DSK_N=10 
+INFO: [HLS 200-10] Adding test bench file '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src/local_move_hls.cpp' to the project
+INFO: [HLS 200-1510] Running: add_files -tb /u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/tb/tb_local.cpp -cflags -std=c++17 -I/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src -DSK_N=10 
+INFO: [HLS 200-10] Adding test bench file '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/tb/tb_local.cpp' to the project
+INFO: [HLS 200-1510] Running: csim_design -clean 
+INFO: [SIM 211-2] *************** CSIM start ***************
+INFO: [HLS 200-2191] C-Simulation will use clang-16 as the compiler
+INFO: [HLS 200-2036] Building debug C Simulation binaries
+   Compiling ../../../../../tb/tb_local.cpp in debug mode
+   Compiling ../../../../../src/local_move_hls.cpp in debug mode
+   Generating csim.exe
+PASS local: n=10, FRAC=19, integer=7, moves=20480, max acceptance error=5e-05
+INFO: [SIM 211-1] CSim done with 0 errors.
+INFO: [SIM 211-3] *************** CSIM finish ***************
+INFO: [HLS 200-2161] Finished Command csim_design Elapsed time: 00:00:32; Allocated memory: 0.000 MB.
+INFO: [HLS 200-112] Total CPU user time: 32.28 seconds. Total CPU system time: 0.39 seconds. Total elapsed time: 33.2 seconds; peak allocated memory: 237.926 MB.
+INFO: [vitis-run 60-791] Total elapsed time: 0h 0m 33s
+INFO: [vitis-run 60-1662] Stopping dispatch session having empty uuid.
+SK_N_VAL=8
+FPGA_COMPONENT=/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_local_N8
+
+****** vitis-run v2025.2 (64-bit)
+  **** SW Build 6295257 on 2025-11-13-01:29:13
+  **** Start of session at: Sun Oct 25 16:11:10 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+
+  **** HLS Build v2025.2 6295257
+Sourcing Tcl script '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/scripts/run_hls.tcl'
+stage=csim move=local n=8 top=local_spin_flip_operation component=/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_local_N8
+INFO: [HLS 200-1510] Running: open_project -reset /u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_local_N8 
+WARNING: [HLS 200-2182] The 'csim_local_N8' project will not automatically appear within Vitis IDE workspaces and is meant only for TCL batch use.  Please use open_component instead of open_project/open_solution to generate Vitis IDE compatible component files and directory structure.
+Resolution: For help on HLS 200-2182 see docs.amd.com/access/sources/dita/topic?Doc_Version=2025.2%20English&url=ug1448-hls-guidance&resourceid=200-2182.html
+INFO: [HLS 200-10] Creating and opening solution '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_local_N8'.
+INFO: [HLS 200-1510] Running: set_top local_spin_flip_operation 
+INFO: [HLS 200-1510] Running: open_solution -reset solution -flow_target vivado 
+INFO: [HLS 200-10] Creating and opening solution '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_local_N8/solution'.
+INFO: [HLS 200-10] Cleaning up the solution database.
+INFO: [HLS 200-1505] Using flow_target 'vivado'
+Resolution: For help on HLS 200-1505 see docs.amd.com/access/sources/dita/topic?Doc_Version=2025.2%20English&url=ug1448-hls-guidance&resourceid=200-1505.html
+INFO: [HLS 200-1510] Running: set_part xcvu19p-fsva3824-2-e 
+INFO: [HLS 200-1611] Setting target device to 'xcvu19p-fsva3824-2-e'
+INFO: [HLS 200-1510] Running: create_clock -period 3.000 -name default 
+INFO: [SYN 201-201] Setting up clock 'default' with a period of 3ns.
+INFO: [HLS 200-1510] Running: add_files -tb /u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src/local_move_hls.cpp -cflags -std=c++17 -I/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src -DSK_N=8 
+INFO: [HLS 200-10] Adding test bench file '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src/local_move_hls.cpp' to the project
+INFO: [HLS 200-1510] Running: add_files -tb /u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/tb/tb_local.cpp -cflags -std=c++17 -I/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src -DSK_N=8 
+INFO: [HLS 200-10] Adding test bench file '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/tb/tb_local.cpp' to the project
+INFO: [HLS 200-1510] Running: csim_design -clean 
+INFO: [SIM 211-2] *************** CSIM start ***************
+INFO: [HLS 200-2191] C-Simulation will use clang-16 as the compiler
+INFO: [HLS 200-2036] Building debug C Simulation binaries
+   Compiling ../../../../../tb/tb_local.cpp in debug mode
+   Compiling ../../../../../src/local_move_hls.cpp in debug mode
+   Generating csim.exe
+PASS local: n=8, FRAC=18, integer=6, moves=4096, max acceptance error=5e-05
+INFO: [SIM 211-1] CSim done with 0 errors.
+INFO: [SIM 211-3] *************** CSIM finish ***************
+INFO: [HLS 200-2161] Finished Command csim_design Elapsed time: 00:00:19; Allocated memory: 0.000 MB.
+INFO: [HLS 200-112] Total CPU user time: 19.26 seconds. Total CPU system time: 0.35 seconds. Total elapsed time: 20.06 seconds; peak allocated memory: 237.934 MB.
+INFO: [vitis-run 60-791] Total elapsed time: 0h 0m 20s
+INFO: [vitis-run 60-1662] Stopping dispatch session having empty uuid.
+SK_N_VAL=16
+FPGA_COMPONENT=/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_local_N16
+
+****** vitis-run v2025.2 (64-bit)
+  **** SW Build 6295257 on 2025-11-13-01:29:13
+  **** Start of session at: Sun Oct 25 16:11:32 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+
+  **** HLS Build v2025.2 6295257
+Sourcing Tcl script '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/scripts/run_hls.tcl'
+stage=csim move=local n=16 top=local_spin_flip_operation component=/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_local_N16
+INFO: [HLS 200-1510] Running: open_project -reset /u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_local_N16 
+WARNING: [HLS 200-2182] The 'csim_local_N16' project will not automatically appear within Vitis IDE workspaces and is meant only for TCL batch use.  Please use open_component instead of open_project/open_solution to generate Vitis IDE compatible component files and directory structure.
+Resolution: For help on HLS 200-2182 see docs.amd.com/access/sources/dita/topic?Doc_Version=2025.2%20English&url=ug1448-hls-guidance&resourceid=200-2182.html
+INFO: [HLS 200-10] Creating and opening solution '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_local_N16'.
+INFO: [HLS 200-1510] Running: set_top local_spin_flip_operation 
+INFO: [HLS 200-1510] Running: open_solution -reset solution -flow_target vivado 
+INFO: [HLS 200-10] Creating and opening solution '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_local_N16/solution'.
+INFO: [HLS 200-10] Cleaning up the solution database.
+INFO: [HLS 200-1505] Using flow_target 'vivado'
+Resolution: For help on HLS 200-1505 see docs.amd.com/access/sources/dita/topic?Doc_Version=2025.2%20English&url=ug1448-hls-guidance&resourceid=200-1505.html
+INFO: [HLS 200-1510] Running: set_part xcvu19p-fsva3824-2-e 
+INFO: [HLS 200-1611] Setting target device to 'xcvu19p-fsva3824-2-e'
+INFO: [HLS 200-1510] Running: create_clock -period 3.000 -name default 
+INFO: [SYN 201-201] Setting up clock 'default' with a period of 3ns.
+INFO: [HLS 200-1510] Running: add_files -tb /u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src/local_move_hls.cpp -cflags -std=c++17 -I/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src -DSK_N=16 
+INFO: [HLS 200-10] Adding test bench file '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src/local_move_hls.cpp' to the project
+INFO: [HLS 200-1510] Running: add_files -tb /u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/tb/tb_local.cpp -cflags -std=c++17 -I/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src -DSK_N=16 
+INFO: [HLS 200-10] Adding test bench file '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/tb/tb_local.cpp' to the project
+INFO: [HLS 200-1510] Running: csim_design -clean 
+INFO: [SIM 211-2] *************** CSIM start ***************
+INFO: [HLS 200-2191] C-Simulation will use clang-16 as the compiler
+INFO: [HLS 200-2036] Building debug C Simulation binaries
+   Compiling ../../../../../tb/tb_local.cpp in debug mode
+   Compiling ../../../../../src/local_move_hls.cpp in debug mode
+   Generating csim.exe
+PASS local: n=16, FRAC=20, integer=8, moves=512, max acceptance error=5e-05
+INFO: [SIM 211-1] CSim done with 0 errors.
+INFO: [SIM 211-3] *************** CSIM finish ***************
+INFO: [HLS 200-2161] Finished Command csim_design Elapsed time: 00:00:16; Allocated memory: 0.000 MB.
+INFO: [HLS 200-112] Total CPU user time: 16.49 seconds. Total CPU system time: 0.38 seconds. Total elapsed time: 17.32 seconds; peak allocated memory: 237.926 MB.
+INFO: [vitis-run 60-791] Total elapsed time: 0h 0m 18s
+INFO: [vitis-run 60-1662] Stopping dispatch session having empty uuid.
+SK_N_VAL=32
+FPGA_COMPONENT=/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_local_N32
+
+****** vitis-run v2025.2 (64-bit)
+  **** SW Build 6295257 on 2025-11-13-01:29:13
+  **** Start of session at: Sun Oct 25 16:11:51 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+
+  **** HLS Build v2025.2 6295257
+Sourcing Tcl script '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/scripts/run_hls.tcl'
+stage=csim move=local n=32 top=local_spin_flip_operation component=/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_local_N32
+INFO: [HLS 200-1510] Running: open_project -reset /u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_local_N32 
+WARNING: [HLS 200-2182] The 'csim_local_N32' project will not automatically appear within Vitis IDE workspaces and is meant only for TCL batch use.  Please use open_component instead of open_project/open_solution to generate Vitis IDE compatible component files and directory structure.
+Resolution: For help on HLS 200-2182 see docs.amd.com/access/sources/dita/topic?Doc_Version=2025.2%20English&url=ug1448-hls-guidance&resourceid=200-2182.html
+INFO: [HLS 200-10] Creating and opening solution '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_local_N32'.
+INFO: [HLS 200-1510] Running: set_top local_spin_flip_operation 
+INFO: [HLS 200-1510] Running: open_solution -reset solution -flow_target vivado 
+INFO: [HLS 200-10] Creating and opening solution '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_local_N32/solution'.
+INFO: [HLS 200-10] Cleaning up the solution database.
+INFO: [HLS 200-1505] Using flow_target 'vivado'
+Resolution: For help on HLS 200-1505 see docs.amd.com/access/sources/dita/topic?Doc_Version=2025.2%20English&url=ug1448-hls-guidance&resourceid=200-1505.html
+INFO: [HLS 200-1510] Running: set_part xcvu19p-fsva3824-2-e 
+INFO: [HLS 200-1611] Setting target device to 'xcvu19p-fsva3824-2-e'
+INFO: [HLS 200-1510] Running: create_clock -period 3.000 -name default 
+INFO: [SYN 201-201] Setting up clock 'default' with a period of 3ns.
+INFO: [HLS 200-1510] Running: add_files -tb /u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src/local_move_hls.cpp -cflags -std=c++17 -I/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src -DSK_N=32 
+INFO: [HLS 200-10] Adding test bench file '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src/local_move_hls.cpp' to the project
+INFO: [HLS 200-1510] Running: add_files -tb /u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/tb/tb_local.cpp -cflags -std=c++17 -I/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src -DSK_N=32 
+INFO: [HLS 200-10] Adding test bench file '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/tb/tb_local.cpp' to the project
+INFO: [HLS 200-1510] Running: csim_design -clean 
+INFO: [SIM 211-2] *************** CSIM start ***************
+INFO: [HLS 200-2191] C-Simulation will use clang-16 as the compiler
+INFO: [HLS 200-2036] Building debug C Simulation binaries
+   Compiling ../../../../../tb/tb_local.cpp in debug mode
+   Compiling ../../../../../src/local_move_hls.cpp in debug mode
+   Generating csim.exe
+PASS local: n=32, FRAC=22, integer=9, moves=1024, max acceptance error=5e-05
+INFO: [SIM 211-1] CSim done with 0 errors.
+INFO: [SIM 211-3] *************** CSIM finish ***************
+INFO: [HLS 200-2161] Finished Command csim_design Elapsed time: 00:00:16; Allocated memory: 0.000 MB.
+INFO: [HLS 200-112] Total CPU user time: 16.66 seconds. Total CPU system time: 0.35 seconds. Total elapsed time: 17.45 seconds; peak allocated memory: 237.926 MB.
+INFO: [vitis-run 60-791] Total elapsed time: 0h 0m 18s
+INFO: [vitis-run 60-1662] Stopping dispatch session having empty uuid.
+SK_N_VAL=64
+FPGA_COMPONENT=/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_local_N64
+
+****** vitis-run v2025.2 (64-bit)
+  **** SW Build 6295257 on 2025-11-13-01:29:13
+  **** Start of session at: Sun Oct 25 16:12:10 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+
+  **** HLS Build v2025.2 6295257
+Sourcing Tcl script '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/scripts/run_hls.tcl'
+stage=csim move=local n=64 top=local_spin_flip_operation component=/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_local_N64
+INFO: [HLS 200-1510] Running: open_project -reset /u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_local_N64 
+WARNING: [HLS 200-2182] The 'csim_local_N64' project will not automatically appear within Vitis IDE workspaces and is meant only for TCL batch use.  Please use open_component instead of open_project/open_solution to generate Vitis IDE compatible component files and directory structure.
+Resolution: For help on HLS 200-2182 see docs.amd.com/access/sources/dita/topic?Doc_Version=2025.2%20English&url=ug1448-hls-guidance&resourceid=200-2182.html
+INFO: [HLS 200-10] Creating and opening solution '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_local_N64'.
+INFO: [HLS 200-1510] Running: set_top local_spin_flip_operation 
+INFO: [HLS 200-1510] Running: open_solution -reset solution -flow_target vivado 
+INFO: [HLS 200-10] Creating and opening solution '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_local_N64/solution'.
+INFO: [HLS 200-10] Cleaning up the solution database.
+INFO: [HLS 200-1505] Using flow_target 'vivado'
+Resolution: For help on HLS 200-1505 see docs.amd.com/access/sources/dita/topic?Doc_Version=2025.2%20English&url=ug1448-hls-guidance&resourceid=200-1505.html
+INFO: [HLS 200-1510] Running: set_part xcvu19p-fsva3824-2-e 
+INFO: [HLS 200-1611] Setting target device to 'xcvu19p-fsva3824-2-e'
+INFO: [HLS 200-1510] Running: create_clock -period 3.000 -name default 
+INFO: [SYN 201-201] Setting up clock 'default' with a period of 3ns.
+INFO: [HLS 200-1510] Running: add_files -tb /u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src/local_move_hls.cpp -cflags -std=c++17 -I/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src -DSK_N=64 
+INFO: [HLS 200-10] Adding test bench file '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src/local_move_hls.cpp' to the project
+INFO: [HLS 200-1510] Running: add_files -tb /u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/tb/tb_local.cpp -cflags -std=c++17 -I/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src -DSK_N=64 
+INFO: [HLS 200-10] Adding test bench file '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/tb/tb_local.cpp' to the project
+INFO: [HLS 200-1510] Running: csim_design -clean 
+INFO: [SIM 211-2] *************** CSIM start ***************
+INFO: [HLS 200-2191] C-Simulation will use clang-16 as the compiler
+INFO: [HLS 200-2036] Building debug C Simulation binaries
+   Compiling ../../../../../tb/tb_local.cpp in debug mode
+   Compiling ../../../../../src/local_move_hls.cpp in debug mode
+   Generating csim.exe
+PASS local: n=64, FRAC=24, integer=11, moves=2048, max acceptance error=5e-05
+INFO: [SIM 211-1] CSim done with 0 errors.
+INFO: [SIM 211-3] *************** CSIM finish ***************
+INFO: [HLS 200-2161] Finished Command csim_design Elapsed time: 00:00:18; Allocated memory: 0.000 MB.
+INFO: [HLS 200-112] Total CPU user time: 18.13 seconds. Total CPU system time: 0.37 seconds. Total elapsed time: 19 seconds; peak allocated memory: 237.926 MB.
+INFO: [vitis-run 60-791] Total elapsed time: 0h 0m 19s
+INFO: [vitis-run 60-1662] Stopping dispatch session having empty uuid.

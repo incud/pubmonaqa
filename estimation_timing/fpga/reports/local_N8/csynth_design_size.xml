@@ -1,0 +1,77 @@
+<design_size title="Design Size Report">
+    <item name="Total Instructions per Compilation Phase">
+        <table>
+            <keys size="4">Phase, Step, Instructions, Description</keys>
+            <column name="Compile/Link">, 13557, After all functions are compiled and linked into a single design</column>
+            <column name="">, , </column>
+            <column name="Unroll/Inline">, , After user unroll and inline pragmas are applied</column>
+            <column name="">(1) unroll,  4760, user unroll pragmas are applied</column>
+            <column name="">(2) simplification,  1803, simplification of applied user unroll pragmas</column>
+            <column name="">(3) inline,  1715, user inline pragmas are applied</column>
+            <column name="">(4) simplification,  1547, simplification of applied user inline pragmas</column>
+            <column name="">, , </column>
+            <column name="Array/Struct">, , After user array partition and struct aggregate/disaggregate pragmas are applied</column>
+            <column name="">(1) array partition,  1397, user array partition pragmas are applied</column>
+            <column name="">(2) simplification,  1397, simplification of applied user array partition &amp; struct aggregate/disaggregate pragmas</column>
+            <column name="">(3) aggregate/disaggregate,  1397, user struct aggregate/disaggregate pragmas are applied</column>
+            <column name="">(4) array reshape,  1397, apply array reshape pragmas</column>
+            <column name="">(5) access patterns,  1397, array access pattern optmizations</column>
+            <column name="">, , </column>
+            <column name="Performance">, , After transformations are applied to meet performance pragma targets</column>
+            <column name="">(1) loop simplification,  1397, loop and instruction simplification</column>
+            <column name="">(2) parallelization,  1397, loops are unrolled or pipelined to meet performance targets</column>
+            <column name="">(3) array partition,  1397, arrays are partitioned to meet performance targets</column>
+            <column name="">(4) simplification,  1397, simplification of design after performance transformations</column>
+            <column name="">, , </column>
+            <column name="HW Transforms">, , After hardware transfomations</column>
+            <column name="">(1) lowering,  1471, initial conversion to HW specific instructions</column>
+            <column name="">(2) optimizations,  1473, high level synthesis optimizations</column>
+        </table>
+    </item>
+    <item name="Instructions per Function for each Compilation Phase">
+        <hiertable>
+            <header size="7" col0="Function" col1="Location" col2="Compile/Link" col3="Unroll/Inline" col4="Array/Struct" col5="Performance" col6="HW Transforms"/>
+            <rows>
+                <row id="0" col0="local_spin_flip_operation" col1="local_move_hls.cpp:3" col2="13557" col3="1547" col4="1397" col5="1397" col6="1473">
+                    <row id="13" col0="edge_index" col1="fpga.hpp:57" col2="18" col3="" col4="" col5="" col6=""/>
+                    <row id="12" col0="signed_term" col1="fpga.hpp:39" col2="2830" col2_disp="2,830 (2 calls)" col3="" col4="" col5="" col6="">
+                        <row id="11" col0="energy_add" col1="fpga.hpp:32" col2="2202" col2_disp="2,202 (2 calls)" col3="" col4="" col5="" col6="">
+                            <row id="8" col0="energy_bits" col1="fpga.hpp:18" col2="392" col2_disp="  392 (4 calls)" col3="" col4="" col5="" col6=""/>
+                            <row id="1" col0="prefix_add&lt;24, ap_int&lt;24&gt; &gt;" col1="wallace.hpp:11" col2="1500" col2_disp="1,500 (2 calls)" col3="" col4="" col5="" col6="">
+                                <row id="14" col0="ceil_log2" col1="wallace.hpp:3" col2="24" col2_disp="   24 (2 calls)" col3="" col4="" col5="" col6=""/>
+                            </row>
+                            <row id="7" col0="energy_from_bits" col1="fpga.hpp:25" col2="182" col2_disp="  182 (2 calls)" col3="" col4="" col5="" col6=""/>
+                        </row>
+                    </row>
+                    <row id="3" col0="sum_energy&lt;9&gt;" col1="fpga.hpp:45" col2="3126" col3="" col4="" col5="" col6="">
+                        <row id="8" col0="energy_bits" col1="fpga.hpp:18" col2="98" col3="" col4="" col5="" col6=""/>
+                        <row id="10" col0="wallace_sum&lt;9, 24, ap_int&lt;24&gt; &gt;" col1="wallace.hpp:30" col2="2901" col3="" col4="" col5="" col6="">
+                            <row id="9" col0="wallace_sum&lt;6, 24, ap_int&lt;24&gt; &gt;" col1="wallace.hpp:30" col2="2366" col3="" col4="" col5="" col6="">
+                                <row id="6" col0="wallace_sum&lt;4, 24, ap_int&lt;24&gt; &gt;" col1="wallace.hpp:30" col2="1831" col3="" col4="" col5="" col6="">
+                                    <row id="5" col0="wallace_sum&lt;3, 24, ap_int&lt;24&gt; &gt;" col1="wallace.hpp:30" col2="1296" col3="" col4="" col5="" col6="">
+                                        <row id="2" col0="wallace_sum&lt;2, 24, ap_int&lt;24&gt; &gt;" col1="wallace.hpp:30" col2="761" col3="" col4="" col5="" col6="">
+                                            <row id="1" col0="prefix_add&lt;24, ap_int&lt;24&gt; &gt;" col1="wallace.hpp:11" col2="750" col3="" col4="" col5="" col6="">
+                                                <row id="14" col0="ceil_log2" col1="wallace.hpp:3" col2="12" col3="" col4="" col5="" col6=""/>
+                                            </row>
+                                        </row>
+                                    </row>
+                                </row>
+                            </row>
+                        </row>
+                        <row id="7" col0="energy_from_bits" col1="fpga.hpp:25" col2="91" col3="" col4="" col5="" col6=""/>
+                    </row>
+                    <row id="8" col0="energy_bits" col1="fpga.hpp:18" col2="98" col3="" col4="" col5="" col6=""/>
+                    <row id="7" col0="energy_from_bits" col1="fpga.hpp:25" col2="91" col3="" col4="" col5="" col6=""/>
+                    <row id="4" col0="metropolis_probability" col1="fpga.hpp:64" col2="6443" col3="" col4="" col5="" col6=""/>
+                </row>
+            </rows>
+            <notes/>
+        </hiertable>
+    </item>
+    <item name="Design Size Message Settings">
+        <table>
+            <keys size="3">Message Setting, Value, Description</keys>
+            <column name="config_compile -design_size_maximum_warning">100000, Show a warning when total design instructions exceeds this value</column>
+        </table>
+    </item>
+</design_size>

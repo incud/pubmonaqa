@@ -1,0 +1,73 @@
+================================================================
+== Design Size Report
+================================================================
+
+* Total Instructions per Compilation Phase
++---------------+----------------------------+--------------+----------------------------------------------------------------------------------------+
+| Phase         | Step                       | Instructions | Description                                                                            |
++---------------+----------------------------+--------------+----------------------------------------------------------------------------------------+
+| Compile/Link  |                            | 15,957       | After all functions are compiled and linked into a single design                       |
+|               |                            |              |                                                                                        |
+| Unroll/Inline |                            |              | After user unroll and inline pragmas are applied                                       |
+|               | (1) unroll                 | 32,015       | user unroll pragmas are applied                                                        |
+|               | (2) simplification         |  8,763       | simplification of applied user unroll pragmas                                          |
+|               | (3) inline                 |  8,473       | user inline pragmas are applied                                                        |
+|               | (4) simplification         |  7,991       | simplification of applied user inline pragmas                                          |
+|               |                            |              |                                                                                        |
+| Array/Struct  |                            |              | After user array partition and struct aggregate/disaggregate pragmas are applied       |
+|               | (1) array partition        |  4,840       | user array partition pragmas are applied                                               |
+|               | (2) simplification         |  4,658       | simplification of applied user array partition & struct aggregate/disaggregate pragmas |
+|               | (3) aggregate/disaggregate |  4,658       | user struct aggregate/disaggregate pragmas are applied                                 |
+|               | (4) array reshape          |  4,658       | apply array reshape pragmas                                                            |
+|               | (5) access patterns        |  4,658       | array access pattern optmizations                                                      |
+|               |                            |              |                                                                                        |
+| Performance   |                            |              | After transformations are applied to meet performance pragma targets                   |
+|               | (1) loop simplification    |  4,658       | loop and instruction simplification                                                    |
+|               | (2) parallelization        |  4,658       | loops are unrolled or pipelined to meet performance targets                            |
+|               | (3) array partition        |  4,658       | arrays are partitioned to meet performance targets                                     |
+|               | (4) simplification         |  4,658       | simplification of design after performance transformations                             |
+|               |                            |              |                                                                                        |
+| HW Transforms |                            |              | After hardware transfomations                                                          |
+|               | (1) lowering               |  5,716       | initial conversion to HW specific instructions                                         |
+|               | (2) optimizations          |  5,718       | high level synthesis optimizations                                                     |
++---------------+----------------------------+--------------+----------------------------------------------------------------------------------------+
+
+* Instructions per Function for each Compilation Phase
++---------------------------------------------+----------------------+-----------------+---------------+--------------+-------------+---------------+
+| Function                                    | Location             | Compile/Link    | Unroll/Inline | Array/Struct | Performance | HW Transforms |
++---------------------------------------------+----------------------+-----------------+---------------+--------------+-------------+---------------+
+| + local_spin_flip_operation                 | local_move_hls.cpp:3 | 15,957          | 7,991         | 4,658        | 4,658       | 5,718         |
+|    edge_index                               | fpga.hpp:57          |    18           |               |              |             |               |
+|  + signed_term                              | fpga.hpp:39          | 2,830 (2 calls) |               |              |             |               |
+|   + energy_add                              | fpga.hpp:32          | 2,202 (2 calls) |               |              |             |               |
+|      energy_bits                            | fpga.hpp:18          |   392 (4 calls) |               |              |             |               |
+|    + prefix_add<31, ap_int<31> >            | wallace.hpp:11       | 1,500 (2 calls) |               |              |             |               |
+|       ceil_log2                             | wallace.hpp:3        |    24 (2 calls) |               |              |             |               |
+|      energy_from_bits                       | fpga.hpp:25          |   182 (2 calls) |               |              |             |               |
+|  + sum_energy<33>                           | fpga.hpp:45          | 5,266           |               |              |             |               |
+|     energy_bits                             | fpga.hpp:18          |    98           |               |              |             |               |
+|   + wallace_sum<33, 31, ap_int<3...         | wallace.hpp:30       | 5,041           |               |              |             |               |
+|    + wallace_sum<22, 31, ap_int<3...        | wallace.hpp:30       | 4,506           |               |              |             |               |
+|     + wallace_sum<15, 31, ap_int<3...       | wallace.hpp:30       | 3,971           |               |              |             |               |
+|      + wallace_sum<10, 31, ap_int<3...      | wallace.hpp:30       | 3,436           |               |              |             |               |
+|       + wallace_sum<7, 31, ap_int<31...     | wallace.hpp:30       | 2,901           |               |              |             |               |
+|        + wallace_sum<5, 31, ap_int<31...    | wallace.hpp:30       | 2,366           |               |              |             |               |
+|         + wallace_sum<4, 31, ap_int<31...   | wallace.hpp:30       | 1,831           |               |              |             |               |
+|          + wallace_sum<3, 31, ap_int<31...  | wallace.hpp:30       | 1,296           |               |              |             |               |
+|           + wallace_sum<2, 31, ap_int<31... | wallace.hpp:30       |   761           |               |              |             |               |
+|            + prefix_add<31, ap_int<31> >    | wallace.hpp:11       |   750           |               |              |             |               |
+|               ceil_log2                     | wallace.hpp:3        |    12           |               |              |             |               |
+|     energy_from_bits                        | fpga.hpp:25          |    91           |               |              |             |               |
+|    energy_bits                              | fpga.hpp:18          |    98           |               |              |             |               |
+|    energy_from_bits                         | fpga.hpp:25          |    91           |               |              |             |               |
+|    metropolis_probability                   | fpga.hpp:64          | 6,709           |               |              |             |               |
++---------------------------------------------+----------------------+-----------------+---------------+--------------+-------------+---------------+
+
+* Design Size Message Settings
++---------------------------------------------+--------+------------------------------------------------------------------+
+| Message Setting                             | Value  | Description                                                      |
++---------------------------------------------+--------+------------------------------------------------------------------+
+| config_compile -design_size_maximum_warning | 100000 | Show a warning when total design instructions exceeds this value |
++---------------------------------------------+--------+------------------------------------------------------------------+
+
+
