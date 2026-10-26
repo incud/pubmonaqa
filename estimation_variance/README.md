@@ -42,3 +42,25 @@ runs the fixed-safety calculation with `s=2`.
 The fixed-safety results are saved in `schedule_outputs_fixed_safety`. At the beginning of the calculation, the selected safety factor is written to `schedule_outputs_fixed_safety/chosen_fixed_safety.txt`. The remaining output files contain one fixed schedule per instance.
 
 The file `collect_schedule.py` collects the adaptive schedule outputs into `schedule_summary.pkl`. For each instance, it stores `n`, `idx`, the schedule length `L`, the mean safety factor, its standard deviation, the maximum safety factor, and the number of schedule steps with safety factor greater than 1.
+
+To analyze the `collect_schedule.py` one can run:
+
+```python
+import pandas as pd
+
+df = pd.read_pickle("schedule_summary.pkl").rename(columns={
+    "mean_safety": "Savg",
+    "max_safety": "Smax",
+})
+
+print(df.groupby("n").agg({
+    "L": ["mean", "std"],
+    "Savg": ["mean", "std"],
+    "Smax": ["mean", "std", "max"],
+}))
+```
+
+where L represents ..., S avg represents ... and S max represents .... Looking at the maximum value of Smax will give the maximum value of the safety value among all the instances and all the n in whatever part of the schedule. This should 2.0 or slightly larger. 
+
+This is already a strong evidence that $\Delta \beta(n, \beta)$ can be effectively chosen as $\Delta \beta(n, \beta) = 2/\sqrt{s\,n\,v(\beta)}$ with $s=2$. 
+bla bla stuff here to move on the notebook
