@@ -5,7 +5,7 @@ if [[ $# -ne 0 ]]; then
 fi
 FPGA_ROOT="$PWD"
 echo "FPGA_ROOT=$FPGA_ROOT"
-PYTHON="python3"
+PYTHON="python3.11"
 echo "PYTHON=$PYTHON"
 
 run_hls() {

@@ -1,0 +1,23 @@
+FPGA Metropolis: copy reports and print latencies.
+RUN_STAGE=reports
+SK_N_VAL=all
+FPGA_ROOT=/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga
+PYTHON=python3.11
+Copied local, n=8
+Copied uniform, n=8
+Copied local, n=16
+Copied uniform, n=16
+Copied local, n=32
+Copied uniform, n=32
+Copied local, n=64
+Copied uniform, n=64
+move       n    latency_s
+local      8     2.91e-07
+uniform    8     2.97e-07
+local     16     2.94e-07
+uniform   16     3.09e-07
+local     32        3e-07
+uniform   32     3.27e-07
+local     64     3.09e-07
+uniform   64     3.87e-07
+Done: reports/summary.csv.

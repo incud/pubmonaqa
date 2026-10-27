@@ -1,0 +1,9 @@
+move,n,latency_s
+local,8,2.9099999999999995e-07
+uniform,8,2.9699999999999997e-07
+local,16,2.9399999999999996e-07
+uniform,16,3.09e-07
+local,32,3e-07
+uniform,32,3.27e-07
+local,64,3.09e-07
+uniform,64,3.87e-07

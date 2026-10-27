@@ -1,0 +1,67 @@
+{
+  "beta": 1.0,
+  "degree": 12,
+  "eps_b": 0.0001,
+  "eps_op": 0.0001,
+  "test_n": 10,
+  "synthesis_sizes": [
+    8,
+    16,
+    32,
+    64
+  ],
+  "tau": 9.903487552536127,
+  "polynomial_tail_bound": 5.533436444604689e-07,
+  "sizes": [
+    {
+      "n": 8,
+      "m": 36,
+      "frac": 18,
+      "int_bits": 6,
+      "word_bits": 24,
+      "max_delta": 26,
+      "cutoff_energy": 9.903488159179688,
+      "rounding_tv_bound": 6.866926581761876e-05
+    },
+    {
+      "n": 10,
+      "m": 55,
+      "frac": 19,
+      "int_bits": 7,
+      "word_bits": 26,
+      "max_delta": 36,
+      "cutoff_energy": 9.903488159179688,
+      "rounding_tv_bound": 5.245483872002401e-05
+    },
+    {
+      "n": 16,
+      "m": 136,
+      "frac": 20,
+      "int_bits": 8,
+      "word_bits": 28,
+      "max_delta": 74,
+      "cutoff_energy": 9.903488159179688,
+      "rounding_tv_bound": 6.485405920094941e-05
+    },
+    {
+      "n": 32,
+      "m": 528,
+      "frac": 22,
+      "int_bits": 9,
+      "word_bits": 31,
+      "max_delta": 206,
+      "cutoff_energy": 9.90348768234253,
+      "rounding_tv_bound": 6.294646680798067e-05
+    },
+    {
+      "n": 64,
+      "m": 2080,
+      "frac": 24,
+      "int_bits": 11,
+      "word_bits": 35,
+      "max_delta": 578,
+      "cutoff_energy": 9.90348756313324,
+      "rounding_tv_bound": 6.199267334032565e-05
+    }
+  ]
+}

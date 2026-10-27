@@ -1,0 +1,230 @@
+FPGA Metropolis: test uniform moves at all configured precisions.
+RUN_STAGE=csim
+SK_N_VAL=all
+MOVE=uniform
+FPGA_ROOT=/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga
+PYTHON=python3
+VITIS_SETTINGS=/scratch/mincudin/xlnx/2025.2/Vitis/settings64.sh
+HLS_PART=xcvu19p-fsva3824-2-e
+CLOCK_NS=3.000
+FPGA_LAUNCH=/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/launch_csim_uniform_Nall
+SK_N_VAL=10
+FPGA_COMPONENT=/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_uniform_N10
+
+****** vitis-run v2025.2 (64-bit)
+  **** SW Build 6295257 on 2025-11-13-01:29:13
+  **** Start of session at: Sun Oct 25 16:14:47 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+
+  **** HLS Build v2025.2 6295257
+Sourcing Tcl script '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/scripts/run_hls.tcl'
+stage=csim move=uniform n=10 top=uniform_move_operation component=/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_uniform_N10
+INFO: [HLS 200-1510] Running: open_project -reset /u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_uniform_N10 
+WARNING: [HLS 200-2182] The 'csim_uniform_N10' project will not automatically appear within Vitis IDE workspaces and is meant only for TCL batch use.  Please use open_component instead of open_project/open_solution to generate Vitis IDE compatible component files and directory structure.
+Resolution: For help on HLS 200-2182 see docs.amd.com/access/sources/dita/topic?Doc_Version=2025.2%20English&url=ug1448-hls-guidance&resourceid=200-2182.html
+INFO: [HLS 200-10] Creating and opening solution '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_uniform_N10'.
+INFO: [HLS 200-1510] Running: set_top uniform_move_operation 
+INFO: [HLS 200-1510] Running: open_solution -reset solution -flow_target vivado 
+INFO: [HLS 200-10] Creating and opening solution '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_uniform_N10/solution'.
+INFO: [HLS 200-10] Cleaning up the solution database.
+INFO: [HLS 200-1505] Using flow_target 'vivado'
+Resolution: For help on HLS 200-1505 see docs.amd.com/access/sources/dita/topic?Doc_Version=2025.2%20English&url=ug1448-hls-guidance&resourceid=200-1505.html
+INFO: [HLS 200-1510] Running: set_part xcvu19p-fsva3824-2-e 
+INFO: [HLS 200-1611] Setting target device to 'xcvu19p-fsva3824-2-e'
+INFO: [HLS 200-1510] Running: create_clock -period 3.000 -name default 
+INFO: [SYN 201-201] Setting up clock 'default' with a period of 3ns.
+INFO: [HLS 200-1510] Running: add_files -tb /u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src/uniform_move_hls.cpp -cflags -std=c++17 -I/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src -DSK_N=10 
+INFO: [HLS 200-10] Adding test bench file '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src/uniform_move_hls.cpp' to the project
+INFO: [HLS 200-1510] Running: add_files -tb /u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/tb/tb_uniform.cpp -cflags -std=c++17 -I/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src -DSK_N=10 
+INFO: [HLS 200-10] Adding test bench file '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/tb/tb_uniform.cpp' to the project
+INFO: [HLS 200-1510] Running: csim_design -clean 
+INFO: [SIM 211-2] *************** CSIM start ***************
+INFO: [HLS 200-2191] C-Simulation will use clang-16 as the compiler
+INFO: [HLS 200-2036] Building debug C Simulation binaries
+   Compiling ../../../../../tb/tb_uniform.cpp in debug mode
+   Compiling ../../../../../src/uniform_move_hls.cpp in debug mode
+   Generating csim.exe
+PASS uniform: n=10, FRAC=19, integer=7, moves=20480, max acceptance error=5e-05
+INFO: [SIM 211-1] CSim done with 0 errors.
+INFO: [SIM 211-3] *************** CSIM finish ***************
+INFO: [HLS 200-2161] Finished Command csim_design Elapsed time: 00:00:30; Allocated memory: 0.000 MB.
+INFO: [HLS 200-112] Total CPU user time: 30.87 seconds. Total CPU system time: 0.36 seconds. Total elapsed time: 31.73 seconds; peak allocated memory: 237.887 MB.
+INFO: [vitis-run 60-791] Total elapsed time: 0h 0m 32s
+INFO: [vitis-run 60-1662] Stopping dispatch session having empty uuid.
+SK_N_VAL=8
+FPGA_COMPONENT=/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_uniform_N8
+
+****** vitis-run v2025.2 (64-bit)
+  **** SW Build 6295257 on 2025-11-13-01:29:13
+  **** Start of session at: Sun Oct 25 16:15:21 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+
+  **** HLS Build v2025.2 6295257
+Sourcing Tcl script '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/scripts/run_hls.tcl'
+stage=csim move=uniform n=8 top=uniform_move_operation component=/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_uniform_N8
+INFO: [HLS 200-1510] Running: open_project -reset /u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_uniform_N8 
+WARNING: [HLS 200-2182] The 'csim_uniform_N8' project will not automatically appear within Vitis IDE workspaces and is meant only for TCL batch use.  Please use open_component instead of open_project/open_solution to generate Vitis IDE compatible component files and directory structure.
+Resolution: For help on HLS 200-2182 see docs.amd.com/access/sources/dita/topic?Doc_Version=2025.2%20English&url=ug1448-hls-guidance&resourceid=200-2182.html
+INFO: [HLS 200-10] Creating and opening solution '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_uniform_N8'.
+INFO: [HLS 200-1510] Running: set_top uniform_move_operation 
+INFO: [HLS 200-1510] Running: open_solution -reset solution -flow_target vivado 
+INFO: [HLS 200-10] Creating and opening solution '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_uniform_N8/solution'.
+INFO: [HLS 200-10] Cleaning up the solution database.
+INFO: [HLS 200-1505] Using flow_target 'vivado'
+Resolution: For help on HLS 200-1505 see docs.amd.com/access/sources/dita/topic?Doc_Version=2025.2%20English&url=ug1448-hls-guidance&resourceid=200-1505.html
+INFO: [HLS 200-1510] Running: set_part xcvu19p-fsva3824-2-e 
+INFO: [HLS 200-1611] Setting target device to 'xcvu19p-fsva3824-2-e'
+INFO: [HLS 200-1510] Running: create_clock -period 3.000 -name default 
+INFO: [SYN 201-201] Setting up clock 'default' with a period of 3ns.
+INFO: [HLS 200-1510] Running: add_files -tb /u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src/uniform_move_hls.cpp -cflags -std=c++17 -I/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src -DSK_N=8 
+INFO: [HLS 200-10] Adding test bench file '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src/uniform_move_hls.cpp' to the project
+INFO: [HLS 200-1510] Running: add_files -tb /u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/tb/tb_uniform.cpp -cflags -std=c++17 -I/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src -DSK_N=8 
+INFO: [HLS 200-10] Adding test bench file '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/tb/tb_uniform.cpp' to the project
+INFO: [HLS 200-1510] Running: csim_design -clean 
+INFO: [SIM 211-2] *************** CSIM start ***************
+INFO: [HLS 200-2191] C-Simulation will use clang-16 as the compiler
+INFO: [HLS 200-2036] Building debug C Simulation binaries
+   Compiling ../../../../../tb/tb_uniform.cpp in debug mode
+   Compiling ../../../../../src/uniform_move_hls.cpp in debug mode
+   Generating csim.exe
+PASS uniform: n=8, FRAC=18, integer=6, moves=5120, max acceptance error=5e-05
+INFO: [SIM 211-1] CSim done with 0 errors.
+INFO: [SIM 211-3] *************** CSIM finish ***************
+INFO: [HLS 200-2161] Finished Command csim_design Elapsed time: 00:00:20; Allocated memory: 0.000 MB.
+INFO: [HLS 200-112] Total CPU user time: 20.15 seconds. Total CPU system time: 0.34 seconds. Total elapsed time: 20.95 seconds; peak allocated memory: 237.926 MB.
+INFO: [vitis-run 60-791] Total elapsed time: 0h 0m 21s
+INFO: [vitis-run 60-1662] Stopping dispatch session having empty uuid.
+SK_N_VAL=16
+FPGA_COMPONENT=/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_uniform_N16
+
+****** vitis-run v2025.2 (64-bit)
+  **** SW Build 6295257 on 2025-11-13-01:29:13
+  **** Start of session at: Sun Oct 25 16:15:43 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+
+  **** HLS Build v2025.2 6295257
+Sourcing Tcl script '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/scripts/run_hls.tcl'
+stage=csim move=uniform n=16 top=uniform_move_operation component=/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_uniform_N16
+INFO: [HLS 200-1510] Running: open_project -reset /u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_uniform_N16 
+WARNING: [HLS 200-2182] The 'csim_uniform_N16' project will not automatically appear within Vitis IDE workspaces and is meant only for TCL batch use.  Please use open_component instead of open_project/open_solution to generate Vitis IDE compatible component files and directory structure.
+Resolution: For help on HLS 200-2182 see docs.amd.com/access/sources/dita/topic?Doc_Version=2025.2%20English&url=ug1448-hls-guidance&resourceid=200-2182.html
+INFO: [HLS 200-10] Creating and opening solution '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_uniform_N16'.
+INFO: [HLS 200-1510] Running: set_top uniform_move_operation 
+INFO: [HLS 200-1510] Running: open_solution -reset solution -flow_target vivado 
+INFO: [HLS 200-10] Creating and opening solution '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_uniform_N16/solution'.
+INFO: [HLS 200-10] Cleaning up the solution database.
+INFO: [HLS 200-1505] Using flow_target 'vivado'
+Resolution: For help on HLS 200-1505 see docs.amd.com/access/sources/dita/topic?Doc_Version=2025.2%20English&url=ug1448-hls-guidance&resourceid=200-1505.html
+INFO: [HLS 200-1510] Running: set_part xcvu19p-fsva3824-2-e 
+INFO: [HLS 200-1611] Setting target device to 'xcvu19p-fsva3824-2-e'
+INFO: [HLS 200-1510] Running: create_clock -period 3.000 -name default 
+INFO: [SYN 201-201] Setting up clock 'default' with a period of 3ns.
+INFO: [HLS 200-1510] Running: add_files -tb /u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src/uniform_move_hls.cpp -cflags -std=c++17 -I/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src -DSK_N=16 
+INFO: [HLS 200-10] Adding test bench file '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src/uniform_move_hls.cpp' to the project
+INFO: [HLS 200-1510] Running: add_files -tb /u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/tb/tb_uniform.cpp -cflags -std=c++17 -I/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src -DSK_N=16 
+INFO: [HLS 200-10] Adding test bench file '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/tb/tb_uniform.cpp' to the project
+INFO: [HLS 200-1510] Running: csim_design -clean 
+INFO: [SIM 211-2] *************** CSIM start ***************
+INFO: [HLS 200-2191] C-Simulation will use clang-16 as the compiler
+INFO: [HLS 200-2036] Building debug C Simulation binaries
+   Compiling ../../../../../tb/tb_uniform.cpp in debug mode
+   Compiling ../../../../../src/uniform_move_hls.cpp in debug mode
+   Generating csim.exe
+PASS uniform: n=16, FRAC=20, integer=8, moves=320, max acceptance error=5e-05
+INFO: [SIM 211-1] CSim done with 0 errors.
+INFO: [SIM 211-3] *************** CSIM finish ***************
+INFO: [HLS 200-2161] Finished Command csim_design Elapsed time: 00:00:16; Allocated memory: 0.000 MB.
+INFO: [HLS 200-112] Total CPU user time: 16.69 seconds. Total CPU system time: 0.34 seconds. Total elapsed time: 17.49 seconds; peak allocated memory: 237.887 MB.
+INFO: [vitis-run 60-791] Total elapsed time: 0h 0m 18s
+INFO: [vitis-run 60-1662] Stopping dispatch session having empty uuid.
+SK_N_VAL=32
+FPGA_COMPONENT=/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_uniform_N32
+
+****** vitis-run v2025.2 (64-bit)
+  **** SW Build 6295257 on 2025-11-13-01:29:13
+  **** Start of session at: Sun Oct 25 16:16:02 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+
+  **** HLS Build v2025.2 6295257
+Sourcing Tcl script '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/scripts/run_hls.tcl'
+stage=csim move=uniform n=32 top=uniform_move_operation component=/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_uniform_N32
+INFO: [HLS 200-1510] Running: open_project -reset /u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_uniform_N32 
+WARNING: [HLS 200-2182] The 'csim_uniform_N32' project will not automatically appear within Vitis IDE workspaces and is meant only for TCL batch use.  Please use open_component instead of open_project/open_solution to generate Vitis IDE compatible component files and directory structure.
+Resolution: For help on HLS 200-2182 see docs.amd.com/access/sources/dita/topic?Doc_Version=2025.2%20English&url=ug1448-hls-guidance&resourceid=200-2182.html
+INFO: [HLS 200-10] Creating and opening solution '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_uniform_N32'.
+INFO: [HLS 200-1510] Running: set_top uniform_move_operation 
+INFO: [HLS 200-1510] Running: open_solution -reset solution -flow_target vivado 
+INFO: [HLS 200-10] Creating and opening solution '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_uniform_N32/solution'.
+INFO: [HLS 200-10] Cleaning up the solution database.
+INFO: [HLS 200-1505] Using flow_target 'vivado'
+Resolution: For help on HLS 200-1505 see docs.amd.com/access/sources/dita/topic?Doc_Version=2025.2%20English&url=ug1448-hls-guidance&resourceid=200-1505.html
+INFO: [HLS 200-1510] Running: set_part xcvu19p-fsva3824-2-e 
+INFO: [HLS 200-1611] Setting target device to 'xcvu19p-fsva3824-2-e'
+INFO: [HLS 200-1510] Running: create_clock -period 3.000 -name default 
+INFO: [SYN 201-201] Setting up clock 'default' with a period of 3ns.
+INFO: [HLS 200-1510] Running: add_files -tb /u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src/uniform_move_hls.cpp -cflags -std=c++17 -I/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src -DSK_N=32 
+INFO: [HLS 200-10] Adding test bench file '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src/uniform_move_hls.cpp' to the project
+INFO: [HLS 200-1510] Running: add_files -tb /u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/tb/tb_uniform.cpp -cflags -std=c++17 -I/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src -DSK_N=32 
+INFO: [HLS 200-10] Adding test bench file '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/tb/tb_uniform.cpp' to the project
+INFO: [HLS 200-1510] Running: csim_design -clean 
+INFO: [SIM 211-2] *************** CSIM start ***************
+INFO: [HLS 200-2191] C-Simulation will use clang-16 as the compiler
+INFO: [HLS 200-2036] Building debug C Simulation binaries
+   Compiling ../../../../../tb/tb_uniform.cpp in debug mode
+   Compiling ../../../../../src/uniform_move_hls.cpp in debug mode
+   Generating csim.exe
+PASS uniform: n=32, FRAC=22, integer=9, moves=320, max acceptance error=5e-05
+INFO: [SIM 211-1] CSim done with 0 errors.
+INFO: [SIM 211-3] *************** CSIM finish ***************
+INFO: [HLS 200-2161] Finished Command csim_design Elapsed time: 00:00:16; Allocated memory: 0.000 MB.
+INFO: [HLS 200-112] Total CPU user time: 16.33 seconds. Total CPU system time: 0.38 seconds. Total elapsed time: 17.15 seconds; peak allocated memory: 237.887 MB.
+INFO: [vitis-run 60-791] Total elapsed time: 0h 0m 17s
+INFO: [vitis-run 60-1662] Stopping dispatch session having empty uuid.
+SK_N_VAL=64
+FPGA_COMPONENT=/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_uniform_N64
+
+****** vitis-run v2025.2 (64-bit)
+  **** SW Build 6295257 on 2025-11-13-01:29:13
+  **** Start of session at: Sun Oct 25 16:16:21 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+
+  **** HLS Build v2025.2 6295257
+Sourcing Tcl script '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/scripts/run_hls.tcl'
+stage=csim move=uniform n=64 top=uniform_move_operation component=/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_uniform_N64
+INFO: [HLS 200-1510] Running: open_project -reset /u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_uniform_N64 
+WARNING: [HLS 200-2182] The 'csim_uniform_N64' project will not automatically appear within Vitis IDE workspaces and is meant only for TCL batch use.  Please use open_component instead of open_project/open_solution to generate Vitis IDE compatible component files and directory structure.
+Resolution: For help on HLS 200-2182 see docs.amd.com/access/sources/dita/topic?Doc_Version=2025.2%20English&url=ug1448-hls-guidance&resourceid=200-2182.html
+INFO: [HLS 200-10] Creating and opening solution '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_uniform_N64'.
+INFO: [HLS 200-1510] Running: set_top uniform_move_operation 
+INFO: [HLS 200-1510] Running: open_solution -reset solution -flow_target vivado 
+INFO: [HLS 200-10] Creating and opening solution '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/build/csim_uniform_N64/solution'.
+INFO: [HLS 200-10] Cleaning up the solution database.
+INFO: [HLS 200-1505] Using flow_target 'vivado'
+Resolution: For help on HLS 200-1505 see docs.amd.com/access/sources/dita/topic?Doc_Version=2025.2%20English&url=ug1448-hls-guidance&resourceid=200-1505.html
+INFO: [HLS 200-1510] Running: set_part xcvu19p-fsva3824-2-e 
+INFO: [HLS 200-1611] Setting target device to 'xcvu19p-fsva3824-2-e'
+INFO: [HLS 200-1510] Running: create_clock -period 3.000 -name default 
+INFO: [SYN 201-201] Setting up clock 'default' with a period of 3ns.
+INFO: [HLS 200-1510] Running: add_files -tb /u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src/uniform_move_hls.cpp -cflags -std=c++17 -I/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src -DSK_N=64 
+INFO: [HLS 200-10] Adding test bench file '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src/uniform_move_hls.cpp' to the project
+INFO: [HLS 200-1510] Running: add_files -tb /u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/tb/tb_uniform.cpp -cflags -std=c++17 -I/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/src -DSK_N=64 
+INFO: [HLS 200-10] Adding test bench file '/u/m/mincudin/Documents/pubmonaqa/estimation_timing/fpga/tb/tb_uniform.cpp' to the project
+INFO: [HLS 200-1510] Running: csim_design -clean 
+INFO: [SIM 211-2] *************** CSIM start ***************
+INFO: [HLS 200-2191] C-Simulation will use clang-16 as the compiler
+INFO: [HLS 200-2036] Building debug C Simulation binaries
+   Compiling ../../../../../tb/tb_uniform.cpp in debug mode
+   Compiling ../../../../../src/uniform_move_hls.cpp in debug mode
+   Generating csim.exe
+PASS uniform: n=64, FRAC=24, integer=11, moves=320, max acceptance error=5e-05
+INFO: [SIM 211-1] CSim done with 0 errors.
+INFO: [SIM 211-3] *************** CSIM finish ***************
+INFO: [HLS 200-2161] Finished Command csim_design Elapsed time: 00:00:16; Allocated memory: 0.000 MB.
+INFO: [HLS 200-112] Total CPU user time: 16.94 seconds. Total CPU system time: 0.37 seconds. Total elapsed time: 17.76 seconds; peak allocated memory: 237.910 MB.
+INFO: [vitis-run 60-791] Total elapsed time: 0h 0m 18s
+INFO: [vitis-run 60-1662] Stopping dispatch session having empty uuid.
