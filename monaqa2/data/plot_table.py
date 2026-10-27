@@ -965,14 +965,14 @@ def plot_annealing_classical_and_quantum_runtime_vs_n(
     - ``"compact"``: uniform and quantum-enhanced proposals.
     - ``"compact_no_layden"``: uniform proposals and quantum-enhanced quantum-walk proposal only.
 
-    :param arithmetic_type: Arithmetic implementation for the quantum-walk runtime, ``"FIXED_POINT"``.
+    :param arithmetic_type: Arithmetic implementation for the quantum-walk runtime, ``"HYBRID"`` or ``"FIXED_POINT"``.
     """
     if mode not in {"full", "compact", "compact_no_layden"}:
         raise ValueError(f"Unknown mode={mode}. Expected 'full', 'compact', or 'compact_no_layden'.")
     if legend_placement not in {"legend_out", "legend_line"}:
         raise ValueError(f"Unknown legend_placement={legend_placement}. Expected 'legend_out' or 'legend_line'.")
     if arithmetic_type not in ALLOWED_ARITHMETIC_TYPES:
-        raise ValueError(f"Unknown arithmetic_type={arithmetic_type!r}. Expected 'FIXED_POINT'.")
+        raise ValueError(f"Unknown arithmetic_type={arithmetic_type!r}. Expected one of {ALLOWED_ARITHMETIC_TYPES}.")
 
     if n_plot_min is None:
         n_plot_min = 3
@@ -3305,7 +3305,7 @@ def plot_annealing_classical_and_quantum_runtime_vs_n_table(
     if arithmetic_type not in ALLOWED_ARITHMETIC_TYPES:
         raise ValueError(
             f"Unknown arithmetic_type={arithmetic_type!r}. "
-            "Expected 'FIXED_POINT'."
+            "Expected one of {ALLOWED_ARITHMETIC_TYPES}."
         )
     if legend_placement not in {"legend_out", "legend_line"}:
         raise ValueError(
@@ -4189,7 +4189,7 @@ def plot_annealing_classical_and_quantum_runtime_vs_n_table_shadowed(
     if arithmetic_type not in ALLOWED_ARITHMETIC_TYPES:
         raise ValueError(
             f"Unknown arithmetic_type={arithmetic_type!r}. "
-            "Expected 'FIXED_POINT'."
+            "Expected one of {ALLOWED_ARITHMETIC_TYPES}."
         )
     if mode not in {"full", "compact", "compact_no_layden"}:
         raise ValueError(

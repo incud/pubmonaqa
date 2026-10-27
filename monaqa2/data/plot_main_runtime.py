@@ -9,7 +9,7 @@ from pathlib import Path
 from monaqa2.data.filename import CLASSICAL_QUERY_FILE, SPECTRAL_GAP_FILE
 from monaqa2.data.spectral_gap import get_spectral_gap_fit_by_n
 from monaqa2.data.classical_query import get_classical_query_fit_by_n
-from monaqa2.data.runtime import get_annealing_time_classical_walk_uniform, get_annealing_time_quantum_walk_uniform, get_annealing_time_quantum_walk_qemc, get_time_direct_enumeration
+from monaqa2.data.runtime import get_annealing_time_classical_walk_uniform, get_annealing_time_quantum_walk_uniform, get_annealing_time_quantum_walk_qemc, get_time_direct_enumeration, _validate_randomized_grid, _validate_arithmetic_type
 
 
 CM = 1.0 / 2.54
@@ -124,6 +124,9 @@ def _compute_runtime_curves(
     n_fit_min: int | None,
     n_fit_max: int | None,
     debug: bool,
+    *,
+    k_randomized_grid: int = 2,
+    arithmetic_type: str = "FIXED_POINT",
 ) -> dict[str, np.ndarray]:
     curves = {key: [] for key in RUNTIME_SERIES}
     eps_SF = float(epsilon) / 4.0
@@ -135,7 +138,7 @@ def _compute_runtime_curves(
         layden_gaps = []
 
         if debug:
-            print(f"\n[debug] n={int(n)}, beta={float(beta):.12g}, epsilon={float(epsilon):.12g}, schedule={schedule}")
+            print(f"\n[debug] n={int(n)}, beta={float(beta):.12g}, epsilon={float(epsilon):.12g}, k_randomized_grid={k_randomized_grid}, arithmetic_type={arithmetic_type}, schedule={schedule}")
 
         for beta_t in schedule:
             uniform_query = _classical_query_fit_value("uniform", int(n), beta_t, epsilon, classical_query_file, statistic, n_fit_min, n_fit_max)
@@ -149,10 +152,10 @@ def _compute_runtime_curves(
                 print(f"  beta_t={beta_t:.12g}, uniform_query={uniform_query:.12g}, uniform_gap={uniform_gap:.12g}, layden_gap={layden_gap:.12g}")
 
         classical_uniform = get_annealing_time_classical_walk_uniform(int(n), uniform_queries, device=classical_device)
-        quantum_uniform_min = get_annealing_time_quantum_walk_uniform(int(n), epsilon, schedule, uniform_gaps, physical_operation_time_min, physical_measurement_time_min, physical_error_rate_min)
-        quantum_uniform_max = get_annealing_time_quantum_walk_uniform(int(n), epsilon, schedule, uniform_gaps, physical_operation_time_max, physical_measurement_time_max, physical_error_rate_max)
-        quantum_layden_min = get_annealing_time_quantum_walk_qemc(int(n), epsilon, schedule, layden_gaps, physical_operation_time_min, physical_measurement_time_min, physical_error_rate_min, num_trotter_steps=num_trotter_steps)
-        quantum_layden_max = get_annealing_time_quantum_walk_qemc(int(n), epsilon, schedule, layden_gaps, physical_operation_time_max, physical_measurement_time_max, physical_error_rate_max, num_trotter_steps=num_trotter_steps)
+        quantum_uniform_min = get_annealing_time_quantum_walk_uniform(int(n), epsilon, schedule, uniform_gaps, physical_operation_time_min, physical_measurement_time_min, physical_error_rate_min, arithmetic_type=arithmetic_type)
+        quantum_uniform_max = get_annealing_time_quantum_walk_uniform(int(n), epsilon, schedule, uniform_gaps, physical_operation_time_max, physical_measurement_time_max, physical_error_rate_max, arithmetic_type=arithmetic_type)
+        quantum_layden_min = get_annealing_time_quantum_walk_qemc(int(n), epsilon, schedule, layden_gaps, physical_operation_time_min, physical_measurement_time_min, physical_error_rate_min, num_trotter_steps=num_trotter_steps, k_randomized_grid=k_randomized_grid, arithmetic_type=arithmetic_type)
+        quantum_layden_max = get_annealing_time_quantum_walk_qemc(int(n), epsilon, schedule, layden_gaps, physical_operation_time_max, physical_measurement_time_max, physical_error_rate_max, num_trotter_steps=num_trotter_steps, k_randomized_grid=k_randomized_grid, arithmetic_type=arithmetic_type)
 
         curves["uniform_classical"].append(float(classical_uniform))
         curves["uniform_quantum"].append((float(quantum_uniform_min), float(quantum_uniform_max)))
@@ -354,8 +357,18 @@ def plot_annealing_classical_and_quantum_runtime_vs_n(
     y_top_padding: float = 0.0,
     optimistic_pessimistic_intercept: bool = False,
     debug: bool = False,
+    *,
+    k_randomized_grid: int = 2,
+    arithmetic_type: str = "FIXED_POINT",
 ) -> tuple[plt.Figure, plt.Axes]:
-    """Plot APS single-column annealing runtime estimates versus n."""
+    """Plot runtime estimates; k_randomized_grid selects the QEMC resource model.
+
+    Zero selects one fixed (t, gamma); positive k selects a 2**k by 2**k grid.
+    The default remains 2. Spectral-gap data must match the chosen proposal.
+    arithmetic_type selects HYBRID or FIXED_POINT (default) resources.
+    """
+    k_randomized_grid = _validate_randomized_grid(k_randomized_grid)
+    arithmetic_type = _validate_arithmetic_type(arithmetic_type)
     n_vals = _n_grid(n_plot_min, n_plot_max)
     if fig is None or ax is None:
         fig, ax = plt.subplots(figsize=(APS_COLUMN_WIDTH_CM * CM, 5.6 * CM))
@@ -363,7 +376,7 @@ def plot_annealing_classical_and_quantum_runtime_vs_n(
             fig.subplots_adjust(left=0.20, right=0.985, top=0.985, bottom=0.43)
         else:
             fig.subplots_adjust(left=0.20, right=0.985, top=0.985, bottom=0.17)
-    curves = _compute_runtime_curves(beta, epsilon, annealing_schedule_generator, n_vals, classical_device, physical_error_rate_min, physical_error_rate_max, physical_operation_time_min, physical_operation_time_max, physical_measurement_time_min, physical_measurement_time_max, num_trotter_steps, classical_query_file, spectral_gap_file, statistic, n_fit_min, n_fit_max, debug)
+    curves = _compute_runtime_curves(beta, epsilon, annealing_schedule_generator, n_vals, classical_device, physical_error_rate_min, physical_error_rate_max, physical_operation_time_min, physical_operation_time_max, physical_measurement_time_min, physical_measurement_time_max, num_trotter_steps, classical_query_file, spectral_gap_file, statistic, n_fit_min, n_fit_max, debug, k_randomized_grid=k_randomized_grid, arithmetic_type=arithmetic_type)
     handles, labels = _plot_runtime_curves(ax, n_vals, curves, line_width, line_alpha, band_alpha)
     if show_direct_enumeration_line:
         direct_line = _add_direct_enumeration_line(ax, n_vals, line_alpha)
@@ -426,6 +439,8 @@ def plot_annealing_classical_and_quantum_runtime_vs_n_three(
     y_top_padding: float = 0.0,
     optimistic_pessimistic_intercept: bool = False,
     debug: bool = False,
+    *,
+    arithmetic_type: str = "FIXED_POINT",
 ) -> tuple[plt.Figure, np.ndarray]:
     """Plot three APS figure*-style annealing runtime panels with a shared y-axis."""
     betas = [float(beta) for beta in betas]
@@ -445,7 +460,7 @@ def plot_annealing_classical_and_quantum_runtime_vs_n_three(
     first_handles = None
     first_labels = None
     for i, (ax, beta, eps, title) in enumerate(zip(axes, betas, epsilons, titles)):
-        _, _ = plot_annealing_classical_and_quantum_runtime_vs_n(beta=beta, epsilon=eps, annealing_schedule_generator=annealing_schedule_generator, classical_device=classical_device, physical_error_rate_min=physical_error_rate_min, physical_error_rate_max=physical_error_rate_max, physical_operation_time_min=physical_operation_time_min, physical_operation_time_max=physical_operation_time_max, physical_measurement_time_min=physical_measurement_time_min, physical_measurement_time_max=physical_measurement_time_max, num_trotter_steps=num_trotter_steps, classical_query_file=classical_query_file, spectral_gap_file=spectral_gap_file, statistic=statistic, n_fit_min=n_fit_min, n_fit_max=n_fit_max, n_plot_min=n_plot_min, n_plot_max=n_plot_max, fig=fig, ax=ax, title=title, show_legend=False, legend_placement="top_left", legend_y_shift=legend_y_shift, xlabel_labelpad=xlabel_labelpad, line_width=line_width, line_alpha=line_alpha, band_alpha=band_alpha, grid_color=grid_color, grid_linewidth=grid_linewidth, x_right_padding=x_right_padding, show_regime_separator=show_regime_separator, regime_separator_n=regime_separator_n, show_one_year_line=show_one_year_line, show_direct_enumeration_line=show_direct_enumeration_line, y_top_padding=y_top_padding, optimistic_pessimistic_intercept=optimistic_pessimistic_intercept, debug=debug)
+        _, _ = plot_annealing_classical_and_quantum_runtime_vs_n(beta=beta, epsilon=eps, annealing_schedule_generator=annealing_schedule_generator, classical_device=classical_device, physical_error_rate_min=physical_error_rate_min, physical_error_rate_max=physical_error_rate_max, physical_operation_time_min=physical_operation_time_min, physical_operation_time_max=physical_operation_time_max, physical_measurement_time_min=physical_measurement_time_min, physical_measurement_time_max=physical_measurement_time_max, num_trotter_steps=num_trotter_steps, classical_query_file=classical_query_file, spectral_gap_file=spectral_gap_file, statistic=statistic, n_fit_min=n_fit_min, n_fit_max=n_fit_max, n_plot_min=n_plot_min, n_plot_max=n_plot_max, fig=fig, ax=ax, title=title, show_legend=False, legend_placement="top_left", legend_y_shift=legend_y_shift, xlabel_labelpad=xlabel_labelpad, line_width=line_width, line_alpha=line_alpha, band_alpha=band_alpha, grid_color=grid_color, grid_linewidth=grid_linewidth, x_right_padding=x_right_padding, show_regime_separator=show_regime_separator, regime_separator_n=regime_separator_n, show_one_year_line=show_one_year_line, show_direct_enumeration_line=show_direct_enumeration_line, y_top_padding=y_top_padding, optimistic_pessimistic_intercept=optimistic_pessimistic_intercept, debug=debug, arithmetic_type=arithmetic_type)
         if i > 0:
             ax.set_ylabel(None)
         first_handles, first_labels = ax.get_legend_handles_labels() if first_handles is None else (first_handles, first_labels)
@@ -1023,6 +1038,9 @@ def _compute_runtime_curves_shadowed(
     n_fit_min: int | None,
     n_fit_max: int | None,
     debug: bool,
+    *,
+    k_randomized_grid: int = 2,
+    arithmetic_type: str = "FIXED_POINT",
 ) -> tuple[
     np.ndarray,
     dict[int, np.ndarray],
@@ -1054,7 +1072,7 @@ def _compute_runtime_curves_shadowed(
             print(
                 f"\n[debug] n={int(n)}, beta={float(beta):.12g}, "
                 f"epsilon={float(epsilon):.12g}, schedule={schedule}, "
-                f"multipliers={multipliers}"
+                f"multipliers={multipliers}, k_randomized_grid={k_randomized_grid}, arithmetic_type={arithmetic_type}"
             )
 
         for beta_t in schedule:
@@ -1118,6 +1136,7 @@ def _compute_runtime_curves_shadowed(
                 operation_time,
                 measurement_time,
                 physical_error_rate,
+                arithmetic_type=arithmetic_type,
             )
             quantum_layden = get_annealing_time_quantum_walk_qemc(
                 int(n),
@@ -1128,6 +1147,8 @@ def _compute_runtime_curves_shadowed(
                 measurement_time,
                 physical_error_rate,
                 num_trotter_steps=num_trotter_steps,
+                k_randomized_grid=k_randomized_grid,
+                arithmetic_type=arithmetic_type,
             )
             uniform_quantum_values[multiplier].append(float(quantum_uniform))
             layden_quantum_values[multiplier].append(float(quantum_layden))
@@ -1314,6 +1335,9 @@ def plot_annealing_classical_and_quantum_runtime_vs_n_shadowed(
     optimistic_pessimistic_intercept: bool = False,
     show_multiplier_label: bool = True,
     debug: bool = False,
+    *,
+    k_randomized_grid: int = 2,
+    arithmetic_type: str = "FIXED_POINT",
 ) -> tuple[plt.Figure, plt.Axes]:
     """Plot annealing runtimes with timing-cost multiplier lines and shading.
 
@@ -1322,7 +1346,13 @@ def plot_annealing_classical_and_quantum_runtime_vs_n_shadowed(
     ``physical_measurement_time_min`` while leaving ``physical_error_rate``
     fixed. The regions between consecutive multiplier curves are filled with
     progressively lower opacity toward the larger multipliers.
+
+    k_randomized_grid=0 selects one fixed (t, gamma); positive k selects a
+    2**k by 2**k grid. The default remains 2. Input gaps must match the proposal.
+    arithmetic_type selects HYBRID or FIXED_POINT (default) resources.
     """
+    k_randomized_grid = _validate_randomized_grid(k_randomized_grid)
+    arithmetic_type = _validate_arithmetic_type(arithmetic_type)
     n_vals = _n_grid(n_plot_min, n_plot_max)
     if fig is None or ax is None:
         fig, ax = plt.subplots(
@@ -1359,12 +1389,14 @@ def plot_annealing_classical_and_quantum_runtime_vs_n_shadowed(
         physical_measurement_time_min=physical_measurement_time_min,
         physical_cost_multipliers=physical_cost_multipliers,
         num_trotter_steps=num_trotter_steps,
+        k_randomized_grid=k_randomized_grid,
         classical_query_file=classical_query_file,
         spectral_gap_file=spectral_gap_file,
         statistic=statistic,
         n_fit_min=n_fit_min,
         n_fit_max=n_fit_max,
         debug=debug,
+        arithmetic_type=arithmetic_type,
     )
 
     handles: list[plt.Line2D] = []

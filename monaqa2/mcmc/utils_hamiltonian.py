@@ -40,7 +40,7 @@ def bits(i: int, n: int) -> np.ndarray:
 def energies(h: np.ndarray, J: np.ndarray) -> np.ndarray:
     n = infer_n_from_h_J(h, J)
     model = IsingModel.from_coefficients(n, np.hstack([h, J[np.triu_indices(n=n, k=1)]]))
-    return model.energies_rescaled
+    return model.energies  # h and J are already in the intended energy units
 
 
 def hamming(s1: str, s2: str) -> int:

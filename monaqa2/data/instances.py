@@ -8,6 +8,6 @@ def load_instances(n: int, idx: int) -> IsingModel:
     idx = int(idx)
     assert 3 <= n <= 10, f"The preloaded instances have between 3 and 10 spins (you asked for {n=})"
     assert 0 <= idx <= 99, f"The preloaded instances have index between 0 and 99 included (you asked for {idx=})"
-    file = h5py.File(ISING_INSTANCES_FILE)
-    coeffs = file['coefficients'][f'{n}'][:, idx]
+    with h5py.File(ISING_INSTANCES_FILE) as file:
+        coeffs = file['coefficients'][f'{n}'][:, idx]
     return IsingModel.from_coefficients(n=n, coefficients=coeffs)

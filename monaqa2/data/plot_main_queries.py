@@ -5,9 +5,11 @@ import numpy as np
 from pathlib import Path
 
 from monaqa2.data.filename import CLASSICAL_QUERY_FILE, SPECTRAL_GAP_FILE
+from monaqa2.data.classical_query import get_annealing_classical_query_stats, load_classical_queries
+from monaqa2.data.quantum_query import get_quantum_query_stats, get_quantum_query_mean_fit_by_n, get_quantum_query_step_stats
 from monaqa2.data.runtime import get_annealing_queries_quantum_walks
-from monaqa2.data.spectral_gap import get_spectral_gap_fit_by_n
-from monaqa2.data.classical_query import get_classical_query_fit_by_n
+from monaqa2.data.utils_queries import fit_query_quantile_ratios_by_n, annealing_query_stats, query_temperature_window, query_percentile_columns
+from monaqa2.data.utils_stats import fit_exponential_from_stats
 
 
 CM = 1.0 / 2.54
@@ -62,75 +64,90 @@ def _compute_query_curves(
     statistic: str,
     n_fit_min: int | None,
     n_fit_max: int | None,
-    debug: bool = True,
-) -> dict[str, np.ndarray]:
+    debug: bool = False,
+    compute_bands: bool = True,
+    band_percentiles: tuple[int, int] = (25, 75),
+) -> tuple[dict[str, np.ndarray], dict[str, tuple[np.ndarray, np.ndarray]]]:
+    # The schedule must be evaluated at every plotted n, including extrapolation.
+    schedules = {}
+
+    def schedule(n, target_beta):
+        if n not in schedules:
+            values = np.asarray(annealing_schedule_generator(int(n), float(target_beta)), dtype=float)
+            if values.ndim != 1 or not np.all(np.isfinite(values)) or np.any(values < 0.0) or np.any(np.diff(values) <= 0.0):
+                raise ValueError(f"Invalid annealing schedule for n={n}.")
+            values = values[values > 0.0]
+            if not values.size or not np.isclose(values[-1], target_beta):
+                raise ValueError("A query plot needs a nonempty schedule ending at positive beta.")
+            schedules[n] = values.tolist()
+        return schedules[n]
+
+    paths = [schedule(int(n), beta) for n in n_vals]
+    beta_min = min(min(path) for path in paths)
+    beta_max = max(max(path) for path in paths)
+    classical_rows = load_classical_queries("uniform", np.inf, "bhattacharyya", epsilon, classical_query_file, only_ok=False)
+    if n_fit_min is not None:
+        classical_rows = classical_rows[classical_rows["n"] >= n_fit_min]
+    if n_fit_max is not None:
+        classical_rows = classical_rows[classical_rows["n"] <= n_fit_max]
+    classical_steps = annealing_query_stats(query_temperature_window(classical_rows, "queries", beta_min, beta_max))
+    steps = {
+        "uniform_classical": classical_steps,
+        "uniform_quantum": get_quantum_query_step_stats("uniform", np.inf, epsilon, beta_min, beta_max, spectral_gap_file, n_min=n_fit_min, n_max=n_fit_max),
+        "layden_quantum": get_quantum_query_step_stats("layden", np.inf, epsilon, beta_min, beta_max, spectral_gap_file, n_min=n_fit_min, n_max=n_fit_max),
+    }
+    models = {}
+    for key, table in steps.items():
+        temperatures = np.sort(table["beta"].unique())
+        if key == "uniform_classical":
+            fits = [fit_exponential_from_stats(table, temperature, n_fit_min, n_fit_max) for temperature in temperatures]
+        else:
+            fits = [get_quantum_query_mean_fit_by_n(table, n_fit_min, n_fit_max, fixed_beta=temperature) for temperature in temperatures]
+        models[key] = (temperatures, np.log([fit[0] for fit in fits]), np.array([fit[1] for fit in fits]))
+
     curves = {key: [] for key in QUERY_SERIES}
-    schedules_by_n = []
-    for n in n_vals:
-        schedule = [float(beta_t) for beta_t in annealing_schedule_generator(int(n), float(beta))]
-        schedules_by_n.append(schedule)
-        uniform_classical_total = 0.0
-        uniform_gaps = []
-        layden_gaps = []
+    for n, path in zip(n_vals, paths):
+        length = len(path)
+        # Reference step costs use L=1. Restore the actual L-dependent filter
+        # precision using the existing query model, without averaging gaps.
+        reference = get_annealing_queries_quantum_walks(int(n), epsilon, [1.0])
+        precision_ratio = get_annealing_queries_quantum_walks(int(n), epsilon, [1.0] * length) / (length * reference)
+        for key, (temperatures, log_A, rates) in models.items():
+            per_step = np.exp(np.interp(path, temperatures, log_A) + np.interp(path, temperatures, rates) * n)
+            total = float(np.sum(per_step))
+            curves[key].append(total if key == "uniform_classical" else total * precision_ratio)
         if debug:
-            print(f"\n[debug] n={int(n)}, beta={float(beta):.12g}, epsilon={float(epsilon):.12g}, schedule={schedule}")
-        for beta_t in schedule:
-            A_q, b_q = get_classical_query_fit_by_n(proposal="uniform", a=np.inf, q0_mode="bhattacharyya", epsilon=epsilon, beta=beta_t, in_file=classical_query_file, statistic=statistic, n_min=n_fit_min, n_max=n_fit_max)
-            uniform_classical_contribution = float(A_q * np.exp(b_q * int(n)))
-            uniform_classical_total += uniform_classical_contribution
-            local1_A_g, local1_b_g = get_spectral_gap_fit_by_n(proposal="local1", a=np.inf, fixed_beta=beta_t, in_file=spectral_gap_file, statistic=statistic, n_min=n_fit_min, n_max=n_fit_max)
-            uniform_A_g, uniform_b_g = get_spectral_gap_fit_by_n(proposal="uniform", a=np.inf, fixed_beta=beta_t, in_file=spectral_gap_file, statistic=statistic, n_min=n_fit_min, n_max=n_fit_max)
-            layden_A_g, layden_b_g = get_spectral_gap_fit_by_n(proposal="layden", a=np.inf, fixed_beta=beta_t, in_file=spectral_gap_file, statistic=statistic, n_min=n_fit_min, n_max=n_fit_max)
-            local1_b_g = max(float(local1_b_g), 0.0)
-            uniform_b_g = max(float(uniform_b_g), 0.0)
-            layden_b_g = max(float(layden_b_g), 0.0)
-            local1_gap = float(local1_A_g * np.exp(-local1_b_g * int(n)))
-            uniform_gap = float(uniform_A_g * np.exp(-uniform_b_g * int(n)))
-            layden_gap = float(layden_A_g * np.exp(-layden_b_g * int(n)))
-            uniform_gaps.append(uniform_gap)
-            layden_gaps.append(layden_gap)
+            print(f"\n[debug] n={int(n)}, schedule={path}, filter_count={length}")
+
+    curves = {key: np.asarray(values) for key, values in curves.items()}
+    bands = {}
+    if compute_bands:
+        # Quantiles are taken after summing each instance's complete path.
+        # Fit the selected lower percentile and range relative to the mean.
+        totals = {
+            "uniform_classical": get_annealing_classical_query_stats("uniform", np.inf, "bhattacharyya", epsilon, beta, schedule, classical_query_file, n_min=n_fit_min, n_max=n_fit_max),
+            "uniform_quantum": get_quantum_query_stats("uniform", np.inf, beta, epsilon, schedule, spectral_gap_file, n_min=n_fit_min, n_max=n_fit_max),
+            "layden_quantum": get_quantum_query_stats("layden", np.inf, beta, epsilon, schedule, spectral_gap_file, n_min=n_fit_min, n_max=n_fit_max),
+        }
+        for key, table in totals.items():
+            lower_fit, width_fit = fit_query_quantile_ratios_by_n(table, n_fit_min, n_fit_max, percentiles=band_percentiles)
+            lower = curves[key] * lower_fit[0] * np.exp(lower_fit[1] * n_vals)
+            width = curves[key] * width_fit[0] * np.exp(width_fit[1] * n_vals)
+            bands[key] = (lower, lower + width)
             if debug:
-                print(f"  beta_t={beta_t:.12g}")
-                print(f"    uniform classical fit: A={float(A_q):.12g}, b/log2={float(b_q) / np.log(2):+.12g}, value={uniform_classical_contribution:.12g}")
-                print(f"    local1 gap fit: A={float(local1_A_g):.12g}, b/log2={local1_b_g / np.log(2):+.12g}, gap={local1_gap:.12g}")
-                print(f"    uniform gap fit: A={float(uniform_A_g):.12g}, b/log2={uniform_b_g / np.log(2):+.12g}, gap={uniform_gap:.12g}")
-                print(f"    layden gap fit: A={float(layden_A_g):.12g}, b/log2={layden_b_g / np.log(2):+.12g}, gap={layden_gap:.12g}")
-        curves["uniform_classical"].append(uniform_classical_total)
-        uniform_quantum_queries = float(get_annealing_queries_quantum_walks(int(n), epsilon, uniform_gaps))
-        layden_quantum_queries = float(get_annealing_queries_quantum_walks(int(n), epsilon, layden_gaps))
-        if debug:
-            print(f"  uniform_gaps={uniform_gaps}")
-            print(f"  layden_gaps={layden_gaps}")
-            print(f"  uniform_quantum_queries={uniform_quantum_queries:.12g}")
-            print(f"  layden_quantum_queries={layden_quantum_queries:.12g}")
-        curves["uniform_quantum"].append(uniform_quantum_queries)
-        curves["layden_quantum"].append(layden_quantum_queries)
-    curves = {key: np.asarray(values, dtype=float) for key, values in curves.items()}
-    if debug:
-        _debug_print_query_curves(n_vals, curves, schedules_by_n)
-    return curves
+                for label, bound in zip(query_percentile_columns(band_percentiles), bands[key]):
+                    ratio = bound / curves[key]
+                    print(f"[debug] {key}: {label}/mean first={ratio[0]:.6g}, last={ratio[-1]:.6g}")
+    return curves, bands
 
 
-def _debug_print_query_curves(n_vals: np.ndarray, curves: dict[str, np.ndarray], schedules_by_n: list[list[float]]) -> None:
-    for key, values in curves.items():
-        decreases = np.where(values[1:] < values[:-1])[0]
-        if len(decreases):
-            print(f"\n[debug] decreases for {QUERY_LABELS[key]}")
-        for idx in decreases:
-            n0 = int(n_vals[idx])
-            n1 = int(n_vals[idx + 1])
-            y0 = float(values[idx])
-            y1 = float(values[idx + 1])
-            ratio = y1 / y0 if y0 > 0.0 else np.nan
-            print(f"  n {n0}->{n1}: {y0:.6g}->{y1:.6g} ratio={ratio:.6g} schedule_len={len(schedules_by_n[idx])}->{len(schedules_by_n[idx + 1])}")
-            print(f"    previous schedule={schedules_by_n[idx]}")
-            print(f"    current  schedule={schedules_by_n[idx + 1]}")
-
-
-def _plot_query_curves(ax: plt.Axes, n_vals: np.ndarray, curves: dict[str, np.ndarray], line_width: float, line_alpha: float) -> tuple[list[plt.Line2D], list[str]]:
+def _plot_query_curves(ax: plt.Axes, n_vals: np.ndarray, curves: dict[str, np.ndarray], line_width: float, line_alpha: float, bands: dict[str, tuple[np.ndarray, np.ndarray]] | None = None, band_alpha: float = 0.18, band_label: str = "25–75% instance percentiles") -> tuple[list[plt.Line2D], list[str]]:
     handles = []
     labels = []
     for zorder, key in enumerate(QUERY_SERIES, start=2):
+        if bands is not None:
+            lower, upper = bands[key]
+            ax.fill_between(n_vals, lower, upper, color=QUERY_COLORS[key], alpha=band_alpha, edgecolor="none", linewidth=0.0, label=f"{QUERY_LABELS[key]}: {band_label}", zorder=1)
         (line,) = ax.plot(n_vals, curves[key], color=QUERY_COLORS[key], linewidth=line_width, linestyle="-", alpha=line_alpha, label=QUERY_LABELS[key], zorder=zorder)
         handles.append(line)
         labels.append(QUERY_LABELS[key])
@@ -215,15 +232,20 @@ def _add_zoom_inset(
     zoom_bbox: tuple[float, float, float, float],
     zoom_tick_fontsize: float | None,
     show_zoom_in_border: bool,
+    bands: dict[str, tuple[np.ndarray, np.ndarray]] | None = None,
+    band_alpha: float = 0.18,
+    band_label: str = "25–75% instance percentiles",
 ) -> plt.Axes:
     inset_ax = ax.inset_axes(zoom_bbox)
-    _plot_query_curves(inset_ax, n_vals, curves, line_width, line_alpha)
     inset_ax.set_yscale("log")
     inset_ax.set_xlim(*zoom_xlim)
     inset_ax.set_ylim(*zoom_ylim)
+    _plot_query_curves(inset_ax, n_vals, curves, line_width, line_alpha, bands=bands, band_alpha=band_alpha, band_label=band_label)
     inset_ax.set_xticks([int(zoom_xlim[0]), int(zoom_xlim[1])])
     inset_ax.set_yticks([1e3, 1e4])
     inset_ax.set_yticklabels([r"$10^3$", r"$10^4$"])
+    # Matplotlib expands limits to include explicit ticks; preserve zoom_ylim.
+    inset_ax.set_ylim(*zoom_ylim)
     tick_fontsize = max(1.0, float(plt.rcParams.get("font.size", 10.0)) - 1.0) if zoom_tick_fontsize is None else float(zoom_tick_fontsize)
     inset_ax.tick_params(axis="both", which="major", labelsize=tick_fontsize, length=2.4, pad=1.4)
     inset_ax.set_axisbelow(True)
@@ -277,9 +299,45 @@ def plot_annealing_classical_and_quantum_queries_vs_n(
     zoom_bbox: tuple[float, float, float, float] = (0.10, 0.57, 0.42, 0.36),
     zoom_tick_fontsize: float | None = None,
     show_zoom_in_border: bool = False,
+    *,
+    show_bands: bool = True,
+    band_scale: float = 1.0,
+    band_alpha: float = 0.18,
+    band_percentiles: tuple[int, int] = (25, 75),
 ) -> tuple[plt.Figure, plt.Axes]:
-    """Plot compact-no-Layden annealing query estimates versus n."""
+    """Plot full annealing-path arithmetic means with selected percentile bands.
+
+    Per-temperature query costs are calculated for each instance before
+    averaging and fitting in n. Every plotted n gets its actual schedule,
+    including the resulting filter count and precision allocation. Whole-path
+    totals are not replaced by a single exponential. Percentiles are calculated
+    from measured whole-instance totals, preserving temperature correlations.
+    Fits of lower/mean and (upper-lower)/mean to A*exp(b*n) are multiplied by the
+    full-path mean to estimate positive, ordered bounds at every plotted n.
+    The (fig, ax) return value is unchanged; statistic must be 'mean+std'.
+
+    At band_scale=1, (25, 75) estimates the middle 50% of instance costs and
+    (0, 100) estimates the sample minimum–maximum range. Fitted bounds need
+    not enclose every observed cost or the mean; they are not confidence or
+    worst-case bounds. Extrapolation assumes the fitted means and relative
+    percentiles continue beyond measured sizes. debug=True prints endpoint
+    percentile/mean ratios.
+
+    :param show_bands: Draw shading for all three curves and the zoom inset.
+    :param band_scale: Scale log(bound/mean); 1 gives the selected range,
+        0 the mean. Other values no longer represent the selected percentiles.
+    :param band_alpha: Opacity of the shaded bands, between zero and one.
+    :param band_percentiles: (25, 75) for the IQR (default), or (0, 100) for
+        the fitted sample minimum–maximum range. Only these pairs are supported.
+    """
     _validate_legend_placement(legend_placement)
+    lower_col, upper_col = query_percentile_columns(band_percentiles)
+    if statistic != "mean+std":
+        raise ValueError("The full-path mean query plot requires statistic='mean+std'.")
+    if not np.isfinite(band_scale) or band_scale < 0.0:
+        raise ValueError("band_scale must be finite and non-negative.")
+    if not np.isfinite(band_alpha) or not 0.0 <= band_alpha <= 1.0:
+        raise ValueError("band_alpha must be between zero and one.")
     n_vals = _n_grid(n_plot_min, n_plot_max)
     show_numerical_boundary = show_numerical_boundary or add_regime_separator
     numerical_boundary_n = float(n_fit_max) if numerical_boundary_n is None and n_fit_max is not None else numerical_boundary_n
@@ -289,17 +347,25 @@ def plot_annealing_classical_and_quantum_queries_vs_n(
             fig.subplots_adjust(left=0.18, right=0.985, top=0.985, bottom=0.43)
         else:
             fig.subplots_adjust(left=0.18, right=0.985, top=0.985, bottom=0.17)
-    curves = _compute_query_curves(beta, epsilon, annealing_schedule_generator, n_vals, classical_query_file, spectral_gap_file, statistic, n_fit_min, n_fit_max, debug)
-    handles, labels = _plot_query_curves(ax, n_vals, curves, line_width, line_alpha)
-    ylim = _positive_log_ylim_from_curves([curves])
+    curves, percentiles = _compute_query_curves(beta, epsilon, annealing_schedule_generator, n_vals, classical_query_file, spectral_gap_file, statistic, n_fit_min, n_fit_max, debug, compute_bands=show_bands, band_percentiles=band_percentiles)
+    bands = {
+        key: tuple(curves[key] * (bound / curves[key]) ** band_scale for bound in bounds)
+        for key, bounds in percentiles.items()
+    } if show_bands else None
+    curve_groups = [curves] if bands is None else [curves, {key: values[0] for key, values in bands.items()}, {key: values[1] for key, values in bands.items()}]
+    ylim = _positive_log_ylim_from_curves(curve_groups)
     if ylim is not None:
         ax.set_ylim(*ylim)
     _finish_query_axis(ax, n_vals, title, r"$n$", r"Queries", show_numerical_boundary, numerical_boundary_n, grid_color, grid_linewidth, x_right_padding=x_right_padding)
+    band_label = f"{lower_col[1:]}–{upper_col[1:]}% instance percentiles" if lower_col != "q0" else "0–100% sample range"
+    if band_scale != 1.0:
+        band_label = "scaled percentile band"
+    handles, labels = _plot_query_curves(ax, n_vals, curves, line_width, line_alpha, bands=bands, band_alpha=band_alpha, band_label=band_label)
     ax.xaxis.labelpad = xlabel_labelpad
     if show_last_value:
         _draw_last_value_labels(ax, n_vals, curves, fontsize=last_value_fontsize)
     if show_zoom_in:
-        _add_zoom_inset(ax, n_vals, curves, line_width, line_alpha, grid_color, grid_linewidth, zoom_xlim, zoom_ylim, zoom_bbox, zoom_tick_fontsize, show_zoom_in_border)
+        _add_zoom_inset(ax, n_vals, curves, line_width, line_alpha, grid_color, grid_linewidth, zoom_xlim, zoom_ylim, zoom_bbox, zoom_tick_fontsize, show_zoom_in_border, bands=bands, band_alpha=band_alpha, band_label=band_label)
     if show_legend:
         _add_single_axis_legend(fig, ax, handles, labels, legend_placement, legend_y_shift)
     return fig, ax

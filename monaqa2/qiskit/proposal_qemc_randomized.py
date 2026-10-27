@@ -13,10 +13,11 @@ class ProposalQemcRandomized(Gate):
           -> (1/2**k) sum_{j,l} |x>_A U_r(t_j,gamma_l)|x>_B
                                |j>_time |l>_gamma |0>_work.
 
-    To agree with monaqa2.mcmc.proposal.create_proposal_matrix_quantum_exact,
-    H(gamma) = (1-gamma) H_Ising + gamma H_X. Here H_Ising is the diagonal
-    matrix of normalized energies E(x) = -sum_i h_i x_i - sum_{i<j} J_ij x_i x_j,
-    and H_X = sum_i X_i. U_r uses r steps of the X/2--Ising--X/2 formula.
+    H_tf(gamma) = (1-gamma) H - gamma sum_i X_i, with
+    H = sum_i h_i Z_i + sum_{i<j} J_ij Z_i Z_j. As in the other Qiskit
+    arithmetic/proposal gates, h and J are the actual Pauli coefficients;
+    this gate does not rescale them or change the Ising sign convention.
+    U_r uses r steps of the X/2--Ising--X/2 formula.
 
     Each (j,l) occupies a different orthogonal register state. 
     """
@@ -28,11 +29,11 @@ class ProposalQemcRandomized(Gate):
         """Build the uniform grid and the coherent proposal gate.
 
         :param n: Number of spins.
-        :param h: Local Ising fields.
-        :param J: Ising coupling matrix.
+        :param h: Coefficients of the Z terms in H, with any normalization already applied.
+        :param J: Coefficients of the ZZ terms in H (upper triangle is used).
         :param k: Bits per parameter grid.
         :param time_lims: Time interval endpoints.
-        :param gamma_lims: Mixing interval endpoints.
+        :param gamma_lims: Interval endpoints for gamma in (1-gamma) H - gamma sum_i X_i.
         :param num_trotter_steps: Product-formula step count.
         :param atol: Ising term cutoff.
         :param label: Qiskit display label.
@@ -45,8 +46,7 @@ class ProposalQemcRandomized(Gate):
         self.atol = float(atol)
         if h.shape != (n,) or J.shape != (n, n):
             raise ValueError("h and J must have shapes (n,) and (n,n).")
-        # mcmc.utils_hamiltonian.energies uses IsingModel's normalization and
-        # the negative Ising sign. Use the same coefficients in our Z rotations.
+        # Validate the supplied Ising coefficients without silently rescaling H.
         norm = np.dot(h, h) + np.sum(np.triu(J, 1) ** 2)
         if norm <= 0:
             raise ValueError("The Ising coefficients cannot all be zero.")
@@ -159,7 +159,7 @@ class ProposalQemcRandomized(Gate):
         # First expand time once. All Z, ZZ and X angles reuse these weights.
         time = [(t0, ())] + [(dt * 2**p, (bit,))
                              for p, bit in enumerate(self.layout["time"])]
-        # X angles depend on t_j*gamma_l. Expanding the product gives:
+        # Mixer magnitudes depend on t_j*gamma_l. Expanding the product gives:
         # t0*g0 + (time bits)*g0 + t0*(gamma bits) + (time bits)*(gamma bits).
         # The final terms need two controls, one from each parameter register.
         mixer = [(weight*g0, controls) for weight, controls in time]
@@ -199,7 +199,8 @@ class ProposalQemcRandomized(Gate):
             :return: None.
             """
             for i, target in enumerate(b):
-                rotate("x", 1.0, target, mixer, i, fraction)
+                # exp[-i dt (-gamma X)] = Rx(-2 dt gamma).
+                rotate("x", -1.0, target, mixer, i, fraction)
 
         def z_layer():
             """Apply the Ising step, scheduling ZZ terms by matching.
@@ -242,7 +243,8 @@ def _test_proposal_qemc_randomized() -> None:
     :return: None; raises AssertionError if the circuit or cleanup is wrong.
     """
     from qiskit.quantum_info import Statevector
-    from monaqa2.mcmc.proposal import create_proposal_matrix_quantum_exact
+    from scipy.linalg import expm
+    from monaqa2.qiskit.utils_numpy import _ising_hamiltonian
 
     n, k = 2, 1
     h = np.array([0.7, -0.3])  # Unequal fields reveal reversed spin ordering.
@@ -264,8 +266,10 @@ def _test_proposal_qemc_randomized() -> None:
                 for j in range(2**k) for l in range(2**k)
             )
 
+    # Use the supplied Pauli coefficients directly. The classical helper uses
+    # a different Ising sign convention and automatically normalizes h/J.
     expected = sum(
-        create_proposal_matrix_quantum_exact(h, J, gamma=float(g), t=float(t))
+        abs(expm(-1j * t * _ising_hamiltonian(n, (1-g)*h, (1-g)*J, np.full(n, -g))))**2
         for t in gate.times for g in gate.gammas
     ) / 2**(2*k)
     # This compares the Trotter circuit against exact matrix exponentials.

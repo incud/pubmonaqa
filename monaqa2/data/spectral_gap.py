@@ -1,10 +1,7 @@
 from functools import cache
 
 from monaqa2.data.filename import SPECTRAL_GAP_FILE
-from monaqa2.data.hyperparams import load_best_qemc_gamma_t
-from monaqa2.data.instances import load_instances
 from monaqa2.data.utils_stats import fit_exponential_from_stats, grouped_statistics
-from monaqa2.mcmc.transition import create_transition_matrix
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -27,6 +24,10 @@ def run_experiment_to_generate_spectral_gaps(n_list=None, idx_min=0, idx_max=Non
     :return: None.
     """
     
+    from monaqa2.data.hyperparams import load_best_qemc_gamma_t
+    from monaqa2.data.instances import load_instances
+    from monaqa2.mcmc.transition import create_transition_matrix
+
     def get_spectral_gap(Q_: np.ndarray) -> float:
         """
         Return the absolute spectral gap of the symmetric discriminant matrix sqrt(Q o Q^T).

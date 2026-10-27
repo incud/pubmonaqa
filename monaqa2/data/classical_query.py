@@ -1,12 +1,8 @@
 from pathlib import Path
+from typing import Callable
 
 from monaqa2.data.filename import CLASSICAL_QUERY_FILE
-from monaqa2.data.hyperparams import load_best_qemc_gamma_t
-from monaqa2.data.instances import load_instances
 from monaqa2.data.utils_stats import fit_exponential_from_stats, grouped_statistics
-from monaqa2.mcmc.distribution import get_gibbs_distribution, get_gibbs_distribution_with_bhattacharyya_guarantee
-from monaqa2.mcmc.transition import create_transition_matrix
-from monaqa2.mcmc.validation import is_irreducible
 from monaqa2.mcmc.search import search_monotone
 import numpy as np
 import pandas as pd
@@ -141,6 +137,13 @@ def run_experiment_to_generate_classical_queries(n_list, idx_min=0, idx_max=None
     :return: None.
     """
     
+    # Simulation/HDF5 dependencies are needed only for generating experiments.
+    from monaqa2.data.hyperparams import load_best_qemc_gamma_t
+    from monaqa2.data.instances import load_instances
+    from monaqa2.mcmc.distribution import get_gibbs_distribution, get_gibbs_distribution_with_bhattacharyya_guarantee
+    from monaqa2.mcmc.transition import create_transition_matrix
+    from monaqa2.mcmc.validation import is_irreducible
+
     PROPOSALS = ["uniform", "local1", "local2", "local3", "qemc", "layden"]
     AS = [np.inf] if skip_most_acceptance else [np.inf, 1, 10]
     BETAS = [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 1.00, 2.00, 3.00, 4.00, 5.00, 6.00, 7.00, 8.00, 9.00, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0]
@@ -439,3 +442,56 @@ def get_classical_query_fit_by_n(
     """
     table = get_classical_query_stats(proposal=proposal, a=a, q0_mode=q0_mode, epsilon=epsilon, in_file=in_file, statistic=statistic, only_ok=only_ok)
     return fit_exponential_from_stats(table=table, beta=beta, n_min=n_min, n_max=n_max, sign=1)
+
+
+def load_annealing_classical_queries(
+    proposal: str,
+    a: int | float,
+    q0_mode: str,
+    epsilon: float,
+    beta: float,
+    annealing_schedule_generator: Callable[[int, float], list[float]],
+    in_file: Path = CLASSICAL_QUERY_FILE,
+    *,
+    n_min: int | None = None,
+    n_max: int | None = None,
+) -> pd.DataFrame:
+    """Return each instance's total annealing queries before averaging.
+
+    Interpolate query counts log-linearly in beta for each (n, idx), then sum
+    over its schedule. Failed query sentinels needed by the schedule raise an
+    error rather than silently removing difficult instances.
+    """
+    from monaqa2.data.utils_queries import annealing_query_rows
+
+    rows = load_classical_queries(proposal, a, q0_mode, epsilon, in_file, only_ok=False)
+    if n_min is not None:
+        rows = rows[rows["n"] >= n_min]
+    if n_max is not None:
+        rows = rows[rows["n"] <= n_max]
+    return annealing_query_rows(rows, "queries", beta, epsilon, annealing_schedule_generator, lambda n, eps, queries: sum(queries))
+
+
+def get_annealing_classical_query_stats(
+    proposal: str,
+    a: int | float,
+    q0_mode: str,
+    epsilon: float,
+    beta: float,
+    annealing_schedule_generator: Callable[[int, float], list[float]],
+    in_file: Path = CLASSICAL_QUERY_FILE,
+    statistic: str = "mean+std",
+    *,
+    n_min: int | None = None,
+    n_max: int | None = None,
+) -> pd.DataFrame:
+    """Summarize instance totals; default to mean and sample std (ddof=1).
+
+    Unlike summing temperature-wise standard deviations, this retains the
+    correlations between costs at different temperatures of the same instance.
+    Existing single-temperature classical-query APIs are unchanged.
+    """
+    from monaqa2.data.utils_queries import annealing_query_stats
+
+    rows = load_annealing_classical_queries(proposal, a, q0_mode, epsilon, beta, annealing_schedule_generator, in_file, n_min=n_min, n_max=n_max)
+    return annealing_query_stats(rows, statistic)

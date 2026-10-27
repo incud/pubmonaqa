@@ -117,18 +117,31 @@ class IsingModel:
         return self.__gs
     
     @property
-    def ground_state_energy(self) -> str:
+    def ground_state_energy(self) -> float:
         if self.__gs is None or self.__gs_energy is None:
             idx = np.argmin(self.energies)
             self.__gs = int_to_bin(idx, self.n)
             self.__gs_energy = self.energies[idx]
-        return self.__gs
+        return float(self.__gs_energy)
 
     @property
     def ground_state_degeneracies(self) -> int:
         if self.__gs_deg is None:
-            self.__gs_deg = np.count_nonzero(np.isclose(self.energies, self.__gs_energy))
+            self.__gs_deg = np.count_nonzero(np.isclose(self.energies, self.ground_state_energy))
         return self.__gs_deg
+
+    def to_sk(self, local_fields=True):
+        """Convert raw IID N(0,1) couplings into SK couplings N(0,1/n).
+
+        Keep fields N(0,1) if local_fields=True; otherwise use h=0.
+        No second, instance-dependent normalization is performed.
+        """
+        h = self.h.copy() if local_fields else np.zeros_like(self.h)
+        model = IsingModel(self.J.copy() / np.sqrt(self.n), h)
+        model.alpha = 1.0
+        model.J_rescaled = model.J.copy()
+        model.h_rescaled = model.h.copy()
+        return model
 
     @classmethod
     def from_coefficients(cls, n, coefficients):
@@ -164,3 +177,36 @@ class RandomIsingModel(IsingModel):
         h = generate_random_h(n, seed=seed) if local_fields else np.zeros(n)
         J = generate_random_J(n, seed=seed)
         super().__init__(J, h)
+
+
+
+class RandomSherringtonKirkpatrickModel(IsingModel):
+    """Random-field SK by default: J_ij ~ N(0, 1/n), h_i ~ N(0, 1).
+
+    Set local_fields=False for the traditional zero-field SK variant.
+    No instance-dependent normalization is applied.
+    """
+    def __init__(self, n, local_fields=True, seed=None):
+        if n < 2:
+            raise ValueError("n must be at least 2.")
+        rng = np.random.default_rng(seed)
+        J = np.zeros((n, n))
+        i, j = np.triu_indices(n, k=1)
+        J[i, j] = rng.standard_normal(len(i)) / np.sqrt(n)
+        J[j, i] = J[i, j]
+        h = rng.standard_normal(n) if local_fields else np.zeros(n)
+        super().__init__(J, h)
+        self.alpha = 1.0
+        self.J_rescaled = self.J.copy()
+        self.h_rescaled = self.h.copy()
+
+    @classmethod
+    def from_coefficients(cls, n, coefficients):
+        """Load already SK-scaled coefficients; do not normalize again."""
+        model = IsingModel.from_coefficients(n, coefficients)
+        obj = cls.__new__(cls)
+        IsingModel.__init__(obj, model.J, model.h)
+        obj.alpha = 1.0
+        obj.J_rescaled = obj.J.copy()
+        obj.h_rescaled = obj.h.copy()
+        return obj

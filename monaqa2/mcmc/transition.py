@@ -3,14 +3,14 @@ from monaqa2.mcmc.model import IsingModel
 from monaqa2.mcmc.proposal import create_proposal_matrix_quantum_exact, create_proposal_matrix_local, create_proposal_matrix_quantum_layden, create_proposal_matrix_uniform
 
 
-def create_acceptance_matrix(model: IsingModel, beta: float, a: float = 1.0,) -> np.ndarray:
+def create_acceptance_matrix(model: IsingModel, beta: float, a: float = 1.0, rescaled: bool = True) -> np.ndarray:
     
     if beta < 0:
         raise ValueError("beta must be non-negative.")
     if not (np.isinf(a) or a >= 1):
         raise ValueError("a must satisfy a >= 1 or a = np.inf.")
 
-    E = model.energies_rescaled
+    E = model.energies_rescaled if rescaled else model.energies
     delta = E[:, None] - E[None, :]
     log_r = -beta * delta
 
@@ -24,11 +24,11 @@ def create_acceptance_matrix(model: IsingModel, beta: float, a: float = 1.0,) ->
     return A
 
 
-def create_transition_matrix(P: np.ndarray | str, model: IsingModel, beta: float, a: float = 1.0, gamma: float = None, t: float = None) -> np.ndarray:
+def create_transition_matrix(P: np.ndarray | str, model: IsingModel, beta: float, a: float = 1.0, gamma: float = None, t: float = None, rescaled: bool = True) -> np.ndarray:
     n = model.n
-    h = model.h_rescaled
-    J = model.J_rescaled
-    A = create_acceptance_matrix(model, beta, a)
+    h = model.h_rescaled if rescaled else model.h
+    J = model.J_rescaled if rescaled else model.J
+    A = create_acceptance_matrix(model, beta, a, rescaled=rescaled)
 
     if isinstance(P, str):
         if P == "uniform":
