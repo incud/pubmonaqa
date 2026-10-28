@@ -8,6 +8,7 @@ Each r retains its separate resumable HDF5 file.
 Merged result: /k=K/n/idx -> spectral gaps ordered by RS.
 """
 import sys
+sys.path.append("..")
 from contextlib import ExitStack
 from pathlib import Path
 
