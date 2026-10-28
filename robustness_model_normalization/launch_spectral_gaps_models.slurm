@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=sk_gaps
-#SBATCH --account=IscrC_MONAQA
+#SBATCH --account=Sis26_mazzola
 #SBATCH --partition=dcgp_usr_prod
 #SBATCH --qos=normal
 #SBATCH --array=0-99

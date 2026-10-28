@@ -9,7 +9,7 @@ Usage:
 Requires monaqa2 with create_transition_matrix(..., rescaled=False).
 """
 import sys
-sps.path.append("..")
+sys.path.append("..")
 from pathlib import Path
 
 import h5py
