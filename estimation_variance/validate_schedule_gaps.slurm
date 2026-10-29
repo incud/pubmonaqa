@@ -23,5 +23,6 @@ export BLIS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 NUMEXPR_NUM_THREADS=1
 n=$((5 + SLURM_ARRAY_TASK_ID / 100))
 idx=$((SLURM_ARRAY_TASK_ID % 100))
 python3 -u validate_schedule_gaps.py \
+    "ising_inputs/model_n${n}_idx${idx}.txt" \
     "schedule_outputs_conservative/schedule_n${n}_idx${idx}.txt" \
     "schedule_outputs_conservative/gaps_${n}_idx${idx}.txt"
