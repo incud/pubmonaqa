@@ -1,19 +1,21 @@
 import re
 from pathlib import Path
-from typing import Callable, Sequence
+from typing import Callable, Literal, Sequence
 
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.collections import PathCollection, PolyCollection
-from matplotlib.colors import to_rgb, to_rgba
+from matplotlib.colors import to_rgba
 from matplotlib.lines import Line2D
 from matplotlib.ticker import FuncFormatter, LogFormatterMathtext
-from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 from monaqa2.data.classical_query import get_classical_query_fit_by_n, get_classical_query_stats
 from monaqa2.data.filename import CLASSICAL_QUERY_FILE, SPECTRAL_GAP_FILE
 from monaqa2.data.runtime import (
-    ALLOWED_ARITHMETIC_TYPES,
+    DEFAULT_TROTTER_STEPS,
+    _validate_randomized_grid,
+    _classical_qemc_resources,
+    _quantum_annealing_resources,
     get_annealing_queries_quantum_walks,
     get_one_step_quantum_walk_queries,
     get_annealing_time_classical_walk_local,
@@ -22,14 +24,12 @@ from monaqa2.data.runtime import (
     get_annealing_time_quantum_walk_local,
     get_annealing_time_quantum_walk_qemc,
     get_annealing_time_quantum_walk_uniform,
-    get_time_direct_enumeration,
-    get_quantum_annealing_error_budget,
     quantum_walk_qemc_circuit,
     quantum_walk_uniform_circuit,
     rotated_surface_code_distance,
     split_quantum_error_budget,
 )
-from monaqa2.data.spectral_gap import get_spectral_gap_fit_by_beta, get_spectral_gap_fit_by_n, get_spectral_gap_stats
+from monaqa2.data.spectral_gap import get_spectral_gap_fit_by_beta, get_spectral_gap_fit_by_n, get_spectral_gap_stats, get_spectral_gap_quantiles
 
 plt.rcParams["savefig.bbox"] = "tight"
 plt.rcParams["savefig.pad_inches"] = 0.0
@@ -117,8 +117,6 @@ def _positive_band(center: np.ndarray, spread: np.ndarray) -> tuple[np.ndarray, 
     return np.maximum(lower, floor), np.maximum(upper, floor)
 
 
-
-
 def _n_plot_grid(n_plot_min: int | float, n_plot_max: int | float) -> np.ndarray:
     """Return the integer n-grid used by the annealing plots."""
     return np.arange(int(np.ceil(n_plot_min)), int(np.floor(n_plot_max)) + 1, dtype=float)
@@ -173,107 +171,66 @@ def make_prefix_stable_schedule_generator(
     return schedule
 
 
-def _schedule_change_positions(n_vals: np.ndarray, beta: float, annealing_schedule_generator: Callable[[int, float], list[float]]) -> list[float]:
-    """Return n values where the number of charged temperatures changes."""
-    positions = []
-    prev_len = None
-    for n in n_vals:
-        length = len(annealing_schedule_generator(float(n), beta))
-        if prev_len is not None and length != prev_len:
-            positions.append(float(n))
-        prev_len = length
-    return positions
+def plot_spectral_gap_quantiles_vs_n(
+    beta: float = 4.0,
+    in_file: Path = SPECTRAL_GAP_FILE,
+    a: int | float = np.inf,
+    n_min: int = 3,
+    n_max: int = 10,
+    expected_instances: int | None = 100,
+    figsize: tuple[float, float] = (33.0 / 2.54, 8.5 / 2.54),
+    show_legend: bool = True,
+    label_fontsize: int = 14,
+    tick_labelsize: int = 12,
+    title_fontsize: int = 14,
+    legend_fontsize: int = 12,
+    wspace: float = .12,
+) -> tuple[plt.Figure, np.ndarray]:
+    """Three panels of measured gap quantiles, one per proposal, at fixed beta.
 
-
-def _draw_schedule_change_lines(ax: plt.Axes, positions: list[float]) -> None:
-    """Draw very thin grey vertical lines at schedule-length changes."""
-    for n in positions:
-        ax.axvline(n, color="0.72", linewidth=0.45, linestyle="-", alpha=0.50, zorder=0)
-
-
-def _plot_with_projection_style(
-    ax: plt.Axes,
-    n_vals: np.ndarray,
-    y_vals: list[float],
-    *,
-    color: str,
-    linewidth: float,
-    alpha: float,
-    label: str,
-    n_fit_max: int | None,
-    zorder: int,
-):
-    """Plot a curve with solid calibrated and projected parts."""
-    y = np.asarray(y_vals, dtype=float)
-    if n_fit_max is None:
-        (line,) = ax.plot(n_vals, y, color=color, linewidth=linewidth, linestyle="-", alpha=alpha, label=label, zorder=zorder)
-        return line
-
-    calibrated = n_vals <= float(n_fit_max)
-    projected = n_vals >= float(n_fit_max)
-
-    line = None
-    if np.any(calibrated):
-        (line,) = ax.plot(n_vals[calibrated], y[calibrated], color=color, linewidth=linewidth, linestyle="-", alpha=alpha, label=label, zorder=zorder)
-    if np.any(projected):
-        (proj_line,) = ax.plot(n_vals[projected], y[projected], color=color, linewidth=linewidth, linestyle="-", alpha=alpha, label=None if line is not None else label, zorder=zorder)
-        if line is None:
-            line = proj_line
-    return line
-
-
-def _debug_print_series_drops(
-    proposal: str,
-    name: str,
-    n_vals: np.ndarray,
-    values: list[float],
-    records: list[dict],
-    *,
-    rtol: float = 1e-10,
-) -> None:
-    """Print decreases in a plotted series and the local fit contributions causing them."""
-    arr = np.asarray(values, dtype=float)
-    printed = False
-    for i in range(1, len(arr)):
-        if np.isfinite(arr[i - 1]) and np.isfinite(arr[i]) and arr[i] < arr[i - 1] * (1.0 - rtol):
-            if not printed:
-                print(f"\n[debug] decreases for {proposal} {name}")
-                printed = True
-            prev_record = records[i - 1]
-            curr_record = records[i]
-            print(
-                f"  n {n_vals[i - 1]:.0f}->{n_vals[i]:.0f}: "
-                f"{arr[i - 1]:.6g}->{arr[i]:.6g} "
-                f"ratio={arr[i] / arr[i - 1]:.6g} "
-                f"schedule_len={len(prev_record['schedule'])}->{len(curr_record['schedule'])}"
-            )
-            if prev_record["schedule"] != curr_record["schedule"]:
-                print(f"    previous schedule={prev_record['schedule']}")
-                print(f"    current  schedule={curr_record['schedule']}")
-            for row in curr_record["steps"]:
-                print(
-                    f"    beta_t={row['beta_t']:.12g} "
-                    f"b_q/log2={row['b_q'] / np.log(2):+.6g} "
-                    f"q={row['q_contrib']:.6g} "
-                    f"b_g/log2={row['b_g'] / np.log(2):+.6g} "
-                    f"delta={row['delta']:.6g}"
-                )
-
-
-def _debug_print_schedule_changes(n_vals: np.ndarray, beta: float, annealing_schedule_generator: Callable[[int, float], list[float]]) -> None:
-    """Print all n values where the charged schedule length changes."""
-    prev_schedule = None
-    for n in n_vals:
-        schedule = annealing_schedule_generator(float(n), beta)
-        if prev_schedule is not None and len(schedule) != len(prev_schedule):
-            direction = "increases" if len(schedule) > len(prev_schedule) else "decreases"
-            print(
-                f"[debug] schedule length {direction} at n={n:.0f}: "
-                f"{len(prev_schedule)} -> {len(schedule)}"
-            )
-            print(f"        previous={prev_schedule}")
-            print(f"        current ={schedule}")
-        prev_schedule = schedule
+    Solid median, dotted black arithmetic mean, dark 25--75% and lighter
+    10--90% bands. All available finite gaps enter the statistics; there is
+    no quartile trimming and no fitted extrapolation. A zero 10th percentile
+    cannot be displayed on the logarithmic axis.
+    """
+    stats = get_spectral_gap_quantiles(beta, in_file, a, n_min, n_max, expected_instances)
+    if stats["q10"].le(0).any():
+        raise ValueError("A 10th-percentile gap is zero; the 10--90% band cannot be displayed on a log axis. No instances were discarded.")
+    fig, axes = _make_table_axes(3, 3, figsize)
+    for ax in axes[1:]:
+        ax.sharey(axes[0])
+    titles = ("Local spin flip", "Uniform", "Hamiltonian simulation")
+    for index, (proposal, title, ax) in enumerate(zip(PROPOSALS_SORTED, titles, axes)):
+        table = stats.loc[stats["proposal"].eq(proposal)].sort_values("n")
+        means = get_spectral_gap_stats(proposal=proposal, a=a, in_file=in_file, statistic="mean+std")
+        means = means.loc[np.isclose(means["beta"].astype(float), beta), ["n", "center"]]
+        means = means.rename(columns={"center": "mean"})
+        table = table.merge(means, on="n", how="left", validate="one_to_one")
+        if table["mean"].isna().any():
+            raise ValueError(f"Missing arithmetic means at beta={beta:g} for proposal={proposal}.")
+        n = table["n"].to_numpy()
+        color = _proposal_base_color(proposal)
+        light = ax.fill_between(n, table["q10"], table["q90"], color=color, alpha=.22, linewidth=0, zorder=1)
+        dark = ax.fill_between(n, table["q25"], table["q75"], color=color, alpha=.55, linewidth=0, zorder=2)
+        median, = ax.plot(n, table["q50"], color=color, linewidth=2, alpha=.95, marker="o", markersize=4, zorder=4)
+        mean, = ax.plot(n, table["mean"], color="black", linewidth=1.5, alpha=.95, linestyle=":", zorder=5)
+        if index == 0:
+            handles = [median, mean, dark, light]
+        ax.set_yscale("log")
+        ax.set_xlabel(r"$n$")
+        ax.set_ylabel(r"Spectral gap $\delta$")
+        ax.set_title(title + rf", $\beta={beta:g}$")
+        ax.set_axisbelow(True)
+        _apply_spectral_gap_n_x_scale(ax, n_min, n_max)
+        _lighten_grid(ax)
+        _enlarge_axis_labels(ax, label_fontsize, tick_labelsize, title_fontsize)
+    _keep_single_axis_y_ticks_only_on_outer_edges(axes, 3, 3)
+    if show_legend:
+        fig.legend(handles, ["Median (50th percentile)", "Arithmetic mean", r"$25$–$75\%$", r"$10$–$90\%$"],
+                   loc="lower center", ncol=4, frameon=False, fontsize=legend_fontsize)
+    fig.tight_layout(rect=(0, .16 if show_legend else 0, 1, 1))
+    _finish_table(fig, hspace=0, wspace=wspace)
+    return fig, axes
 
 
 def plot_spectral_gap_vs_n(
@@ -321,7 +278,7 @@ def plot_spectral_gap_vs_n(
 
         # Fitting line
         A, b = get_spectral_gap_fit_by_n(proposal=proposal, a=np.inf, fixed_beta=fixed_beta, in_file=in_file, statistic=statistic, n_min=n_fit_min, n_max=n_fit_max)
-        delta_fit = A * np.exp(-b * n_grid)
+        delta_fit = np.minimum(1.0, A * np.exp(-b * n_grid))
         (fit_line,) = ax.plot(n_grid, delta_fit, color=color, linewidth=2.0, linestyle="-", alpha=0.90, zorder=2)
 
         # Legend
@@ -452,6 +409,7 @@ def plot_last_step_classical_queries_and_spectral_gap_vs_n(
     ax: plt.Axes | None = None,
     title: str | None = None,
     show_legend: bool = True,
+    exclude_local: bool = False,
 ) -> tuple[plt.Figure, plt.Axes, plt.Axes | None]:
     """
     Plot classical queries versus n for fixed beta and epsilon. This is for the last
@@ -478,6 +436,8 @@ def plot_last_step_classical_queries_and_spectral_gap_vs_n(
     gap_labels = {}
 
     for proposal in PROPOSALS_SORTED:
+        if exclude_local and proposal == "local1":
+            continue
 
         color = _proposal_base_color(proposal)
 
@@ -501,7 +461,7 @@ def plot_last_step_classical_queries_and_spectral_gap_vs_n(
         if show_inverse_gap and ax_gap is not None:
             A_g, b_g = get_spectral_gap_fit_by_n(proposal=proposal, a=np.inf, fixed_beta=beta, in_file=spectral_gap_file, statistic=statistic, n_min=n_fit_min, n_max=n_fit_max)
             b_g = max(float(b_g), 0.0)
-            inv_gap_fit = (1.0 / A_g) * np.exp(b_g * n_grid)
+            inv_gap_fit = np.maximum(1.0, (1.0 / A_g) * np.exp(b_g * n_grid))
             (gap_line,) = ax_gap.plot(n_grid, inv_gap_fit, color=color, linewidth=2.0, linestyle="--", alpha=0.90, zorder=2)
 
             # Legend
@@ -568,6 +528,7 @@ def plot_annealing_classical_and_quantum_queries_vs_n(
     line_label_x_fraction: float = 0.82,
     line_label_y_multiplier: float = 1.08,
     line_label_fontsize: float = 9.0,
+    exclude_local: bool = False,
 ) -> tuple[plt.Figure, plt.Axes]:
     """
     Plot total annealing classical-query estimates and quantum-walk query estimates versus n.
@@ -624,7 +585,7 @@ def plot_annealing_classical_and_quantum_queries_vs_n(
     hide_classical_layden = mode == "compact_no_layden"
 
     if schedule_diagnostic_generator is None:
-        schedule_diagnostic_generator = getattr(annealing_schedule_generator, "base_schedule_generator", annealing_schedule_generator)
+        schedule_diagnostic_generator = annealing_schedule_generator
 
     if fig is None or ax is None:
         if show_schedule_panel:
@@ -753,6 +714,8 @@ def plot_annealing_classical_and_quantum_queries_vs_n(
     line_records = []
 
     for proposal in proposals_to_plot:
+        if exclude_local and proposal == "local1":
+            continue
         classical_queries = []
         quantum_queries = []
         plotted_schedules = []
@@ -768,7 +731,7 @@ def plot_annealing_classical_and_quantum_queries_vs_n(
                 classical_total += A_q * np.exp(b_q * n)
                 A_g, b_g = get_spectral_gap_fit_by_n(proposal=proposal, a=np.inf, fixed_beta=beta_t, in_file=spectral_gap_file, statistic=statistic, n_min=n_fit_min, n_max=n_fit_max)
                 b_g = max(float(b_g), 0.0)
-                spectral_gaps.append(A_g * np.exp(-b_g * n))
+                spectral_gaps.append(min(1.0, A_g * np.exp(-b_g * n)))
 
             classical_queries.append(classical_total)
             quantum_queries.append(get_annealing_queries_quantum_walks(int(n), epsilon, spectral_gaps))
@@ -809,7 +772,7 @@ def plot_annealing_classical_and_quantum_queries_vs_n(
                         A_g, b_g = get_spectral_gap_fit_by_n(proposal=proposal, a=np.inf, fixed_beta=beta_t, in_file=spectral_gap_file, statistic=statistic, n_min=n_fit_min, n_max=n_fit_max)
                         b_g = max(float(b_g), 0.0)
                         q_contribution = A_q * np.exp(b_q * n1)
-                        gap_value = A_g * np.exp(-b_g * n1)
+                        gap_value = min(1.0, A_g * np.exp(-b_g * n1))
                         print(f"    beta_t={beta_t:.12g} b_q/log2={b_q / np.log(2):+.6g} q={q_contribution:.6g} b_g/log2={b_g / np.log(2):+.6g} delta={gap_value:.6g}")
 
     ax.set_yscale("log")
@@ -859,10 +822,6 @@ def plot_annealing_classical_and_quantum_queries_vs_n(
 
     return fig, ax
 
-def _darken_color(color: str, factor: float = 0.58):
-    rgb = np.asarray(to_rgb(color), dtype=float)
-    return tuple(np.clip(factor * rgb, 0.0, 1.0))
-
 
 def _first_crossing_x(n_vals: np.ndarray, baseline: np.ndarray, candidate: np.ndarray) -> float | None:
     baseline = np.asarray(baseline, dtype=float)
@@ -892,20 +851,6 @@ def _draw_runtime_threshold(ax: plt.Axes, x: float | None, label: str, color: st
         ax.text(x, label_y, label, rotation=90, transform=ax.get_xaxis_transform(), ha="right", va="top", fontsize=8, color=color)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 def plot_annealing_classical_and_quantum_runtime_vs_n(
     beta: float,
     epsilon: float,
@@ -917,8 +862,8 @@ def plot_annealing_classical_and_quantum_runtime_vs_n(
     physical_operation_time_max: float = 20_000e-9,
     physical_measurement_time_min: float = 20e-9,
     physical_measurement_time_max: float = 2_000e-9,
-    num_trotter_steps: int = 50,
-    arithmetic_type: str = "FIXED_POINT",
+    num_trotter_steps: int = DEFAULT_TROTTER_STEPS,
+    arithmetic_type: Literal["FIXED_POINT"] = "FIXED_POINT",
     classical_query_file: Path = CLASSICAL_QUERY_FILE,
     spectral_gap_file: Path = SPECTRAL_GAP_FILE,
     statistic: str = "mean+std",
@@ -956,6 +901,8 @@ def plot_annealing_classical_and_quantum_runtime_vs_n(
     line_label_x_fraction: float = 0.82,
     line_label_y_multiplier: float = 1.08,
     line_label_fontsize: float = 9.0,
+    exclude_local: bool = False,
+    k_randomized_grid: int = 2,
 ) -> tuple[plt.Figure, plt.Axes]:
     """
     Plot annealing runtime estimates versus n.
@@ -965,14 +912,15 @@ def plot_annealing_classical_and_quantum_runtime_vs_n(
     - ``"compact"``: uniform and quantum-enhanced proposals.
     - ``"compact_no_layden"``: uniform proposals and quantum-enhanced quantum-walk proposal only.
 
-    :param arithmetic_type: Arithmetic implementation for the quantum-walk runtime, ``"HYBRID"`` or ``"FIXED_POINT"``.
+    :param arithmetic_type: Must be ``"FIXED_POINT"``; retained for existing notebooks.
     """
+    k_randomized_grid = _validate_randomized_grid(k_randomized_grid)
     if mode not in {"full", "compact", "compact_no_layden"}:
         raise ValueError(f"Unknown mode={mode}. Expected 'full', 'compact', or 'compact_no_layden'.")
     if legend_placement not in {"legend_out", "legend_line"}:
         raise ValueError(f"Unknown legend_placement={legend_placement}. Expected 'legend_out' or 'legend_line'.")
-    if arithmetic_type not in ALLOWED_ARITHMETIC_TYPES:
-        raise ValueError(f"Unknown arithmetic_type={arithmetic_type!r}. Expected one of {ALLOWED_ARITHMETIC_TYPES}.")
+    if arithmetic_type != "FIXED_POINT":
+        raise ValueError("Only fixed-point arithmetic is supported.")
 
     if n_plot_min is None:
         n_plot_min = 3
@@ -991,7 +939,7 @@ def plot_annealing_classical_and_quantum_runtime_vs_n(
     effective_hide_classical_qemc_area = hide_classical_qemc_area or mode == "compact_no_layden"
 
     if schedule_diagnostic_generator is None:
-        schedule_diagnostic_generator = getattr(annealing_schedule_generator, "base_schedule_generator", annealing_schedule_generator)
+        schedule_diagnostic_generator = annealing_schedule_generator
 
     if fig is None or ax is None:
         if show_schedule_panel:
@@ -1160,6 +1108,8 @@ def plot_annealing_classical_and_quantum_runtime_vs_n(
     eps_SF = epsilon / 4.0
 
     for proposal in proposals_to_plot:
+        if exclude_local and proposal == "local1":
+            continue
         color_quantum = _proposal_color(proposal, "quantum")
         color_classical = _proposal_color(proposal, "classical")
 
@@ -1181,29 +1131,29 @@ def plot_annealing_classical_and_quantum_runtime_vs_n(
                 vec_queries.append(A_q * np.exp(b_q * n))
                 A_g, b_g = get_spectral_gap_fit_by_n(proposal=proposal, a=np.inf, fixed_beta=beta_t, in_file=spectral_gap_file, statistic=statistic, n_min=n_fit_min, n_max=n_fit_max)
                 b_g = max(float(b_g), 0.0)
-                spectral_gaps.append(A_g * np.exp(-b_g * n))
+                spectral_gaps.append(min(1.0, A_g * np.exp(-b_g * n)))
 
             if proposal == "local1":
                 classical_value = get_annealing_time_classical_walk_local(int(n), vec_queries, device=classical_device)
                 c_lower, c_upper = _visual_band([classical_value], deterministic_classical_band_fraction)
                 classical_min.append(float(c_lower[0]))
                 classical_max.append(float(c_upper[0]))
-                quantum_min.append(get_annealing_time_quantum_walk_local(int(n), epsilon, schedule, spectral_gaps, physical_operation_time_min, physical_measurement_time_min, physical_error_rate_min, arithmetic_type=arithmetic_type))
-                quantum_max.append(get_annealing_time_quantum_walk_local(int(n), epsilon, schedule, spectral_gaps, physical_operation_time_max, physical_measurement_time_max, physical_error_rate_max, arithmetic_type=arithmetic_type))
+                quantum_min.append(get_annealing_time_quantum_walk_local(int(n), epsilon, schedule, spectral_gaps, physical_operation_time_min, physical_measurement_time_min, physical_error_rate_min))
+                quantum_max.append(get_annealing_time_quantum_walk_local(int(n), epsilon, schedule, spectral_gaps, physical_operation_time_max, physical_measurement_time_max, physical_error_rate_max))
 
             elif proposal == "uniform":
                 classical_value = get_annealing_time_classical_walk_uniform(int(n), vec_queries, device=classical_device)
                 c_lower, c_upper = _visual_band([classical_value], deterministic_classical_band_fraction)
                 classical_min.append(float(c_lower[0]))
                 classical_max.append(float(c_upper[0]))
-                quantum_min.append(get_annealing_time_quantum_walk_uniform(int(n), epsilon, schedule, spectral_gaps, physical_operation_time_min, physical_measurement_time_min, physical_error_rate_min, arithmetic_type=arithmetic_type))
-                quantum_max.append(get_annealing_time_quantum_walk_uniform(int(n), epsilon, schedule, spectral_gaps, physical_operation_time_max, physical_measurement_time_max, physical_error_rate_max, arithmetic_type=arithmetic_type))
+                quantum_min.append(get_annealing_time_quantum_walk_uniform(int(n), epsilon, schedule, spectral_gaps, physical_operation_time_min, physical_measurement_time_min, physical_error_rate_min))
+                quantum_max.append(get_annealing_time_quantum_walk_uniform(int(n), epsilon, schedule, spectral_gaps, physical_operation_time_max, physical_measurement_time_max, physical_error_rate_max))
 
             elif proposal == "layden":
                 classical_min.append(get_annealing_time_classical_walk_qemc(int(n), vec_queries, physical_operation_time_min, physical_measurement_time_min, physical_error_rate_min, eps_SF, num_trotter_steps=num_trotter_steps))
                 classical_max.append(get_annealing_time_classical_walk_qemc(int(n), vec_queries, physical_operation_time_max, physical_measurement_time_max, physical_error_rate_max, eps_SF, num_trotter_steps=num_trotter_steps))
-                quantum_min.append(get_annealing_time_quantum_walk_qemc(int(n), epsilon, schedule, spectral_gaps, physical_operation_time_min, physical_measurement_time_min, physical_error_rate_min, num_trotter_steps=num_trotter_steps, arithmetic_type=arithmetic_type))
-                quantum_max.append(get_annealing_time_quantum_walk_qemc(int(n), epsilon, schedule, spectral_gaps, physical_operation_time_max, physical_measurement_time_max, physical_error_rate_max, num_trotter_steps=num_trotter_steps, arithmetic_type=arithmetic_type))
+                quantum_min.append(get_annealing_time_quantum_walk_qemc(int(n), epsilon, schedule, spectral_gaps, physical_operation_time_min, physical_measurement_time_min, physical_error_rate_min, num_trotter_steps=num_trotter_steps, k_randomized_grid=k_randomized_grid))
+                quantum_max.append(get_annealing_time_quantum_walk_qemc(int(n), epsilon, schedule, spectral_gaps, physical_operation_time_max, physical_measurement_time_max, physical_error_rate_max, num_trotter_steps=num_trotter_steps, k_randomized_grid=k_randomized_grid))
 
         classical_min = np.asarray(classical_min, dtype=float)
         classical_max = np.asarray(classical_max, dtype=float)
@@ -1367,204 +1317,6 @@ def plot_annealing_classical_and_quantum_runtime_vs_n(
     return fig, ax
 
 
-
-
-
-
-
-
-
-
-
-
-def plot_annealing_classical_and_quantum_runtime_fancy_vs_n(
-    beta: float,
-    epsilon: float,
-    annealing_schedule_generator: Callable[[int, float], list[float]],
-    classical_device: str = "fpga",
-    physical_error_rate_min: float = 1e-4,
-    physical_error_rate_max: float = 1e-4,
-    physical_operation_time_min: float = 200e-9,
-    physical_operation_time_max: float = 20_000e-9,
-    physical_measurement_time_min: float = 20e-9,
-    physical_measurement_time_max: float = 2_000e-9,
-    num_trotter_steps: int = 50,
-    classical_query_file: Path = CLASSICAL_QUERY_FILE,
-    spectral_gap_file: Path = SPECTRAL_GAP_FILE,
-    statistic: str = "mean+std",
-    n_fit_min: int | None = 5,
-    n_fit_max: int | None = 10,
-    n_plot_min: int | None = None,
-    n_plot_max: int | None = None,
-    title: str | None = None,
-    show_legend: bool = True,
-    debug: bool = False,
-    schedule_diagnostic_generator: Callable[[int, float], list[float]] | None = None,
-    show_schedule_panel: bool = True,
-    show_schedule_vertical_lines: bool = True,
-    legend_y_shift: float = -0.82,
-    xlabel_labelpad: float = 18,
-    mode: str = "full",
-    show_time_reference_lines: bool = False,
-    deterministic_classical_band_fraction: float = 0.08,
-    area_edge_linewidth: float = 0.8,
-    grid_color: str = "0.92",
-    grid_linewidth: float = 0.55,
-    inset_width: str = "31%",
-    inset_height: str = "38%",
-    inset_loc: str = "lower right",
-    inset_borderpad: float = 2.0,
-    hide_classical_qemc_area: bool = False,
-    show_runtime_thresholds: bool = False,
-    show_runtime_threshold_labels: bool = True,
-    classical_color_darken: float = 0.58,
-    legend_placement: str = "legend_out",
-    line_width: float = 2.0,
-    projected_alpha: float = 0.58,
-    calibrated_alpha: float = 0.94,
-    line_label_x_fraction: float = 0.82,
-    line_label_y_multiplier: float = 1.08,
-    line_label_fontsize: float = 9.0,
-) -> tuple[plt.Figure, plt.Axes]:
-    """
-    Fancy runtime plot with main y-range from one day to 100 years and a lower-right
-    zoom-out inset from 1 microsecond to 1 billion years.
-
-    :return: Tuple ``(fig, ax)`` for the main axes.
-    """
-    one_microsecond = 1e-6
-    one_hour = 60.0 * 60.0
-    one_day = 24.0 * one_hour
-    one_year = 365.25 * one_day
-    one_month = one_year / 12.0
-    ten_years = 10.0 * one_year
-    one_billion_years = 1e9 * one_year
-
-    fig, ax = plot_annealing_classical_and_quantum_runtime_vs_n(
-        beta=beta,
-        epsilon=epsilon,
-        annealing_schedule_generator=annealing_schedule_generator,
-        classical_device=classical_device,
-        physical_error_rate_min=physical_error_rate_min,
-        physical_error_rate_max=physical_error_rate_max,
-        physical_operation_time_min=physical_operation_time_min,
-        physical_operation_time_max=physical_operation_time_max,
-        physical_measurement_time_min=physical_measurement_time_min,
-        physical_measurement_time_max=physical_measurement_time_max,
-        num_trotter_steps=num_trotter_steps,
-        classical_query_file=classical_query_file,
-        spectral_gap_file=spectral_gap_file,
-        statistic=statistic,
-        n_fit_min=n_fit_min,
-        n_fit_max=n_fit_max,
-        n_plot_min=n_plot_min,
-        n_plot_max=n_plot_max,
-        fig=None,
-        ax=None,
-        title=title,
-        show_legend=show_legend,
-        debug=debug,
-        schedule_diagnostic_generator=schedule_diagnostic_generator,
-        show_schedule_panel=show_schedule_panel,
-        show_schedule_vertical_lines=show_schedule_vertical_lines,
-        legend_y_shift=legend_y_shift,
-        xlabel_labelpad=xlabel_labelpad,
-        mode=mode,
-        runtime_ymin_seconds=one_day,
-        runtime_ymax_years=100.0,
-        show_time_reference_lines=show_time_reference_lines,
-        deterministic_classical_band_fraction=deterministic_classical_band_fraction,
-        area_edge_linewidth=area_edge_linewidth,
-        grid_color=grid_color,
-        grid_linewidth=grid_linewidth,
-        hide_classical_qemc_area=hide_classical_qemc_area,
-        show_runtime_thresholds=show_runtime_thresholds,
-        show_runtime_threshold_labels=show_runtime_threshold_labels,
-        classical_color_darken=classical_color_darken,
-        legend_placement=legend_placement,
-        line_width=line_width,
-        projected_alpha=projected_alpha,
-        calibrated_alpha=calibrated_alpha,
-        line_label_x_fraction=line_label_x_fraction,
-        line_label_y_multiplier=line_label_y_multiplier,
-        line_label_fontsize=line_label_fontsize,
-    )
-
-    ax.set_ylim(one_day, 100.0 * one_year)
-    ax.set_yticks([one_day, one_month, one_year, ten_years])
-    ax.set_yticklabels(["one day", "one month", "one year", "10 years"])
-
-    inset_ax = inset_axes(
-        ax,
-        width=inset_width,
-        height=inset_height,
-        loc=inset_loc,
-        borderpad=inset_borderpad,
-    )
-
-    plot_annealing_classical_and_quantum_runtime_vs_n(
-        beta=beta,
-        epsilon=epsilon,
-        annealing_schedule_generator=annealing_schedule_generator,
-        classical_device=classical_device,
-        physical_error_rate_min=physical_error_rate_min,
-        physical_error_rate_max=physical_error_rate_max,
-        physical_operation_time_min=physical_operation_time_min,
-        physical_operation_time_max=physical_operation_time_max,
-        physical_measurement_time_min=physical_measurement_time_min,
-        physical_measurement_time_max=physical_measurement_time_max,
-        num_trotter_steps=num_trotter_steps,
-        classical_query_file=classical_query_file,
-        spectral_gap_file=spectral_gap_file,
-        statistic=statistic,
-        n_fit_min=n_fit_min,
-        n_fit_max=n_fit_max,
-        n_plot_min=n_plot_min,
-        n_plot_max=n_plot_max,
-        fig=fig,
-        ax=inset_ax,
-        title=None,
-        show_legend=False,
-        debug=False,
-        schedule_diagnostic_generator=schedule_diagnostic_generator,
-        show_schedule_panel=False,
-        show_schedule_vertical_lines=show_schedule_vertical_lines,
-        legend_y_shift=legend_y_shift,
-        xlabel_labelpad=xlabel_labelpad,
-        mode=mode,
-        runtime_ymin_seconds=one_microsecond,
-        runtime_ymax_years=1e9,
-        show_time_reference_lines=show_time_reference_lines,
-        deterministic_classical_band_fraction=deterministic_classical_band_fraction,
-        area_edge_linewidth=area_edge_linewidth,
-        grid_color=grid_color,
-        grid_linewidth=grid_linewidth,
-        hide_classical_qemc_area=hide_classical_qemc_area,
-        show_runtime_thresholds=False,
-        show_runtime_threshold_labels=False,
-        classical_color_darken=classical_color_darken,
-        legend_placement=legend_placement,
-        line_width=line_width,
-        projected_alpha=projected_alpha,
-        calibrated_alpha=calibrated_alpha,
-        line_label_x_fraction=line_label_x_fraction,
-        line_label_y_multiplier=line_label_y_multiplier,
-        line_label_fontsize=line_label_fontsize,
-    )
-
-    inset_ax.set_title("")
-    inset_ax.set_xlabel("")
-    inset_ax.set_ylabel("")
-    inset_ax.set_ylim(one_microsecond, one_billion_years)
-    inset_ax.set_yticks([one_microsecond, one_day, ten_years, one_billion_years])
-    inset_ax.set_yticklabels(["1 µs", "one day", "10 years", "1B years"])
-    inset_ax.tick_params(axis="both", which="major", labelsize=7)
-    inset_ax.grid(True, which="major", axis="y", color=grid_color, linewidth=grid_linewidth, zorder=0)
-    inset_ax.grid(False, which="major", axis="x")
-
-    return fig, ax
-
-
 _SPECTRAL_GAP_BETA_YTICKS = [1e-1, 1e-4, 1e-7, 1e-10, 1e-13, 1e-16]
 
 
@@ -1696,11 +1448,7 @@ def _replace_legend_with_line_fit_rows(
     if legend is None:
         return
 
-    handles = getattr(legend, "legend_handles", None)
-    if handles is None:
-        handles = getattr(legend, "legendHandles", None)
-    if handles is None:
-        return
+    handles = legend.legend_handles
 
     formatter = _fit_only_label if label_formatter is None else label_formatter
     labels = [formatter(text.get_text()) for text in legend.get_texts()]
@@ -1799,7 +1547,6 @@ def _add_spectral_gap_beta_inset(
     inset_ax.grid(True, which="major", color="0.90", alpha=0.55, linewidth=0.55)
     inset_ax.grid(False, which="minor")
     return inset_ax
-
 
 
 def _spectral_gap_n_legend_label(label: str) -> str:
@@ -1901,17 +1648,6 @@ def _positive_limits_from_axes(axes: Sequence[plt.Axes]) -> tuple[float, float]:
     if lower >= upper:
         lower = upper * 1e-3
     return lower, upper
-
-
-def _apply_rowwise_y_limits(axes: np.ndarray, n_items: int, ncols: int) -> None:
-    nrows = int(np.ceil(n_items / ncols))
-    for row in range(nrows):
-        row_start = row * ncols
-        row_end = min((row + 1) * ncols, n_items)
-        row_axes = list(axes[row_start:row_end])
-        y_limits = _positive_limits_from_axes(row_axes)
-        for ax in row_axes:
-            ax.set_ylim(y_limits)
 
 
 def _ceil_to_multiple(value: float, step: float) -> float:
@@ -2036,13 +1772,8 @@ def _rgba_close_to_any(color, target_colors: Sequence[str], tol: float = 1e-2) -
 
 
 def _collection_has_color(collection, target_colors: Sequence[str]) -> bool:
-    for getter_name in ("get_facecolors", "get_edgecolors"):
-        if not hasattr(collection, getter_name):
-            continue
-        colors = getattr(collection, getter_name)()
-        if colors is None or len(colors) == 0:
-            continue
-        if any(_rgba_close_to_any(color, target_colors) for color in colors):
+    for colors in (collection.get_facecolors(), collection.get_edgecolors()):
+        if colors is not None and any(_rgba_close_to_any(color, target_colors) for color in colors):
             return True
     return False
 
@@ -2141,11 +1872,7 @@ def _replace_last_step_legend_with_scaling_rows(
     if legend is None:
         return
 
-    handles = getattr(legend, "legend_handles", None)
-    if handles is None:
-        handles = getattr(legend, "legendHandles", None)
-    if handles is None:
-        return
+    handles = legend.legend_handles
 
     labels = [text.get_text() for text in legend.get_texts()]
     legend.remove()
@@ -2476,8 +2203,6 @@ def plot_spectral_gap_vs_beta_table(
     return fig, axes[:len(fixed_ns)]
 
 
-
-
 def _exponential_fit_label(n_vals: np.ndarray, y_vals: np.ndarray) -> str:
     n_vals = np.asarray(n_vals, dtype=float)
     y_vals = np.asarray(y_vals, dtype=float)
@@ -2508,6 +2233,7 @@ def plot_last_step_classical_queries_and_quantum_queries_vs_n(
     show_legend: bool = True,
     line_width: float = 2.0,
     line_alpha: float = 0.95,
+    exclude_local: bool = False,
 ) -> tuple[plt.Figure, plt.Axes]:
     """
     Plot classical and quantum-walk query estimates versus n for the last annealing step.
@@ -2527,6 +2253,8 @@ def plot_last_step_classical_queries_and_quantum_queries_vs_n(
     labels = []
 
     for proposal in PROPOSALS_SORTED:
+        if exclude_local and proposal == "local1":
+            continue
         classical_color = _proposal_color(proposal, "classical")
         quantum_color = _proposal_color(proposal, "quantum")
 
@@ -2544,7 +2272,7 @@ def plot_last_step_classical_queries_and_quantum_queries_vs_n(
 
         A_g, b_g = get_spectral_gap_fit_by_n(proposal=proposal, a=np.inf, fixed_beta=beta, in_file=spectral_gap_file, statistic=statistic, n_min=n_fit_min, n_max=n_fit_max)
         b_g = max(float(b_g), 0.0)
-        spectral_gaps = A_g * np.exp(-b_g * n_grid)
+        spectral_gaps = np.minimum(1.0, A_g * np.exp(-b_g * n_grid))
         quantum_fit = np.asarray([get_one_step_quantum_walk_queries(int(n), epsilon, float(delta)) for n, delta in zip(n_grid, spectral_gaps)], dtype=float)
         (quantum_line,) = ax.plot(n_grid, quantum_fit, color=quantum_color, linewidth=line_width, linestyle="-", alpha=line_alpha, zorder=2)
         handles.append(quantum_line)
@@ -2611,11 +2339,7 @@ def _replace_last_step_query_legend_with_scaling_rows(
     if legend is None:
         return
 
-    handles = getattr(legend, "legend_handles", None)
-    if handles is None:
-        handles = getattr(legend, "legendHandles", None)
-    if handles is None:
-        return
+    handles = legend.legend_handles
 
     labels = [text.get_text() for text in legend.get_texts()]
     legend.remove()
@@ -2746,6 +2470,7 @@ def plot_last_step_classical_queries_and_quantum_queries_vs_n_table(
             line_width=line_width,
             line_alpha=line_alpha,
             **kwargs,
+            exclude_local=(remove_local_beta_threshold is not None and float(beta) > float(remove_local_beta_threshold)),
         )
 
         remove_local = remove_local_beta_threshold is not None and float(beta) > float(remove_local_beta_threshold)
@@ -2871,6 +2596,7 @@ def plot_last_step_classical_queries_and_spectral_gap_vs_n_table(
             title=rf"$\beta={beta}$, $\epsilon={eps:g}$",
             show_legend=show_legend,
             **kwargs,
+            exclude_local=(remove_local_beta_threshold is not None and float(beta) > float(remove_local_beta_threshold)),
         )
 
         remove_local = remove_local_beta_threshold is not None and float(beta) > float(remove_local_beta_threshold)
@@ -3142,6 +2868,7 @@ def plot_annealing_classical_and_quantum_queries_vs_n_table(
             title=rf"$\bar\beta={beta:g}$, $\epsilon={eps:g}$",
             show_legend=show_legend,
             **plot_kwargs,
+            exclude_local=(remove_local_beta_threshold is not None and float(beta) > float(remove_local_beta_threshold)),
         )
 
         remove_local = (
@@ -3259,8 +2986,8 @@ def plot_annealing_classical_and_quantum_runtime_vs_n_table(
     physical_operation_time_max: float = 20_000e-9,
     physical_measurement_time_min: float = 20e-9,
     physical_measurement_time_max: float = 2_000e-9,
-    num_trotter_steps: int = 50,
-    arithmetic_type: str = "FIXED_POINT",
+    num_trotter_steps: int = DEFAULT_TROTTER_STEPS,
+    arithmetic_type: Literal["FIXED_POINT"] = "FIXED_POINT",
     classical_query_file: Path = CLASSICAL_QUERY_FILE,
     spectral_gap_file: Path = SPECTRAL_GAP_FILE,
     statistic: str = "mean+std",
@@ -3288,6 +3015,7 @@ def plot_annealing_classical_and_quantum_runtime_vs_n_table(
     line_label_x_fraction: float = 0.82,
     line_label_y_multiplier: float = 1.08,
     line_label_fontsize: float = 9.0,
+    k_randomized_grid: int = 2,
 ) -> tuple[plt.Figure, np.ndarray]:
     """Plot annealing classical and quantum runtimes in a table of panels.
 
@@ -3302,11 +3030,9 @@ def plot_annealing_classical_and_quantum_runtime_vs_n_table(
     range, proposal mode, projection styling, schedule diagnostics, and runtime
     thresholds are forwarded to the single-panel runtime function.
     """
-    if arithmetic_type not in ALLOWED_ARITHMETIC_TYPES:
-        raise ValueError(
-            f"Unknown arithmetic_type={arithmetic_type!r}. "
-            "Expected one of {ALLOWED_ARITHMETIC_TYPES}."
-        )
+    k_randomized_grid = _validate_randomized_grid(k_randomized_grid)
+    if arithmetic_type != "FIXED_POINT":
+        raise ValueError("Only fixed-point arithmetic is supported.")
     if legend_placement not in {"legend_out", "legend_line"}:
         raise ValueError(
             f"Unknown legend_placement={legend_placement!r}. "
@@ -3422,7 +3148,6 @@ def plot_annealing_classical_and_quantum_runtime_vs_n_table(
             physical_measurement_time_min=physical_measurement_time_min,
             physical_measurement_time_max=physical_measurement_time_max,
             num_trotter_steps=num_trotter_steps,
-            arithmetic_type=arithmetic_type,
             classical_query_file=classical_query_file,
             spectral_gap_file=spectral_gap_file,
             statistic=statistic,
@@ -3460,6 +3185,8 @@ def plot_annealing_classical_and_quantum_runtime_vs_n_table(
             line_label_x_fraction=line_label_x_fraction,
             line_label_y_multiplier=line_label_y_multiplier,
             line_label_fontsize=line_label_fontsize,
+            exclude_local=(remove_local_beta_threshold is not None and float(beta) > float(remove_local_beta_threshold)),
+            k_randomized_grid=k_randomized_grid,
         )
 
         remove_local = (
@@ -3511,7 +3238,6 @@ def plot_annealing_classical_and_quantum_runtime_vs_n_table(
     return fig, axes[:n_items]
 
 
-
 def _runtime_time_constants() -> dict[str, float]:
     """Return the runtime constants used by the main runtime plot."""
     one_second = 1.0
@@ -3545,36 +3271,6 @@ def _positive_runtime_values(values: list[float] | np.ndarray) -> np.ndarray:
     return np.maximum(values, floor)
 
 
-def _plot_projected_runtime_line(
-    ax: plt.Axes,
-    n_vals: np.ndarray,
-    values: list[float] | np.ndarray,
-    *,
-    color: str,
-    label: str,
-    linestyle: str = "-",
-    line_width: float = 2.0,
-    calibrated_alpha: float = 0.94,
-    projected_alpha: float = 0.58,
-    n_fit_max: int | None = 10,
-    zorder: int = 5,
-) -> plt.Line2D:
-    values = _positive_runtime_values(values)
-    if n_fit_max is None:
-        (line,) = ax.plot(n_vals, values, color=color, linewidth=line_width, linestyle=linestyle, alpha=calibrated_alpha, label=label, zorder=zorder)
-        return line
-    fit_mask = n_vals <= int(n_fit_max)
-    proj_mask = n_vals >= int(n_fit_max)
-    line = None
-    if np.any(fit_mask):
-        (line,) = ax.plot(n_vals[fit_mask], values[fit_mask], color=color, linewidth=line_width, linestyle=linestyle, alpha=calibrated_alpha, label=label, zorder=zorder)
-    if np.any(proj_mask):
-        (proj_line,) = ax.plot(n_vals[proj_mask], values[proj_mask], color=color, linewidth=line_width, linestyle=linestyle, alpha=projected_alpha, label=label if line is None else None, zorder=zorder)
-        if line is None:
-            line = proj_line
-    return line
-
-
 def _annealing_schedule_fits(
     proposal: str,
     n: int,
@@ -3594,96 +3290,8 @@ def _annealing_schedule_fits(
         vec_queries.append(A_q * np.exp(b_q * n))
         A_g, b_g = get_spectral_gap_fit_by_n(proposal=proposal, a=np.inf, fixed_beta=beta_t, in_file=spectral_gap_file, statistic=statistic, n_min=n_fit_min, n_max=n_fit_max)
         b_g = max(float(b_g), 0.0)
-        spectral_gaps.append(A_g * np.exp(-b_g * n))
+        spectral_gaps.append(min(1.0, A_g * np.exp(-b_g * n)))
     return vec_queries, spectral_gaps
-
-
-def _runtime_band_bounds(values: list[float] | np.ndarray, fraction: float) -> tuple[np.ndarray, np.ndarray]:
-    """Return a symmetric positive visual band around deterministic runtime values."""
-    values = _positive_runtime_values(values)
-    fraction = float(fraction)
-    return values * max(0.0, 1.0 - fraction), values * (1.0 + max(0.0, fraction))
-
-
-def _fill_projected_runtime_band(
-    ax: plt.Axes,
-    n_vals: np.ndarray,
-    lower_values: list[float] | np.ndarray,
-    upper_values: list[float] | np.ndarray,
-    *,
-    color: str,
-    label: str | None = None,
-    linestyle: str = "-",
-    alpha: float = 0.22,
-    projected_alpha: float = 0.58,
-    n_fit_max: int | None = 10,
-    edge_linewidth: float = 0.8,
-    zorder: int = 2,
-):
-    """Draw a runtime band, using a lighter alpha for the projected regime."""
-    lower = np.asarray(lower_values, dtype=float)
-    upper = np.asarray(upper_values, dtype=float)
-    lower, upper = np.minimum(lower, upper), np.maximum(lower, upper)
-    lower = _positive_runtime_values(lower)
-    upper = _positive_runtime_values(upper)
-
-    if n_fit_max is None:
-        return ax.fill_between(n_vals, lower, upper, facecolor=color, edgecolor=color, linestyle=linestyle, alpha=alpha, linewidth=edge_linewidth, zorder=zorder, label=label)
-
-    fit_mask = n_vals <= int(n_fit_max)
-    proj_mask = n_vals >= int(n_fit_max)
-    handle = None
-    if np.any(fit_mask):
-        handle = ax.fill_between(n_vals[fit_mask], lower[fit_mask], upper[fit_mask], facecolor=color, edgecolor=color, linestyle=linestyle, alpha=alpha, linewidth=edge_linewidth, zorder=zorder, label=label)
-    if np.any(proj_mask):
-        proj_handle = ax.fill_between(n_vals[proj_mask], lower[proj_mask], upper[proj_mask], facecolor=color, edgecolor=color, linestyle=linestyle, alpha=alpha * projected_alpha, linewidth=edge_linewidth, zorder=zorder, label=label if handle is None else None)
-        if handle is None:
-            handle = proj_handle
-    return handle
-
-
-def _add_main_style_runtime_band(
-    ax: plt.Axes,
-    n_vals: np.ndarray,
-    lower: list[float] | np.ndarray,
-    upper: list[float] | np.ndarray,
-    *,
-    color: str,
-    label: str,
-    linestyle: str,
-    line_width: float,
-    band_alpha: float,
-    line_alpha: float,
-    zorder: int,
-) -> plt.Line2D:
-    """Draw the same optimistic/pessimistic runtime band style used in ``plot_main_runtime.py``."""
-    lower_raw = np.asarray(lower, dtype=float)
-    upper_raw = np.asarray(upper, dtype=float)
-    lower = _positive_runtime_values(np.minimum(lower_raw, upper_raw))
-    upper = _positive_runtime_values(np.maximum(lower_raw, upper_raw))
-    ax.fill_between(n_vals, lower, upper, color=color, alpha=band_alpha, edgecolor="none", linewidth=0.0, zorder=zorder)
-    (optimistic_line,) = ax.plot(n_vals, lower, color=color, linewidth=0.55 * line_width, alpha=line_alpha, linestyle=linestyle, label=label, zorder=zorder + 1)
-    ax.plot(n_vals, upper, color=color, linewidth=0.55 * line_width, alpha=line_alpha, linestyle=linestyle, label=None, zorder=zorder + 1)
-    return optimistic_line
-
-
-def _add_runtime_direct_enumeration_line(ax: plt.Axes, n_vals: np.ndarray, line_alpha: float) -> plt.Line2D:
-    """Draw the direct-enumeration runtime line used by the main runtime plot."""
-    values = _positive_runtime_values(np.asarray([get_time_direct_enumeration(int(n)) for n in n_vals], dtype=float))
-    (line,) = ax.plot(n_vals, values, color="#D62728", linewidth=0.85, alpha=line_alpha, linestyle="-", label="Direct enumeration", zorder=8)
-    return line
-
-
-def _uniform_qemc_intercept_ticks(n_vals: np.ndarray, baseline: np.ndarray, candidates: list[np.ndarray], enabled: bool) -> list[int]:
-    """Return integer crossing ticks between a baseline and quantum optimistic/pessimistic curves."""
-    if not enabled:
-        return []
-    ticks = []
-    for candidate in candidates:
-        x = _first_crossing_x(n_vals, baseline, candidate)
-        if x is not None:
-            ticks.append(int(round(x)))
-    return sorted(set(ticks))
 
 
 def _runtime_xticks_for_axis(n_vals: np.ndarray, intercept_ticks: list[int]) -> list[int]:
@@ -3695,298 +3303,6 @@ def _runtime_xticks_for_axis(n_vals: np.ndarray, intercept_ticks: list[int]) -> 
         ticks = [tick for tick in ticks if tick not in [30, 40]]
         ticks.extend(intercept_ticks)
     return sorted(set(ticks))
-
-
-def _finish_uniform_qemc_runtime_axis(
-    ax: plt.Axes,
-    n_vals: np.ndarray,
-    *,
-    title: str | None,
-    xlabel: str | None,
-    ylabel: str | None,
-    show_regime_separator: bool,
-    regime_separator_n: float,
-    show_one_year_line: bool,
-    grid_color: str,
-    grid_linewidth: float,
-    x_right_padding: float,
-    y_top_padding: float,
-    intercept_ticks: list[int],
-    runtime_ymin_seconds: float | None,
-    runtime_ymax_years: float | None,
-) -> None:
-    """Finish a runtime axis using the same conventions as ``plot_main_runtime.py``."""
-    ticks, labels, one_year, thousand_years = _runtime_time_ticks()
-    xticks = _runtime_xticks_for_axis(n_vals, intercept_ticks)
-
-    ax.set_yscale("log")
-    ax.set_xlim(float(n_vals[0]), float(n_vals[-1]) + max(0.0, float(x_right_padding)))
-    if runtime_ymin_seconds is None:
-        y_bottom = 1.0
-    else:
-        y_bottom = float(runtime_ymin_seconds)
-    if runtime_ymax_years is None:
-        y_top = thousand_years * (1.0 + max(0.0, float(y_top_padding)))
-    else:
-        y_top = float(runtime_ymax_years) * one_year * (1.0 + max(0.0, float(y_top_padding)))
-    ax.set_ylim(y_bottom, y_top)
-    ax.set_yticks(ticks)
-    ax.set_yticklabels(labels)
-    ax.set_xticks(xticks)
-
-    if xlabel is not None:
-        ax.set_xlabel(xlabel)
-    if ylabel is not None:
-        ax.set_ylabel(ylabel)
-    if title is not None:
-        ax.set_title(title)
-
-    ax.set_axisbelow(True)
-    ax.grid(True, which="major", axis="y", color=grid_color, linewidth=grid_linewidth, zorder=0)
-    ax.grid(False, which="major", axis="x")
-
-    if len(intercept_ticks) == 0:
-        for x in xticks:
-            if show_regime_separator and float(x) <= float(10.1):
-                continue
-            ax.axvline(float(x), color="0.90", linewidth=0.40, linestyle="-", alpha=1.0, zorder=0)
-
-    if show_regime_separator and float(n_vals[0]) <= float(regime_separator_n) <= float(n_vals[-1]):
-        ax.axvline(float(regime_separator_n), color="0.62", linewidth=0.55, linestyle=(0, (2.0, 2.0)), alpha=0.80, zorder=1)
-
-    if show_one_year_line:
-        ax.axhline(one_year, color="black", linewidth=0.75, linestyle="-", alpha=1.0, zorder=5)
-
-    for x in intercept_ticks:
-        ax.axvline(float(x), color="0.48", linewidth=0.65, linestyle="-", alpha=0.90, zorder=0)
-
-    for spine in ["top", "right"]:
-        ax.spines[spine].set_visible(False)
-
-
-def plot_uniform_classical_and_qemc_arithmetic_runtime_vs_n(
-    beta: float,
-    epsilon: float,
-    annealing_schedule_generator: Callable[[int, float], list[float]],
-    classical_device: str = "cpu",
-    physical_error_rate_min: float = 1e-4,
-    physical_error_rate_max: float = 1e-4,
-    physical_operation_time_min: float = 200e-9,
-    physical_operation_time_max: float = 20_000e-9,
-    physical_measurement_time_min: float = 20e-9,
-    physical_measurement_time_max: float = 2_000e-9,
-    num_trotter_steps: int = 50,
-    classical_query_file: Path = CLASSICAL_QUERY_FILE,
-    spectral_gap_file: Path = SPECTRAL_GAP_FILE,
-    statistic: str = "mean+std",
-    n_fit_min: int | None = 5,
-    n_fit_max: int | None = 10,
-    n_plot_min: int | None = None,
-    n_plot_max: int | None = None,
-    fig: plt.Figure | None = None,
-    ax: plt.Axes | None = None,
-    title: str | None = None,
-    show_legend: bool = True,
-    legend_placement: str = "top_left",
-    legend_y_shift: float = -0.22,
-    xlabel_labelpad: float = 4,
-    line_width: float = 2.0,
-    line_alpha: float = 0.94,
-    band_alpha: float = 0.18,
-    grid_color: str = "0.92",
-    grid_linewidth: float = 0.55,
-    x_right_padding: float = 0.0,
-    show_regime_separator: bool = True,
-    regime_separator_n: float = 10.0,
-    show_one_year_line: bool = False,
-    show_direct_enumeration_line: bool = False,
-    y_top_padding: float = 0.0,
-    optimistic_pessimistic_intercept: bool = False,
-    runtime_ymin_seconds: float | None = 1.0,
-    runtime_ymax_years: float | None = 1000.0,
-    debug: bool = False,
-) -> tuple[plt.Figure, plt.Axes]:
-    """Plot uniform classical runtime and QEMC quantum runtime with fixed-point arithmetic.
-
-    The plot deliberately omits local curves and the quantum walk built from the uniform proposal.
-    It uses the same runtime-band convention as ``plot_main_runtime.py``: the classical uniform
-    curve is a deterministic line, while the QEMC quantum curve is an optimistic/pessimistic
-    band obtained from the supplied physical error-rate, operation-time, and measurement-time
-    ranges. ``"FIXED_POINT"`` uses a solid line.
-    """
-    if n_plot_min is None:
-        n_plot_min = 3
-    if n_plot_max is None:
-        n_plot_max = 120
-
-    n_vals = np.arange(int(n_plot_min), int(n_plot_max) + 1, dtype=int)
-
-    if fig is None or ax is None:
-        fig, ax = plt.subplots(figsize=(8.5, 4.8))
-        if legend_placement == "out":
-            fig.subplots_adjust(bottom=0.34)
-
-    uniform_classical = []
-    qemc_quantum_min = {"FIXED_POINT": []}
-    qemc_quantum_max = {"FIXED_POINT": []}
-
-    for n in n_vals:
-        schedule = [float(beta_t) for beta_t in annealing_schedule_generator(int(n), float(beta))]
-        uniform_queries, _ = _annealing_schedule_fits("uniform", int(n), schedule, epsilon, classical_query_file, spectral_gap_file, statistic, n_fit_min, n_fit_max)
-        _, qemc_gaps = _annealing_schedule_fits("layden", int(n), schedule, epsilon, classical_query_file, spectral_gap_file, statistic, n_fit_min, n_fit_max)
-
-        uniform_classical.append(get_annealing_time_classical_walk_uniform(int(n), uniform_queries, device=classical_device))
-        for arithmetic_type in ("FIXED_POINT",):
-            qemc_quantum_min[arithmetic_type].append(get_annealing_time_quantum_walk_qemc(int(n), epsilon, schedule, qemc_gaps, physical_operation_time_min, physical_measurement_time_min, physical_error_rate_min, num_trotter_steps=num_trotter_steps, arithmetic_type=arithmetic_type))
-            qemc_quantum_max[arithmetic_type].append(get_annealing_time_quantum_walk_qemc(int(n), epsilon, schedule, qemc_gaps, physical_operation_time_max, physical_measurement_time_max, physical_error_rate_max, num_trotter_steps=num_trotter_steps, arithmetic_type=arithmetic_type))
-
-        if debug:
-            print(f"[debug] n={int(n)}, beta={float(beta):.12g}, epsilon={float(epsilon):.12g}, schedule={schedule}")
-
-    uniform_classical = _positive_runtime_values(np.asarray(uniform_classical, dtype=float))
-    qemc_quantum_min = {key: _positive_runtime_values(np.asarray(value, dtype=float)) for key, value in qemc_quantum_min.items()}
-    qemc_quantum_max = {key: _positive_runtime_values(np.asarray(value, dtype=float)) for key, value in qemc_quantum_max.items()}
-
-    handles = []
-    labels = []
-
-    classical_color = _proposal_color("uniform", "classical")
-    classical_label = f"Best classical walk ({classical_device})"
-    (classical_line,) = ax.plot(n_vals, uniform_classical, color=classical_color, linewidth=line_width, alpha=line_alpha, linestyle="-", label=classical_label, zorder=4)
-    handles.append(classical_line)
-    labels.append(classical_label)
-
-    qemc_color = _proposal_color("layden", "quantum")
-    for arithmetic_type, linestyle, label, zorder in [("FIXED_POINT", "-", "This work, fixed-point arithmetic", 5)]:
-        handle = _add_main_style_runtime_band(ax, n_vals, qemc_quantum_min[arithmetic_type], qemc_quantum_max[arithmetic_type], color=qemc_color, label=label, linestyle=linestyle, line_width=line_width, band_alpha=band_alpha, line_alpha=line_alpha, zorder=zorder)
-        handles.append(handle)
-        labels.append(label)
-
-    if show_direct_enumeration_line:
-        direct_line = _add_runtime_direct_enumeration_line(ax, n_vals, line_alpha)
-        handles.append(direct_line)
-        labels.append("Direct enumeration")
-
-    intercept_ticks = _uniform_qemc_intercept_ticks(n_vals, uniform_classical, [qemc_quantum_min["FIXED_POINT"], qemc_quantum_max["FIXED_POINT"]], optimistic_pessimistic_intercept)
-    _finish_uniform_qemc_runtime_axis(ax, n_vals, title=title, xlabel=r"$n$", ylabel=r"Runtime", show_regime_separator=show_regime_separator, regime_separator_n=regime_separator_n, show_one_year_line=show_one_year_line, grid_color=grid_color, grid_linewidth=grid_linewidth, x_right_padding=x_right_padding, y_top_padding=y_top_padding, intercept_ticks=intercept_ticks, runtime_ymin_seconds=runtime_ymin_seconds, runtime_ymax_years=runtime_ymax_years)
-    ax.xaxis.labelpad = xlabel_labelpad
-
-    if show_legend:
-        if legend_placement == "top_left":
-            ax.legend(handles, labels, frameon=False, loc="upper left", ncol=1, borderaxespad=0.35, handlelength=2.0, columnspacing=1.0, labelspacing=0.35)
-        elif legend_placement == "bottom_right":
-            ax.legend(handles, labels, frameon=False, loc="lower right", ncol=1, borderaxespad=0.35, handlelength=2.0, columnspacing=1.0, labelspacing=0.35)
-        elif legend_placement == "out":
-            ax.legend(handles, labels, frameon=False, loc="upper left", bbox_to_anchor=(0.0, legend_y_shift), ncol=1, borderaxespad=0.0, handlelength=2.2, columnspacing=1.0, labelspacing=0.35)
-        else:
-            raise ValueError("legend_placement must be either 'top_left', 'bottom_right', or 'out'.")
-    return fig, ax
-
-
-def plot_uniform_classical_and_qemc_arithmetic_runtime_vs_n_table(
-    betas: Sequence[float],
-    epsilon: float | Sequence[float],
-    annealing_schedule_generator: Callable[[int, float], list[float]],
-    ncols: int = 2,
-    figsize: tuple[float, float] | None = None,
-    hspace: float = 0.38,
-    wspace: float = 0.28,
-    show_legend: bool = False,
-    label_fontsize: int = 14,
-    tick_labelsize: int = 12,
-    title_fontsize: int = 14,
-    classical_device: str = "cpu",
-    physical_error_rate_min: float = 1e-4,
-    physical_error_rate_max: float = 1e-4,
-    physical_operation_time_min: float = 200e-9,
-    physical_operation_time_max: float = 20_000e-9,
-    physical_measurement_time_min: float = 20e-9,
-    physical_measurement_time_max: float = 2_000e-9,
-    num_trotter_steps: int = 50,
-    classical_query_file: Path = CLASSICAL_QUERY_FILE,
-    spectral_gap_file: Path = SPECTRAL_GAP_FILE,
-    statistic: str = "mean+std",
-    n_fit_min: int | None = 5,
-    n_fit_max: int | None = 10,
-    n_plot_min: int | None = None,
-    n_plot_max: int | None = None,
-    legend_placement: str = "top_left",
-    legend_y_shift: float = -0.22,
-    xlabel_labelpad: float = 4,
-    line_width: float = 2.0,
-    line_alpha: float = 0.94,
-    band_alpha: float = 0.18,
-    grid_color: str = "0.92",
-    grid_linewidth: float = 0.55,
-    x_right_padding: float = 0.0,
-    show_regime_separator: bool = True,
-    regime_separator_n: float = 10.0,
-    show_one_year_line: bool = False,
-    show_direct_enumeration_line: bool = False,
-    y_top_padding: float = 0.0,
-    optimistic_pessimistic_intercept: bool = False,
-    runtime_ymin_seconds: float | None = 1.0,
-    runtime_ymax_years: float | None = 1000.0,
-    debug: bool = False,
-) -> tuple[plt.Figure, np.ndarray]:
-    """Plot a table comparing uniform classical runtime with QEMC arithmetic choices.
-
-    Each panel contains the deterministic uniform classical line and a QEMC quantum runtime
-    band for ``"FIXED_POINT"`` arithmetic. The band construction and
-    physical-parameter controls follow ``plot_main_runtime.py``.
-    """
-    betas, epsilons = _resolve_beta_epsilon_pairs(betas, epsilon)
-    fig, axes = _make_table_axes(len(betas), ncols, figsize)
-
-    for beta, eps, ax in zip(betas, epsilons, axes):
-        plot_uniform_classical_and_qemc_arithmetic_runtime_vs_n(
-            beta=beta,
-            epsilon=eps,
-            annealing_schedule_generator=annealing_schedule_generator,
-            classical_device=classical_device,
-            physical_error_rate_min=physical_error_rate_min,
-            physical_error_rate_max=physical_error_rate_max,
-            physical_operation_time_min=physical_operation_time_min,
-            physical_operation_time_max=physical_operation_time_max,
-            physical_measurement_time_min=physical_measurement_time_min,
-            physical_measurement_time_max=physical_measurement_time_max,
-            num_trotter_steps=num_trotter_steps,
-            classical_query_file=classical_query_file,
-            spectral_gap_file=spectral_gap_file,
-            statistic=statistic,
-            n_fit_min=n_fit_min,
-            n_fit_max=n_fit_max,
-            n_plot_min=n_plot_min,
-            n_plot_max=n_plot_max,
-            fig=fig,
-            ax=ax,
-            title=rf"$\bar\beta={beta:g}$, $\epsilon={eps:g}$",
-            show_legend=show_legend,
-            legend_placement=legend_placement,
-            legend_y_shift=legend_y_shift,
-            xlabel_labelpad=xlabel_labelpad,
-            line_width=line_width,
-            line_alpha=line_alpha,
-            band_alpha=band_alpha,
-            grid_color=grid_color,
-            grid_linewidth=grid_linewidth,
-            x_right_padding=x_right_padding,
-            show_regime_separator=show_regime_separator,
-            regime_separator_n=regime_separator_n,
-            show_one_year_line=show_one_year_line,
-            show_direct_enumeration_line=show_direct_enumeration_line,
-            y_top_padding=y_top_padding,
-            optimistic_pessimistic_intercept=optimistic_pessimistic_intercept,
-            runtime_ymin_seconds=runtime_ymin_seconds,
-            runtime_ymax_years=runtime_ymax_years,
-            debug=debug,
-        )
-        _lighten_grid(ax)
-        _enlarge_axis_labels(ax, label_fontsize, tick_labelsize, title_fontsize)
-
-    _keep_single_axis_y_ticks_only_on_outer_edges(axes, len(betas), ncols)
-    _finish_table(fig, hspace, wspace)
-    return fig, axes[:len(betas)]
 
 
 def _normalize_physical_cost_multipliers(
@@ -4157,8 +3473,8 @@ def plot_annealing_classical_and_quantum_runtime_vs_n_table_shadowed(
     physical_operation_time_min: float = 200e-9,
     physical_measurement_time_min: float = 20e-9,
     physical_cost_multipliers: list[int] = [10, 100, 1000],
-    num_trotter_steps: int = 50,
-    arithmetic_type: str = "FIXED_POINT",
+    num_trotter_steps: int = DEFAULT_TROTTER_STEPS,
+    arithmetic_type: Literal["FIXED_POINT"] = "FIXED_POINT",
     classical_query_file: Path = CLASSICAL_QUERY_FILE,
     spectral_gap_file: Path = SPECTRAL_GAP_FILE,
     statistic: str = "mean+std",
@@ -4176,6 +3492,7 @@ def plot_annealing_classical_and_quantum_runtime_vs_n_table_shadowed(
     show_multiplier_label: bool = True,
     multiplier_label_x_fractions: dict[str, float] | None = None,
     debug: bool = False,
+    k_randomized_grid: int = 2,
 ) -> tuple[plt.Figure, np.ndarray]:
     """Plot runtime panels with physical-cost multiplier lines and shadows.
 
@@ -4186,11 +3503,9 @@ def plot_annealing_classical_and_quantum_runtime_vs_n_table_shadowed(
     extrapolated regimes, does not fade the n > n_fit_max region, and does not
     draw a separator at n_fit_max or at schedule changes.
     """
-    if arithmetic_type not in ALLOWED_ARITHMETIC_TYPES:
-        raise ValueError(
-            f"Unknown arithmetic_type={arithmetic_type!r}. "
-            "Expected one of {ALLOWED_ARITHMETIC_TYPES}."
-        )
+    k_randomized_grid = _validate_randomized_grid(k_randomized_grid)
+    if arithmetic_type != "FIXED_POINT":
+        raise ValueError("Only fixed-point arithmetic is supported.")
     if mode not in {"full", "compact", "compact_no_layden"}:
         raise ValueError(
             f"Unknown mode={mode!r}. Expected 'full', 'compact', "
@@ -4337,7 +3652,6 @@ def plot_annealing_classical_and_quantum_runtime_vs_n_table_shadowed(
                                     operation_time,
                                     measurement_time,
                                     physical_error_rate,
-                                    arithmetic_type=arithmetic_type,
                                 )
                             )
                         )
@@ -4367,7 +3681,6 @@ def plot_annealing_classical_and_quantum_runtime_vs_n_table_shadowed(
                                     operation_time,
                                     measurement_time,
                                     physical_error_rate,
-                                    arithmetic_type=arithmetic_type,
                                 )
                             )
                         )
@@ -4404,7 +3717,7 @@ def plot_annealing_classical_and_quantum_runtime_vs_n_table_shadowed(
                                     measurement_time,
                                     physical_error_rate,
                                     num_trotter_steps=num_trotter_steps,
-                                    arithmetic_type=arithmetic_type,
+                                    k_randomized_grid=k_randomized_grid,
                                 )
                             )
                         )
@@ -4636,42 +3949,13 @@ def _surface_code_distance_for_quantum_annealing_path(
     physical_error_rate: float,
     circuit_resource_fn: Callable[[int, float, float], tuple[float, float]],
 ) -> float:
-    """Return the code distance for one complete quantum annealing path.
-
-    The logical depth is accumulated over all scheduled filter queries, while
-    the logical space is the maximum circuit space over the path. This matches
-    the spacetime-volume convention used by ``_get_annealing_time_quantum_walk``
-    in ``monaqa2.data.runtime``.
-    """
-    budget = get_quantum_annealing_error_budget(
-        float(epsilon),
-        spectral_gaps,
+    """Use the exact same full-path resource calculation as the runtime."""
+    depth, space, eps_SF = _quantum_annealing_resources(
+        n, epsilon, schedule, spectral_gaps, circuit_resource_fn,
     )
-    eps_SF = float(budget["eps_SF"])
-    eps_W = float(budget["eps_W"])
-    queries_per_step = [float(value) for value in budget["queries_per_step"]]
-
-    logical_time = 0.0
-    logical_space = 0.0
-    for beta_t, queries in zip(schedule, queries_per_step):
-        walk_depth, walk_space = circuit_resource_fn(
-            int(n),
-            eps_W,
-            float(beta_t),
-        )
-        logical_time += queries * float(walk_depth)
-        logical_space = max(logical_space, float(walk_space))
-
-    if logical_time <= 0.0 or logical_space <= 0.0:
-        raise ValueError(
-            "The annealing path must have positive logical time and space."
-        )
-
-    return rotated_surface_code_distance(
-        logical_time * logical_space,
-        float(physical_error_rate),
-        eps_SF,
-    )
+    if depth <= 0 or space <= 0:
+        raise ValueError("The annealing path must have positive logical depth and space.")
+    return rotated_surface_code_distance(depth * space, physical_error_rate, eps_SF)
 
 
 def _surface_code_distance_for_classical_layden_path(
@@ -4681,28 +3965,12 @@ def _surface_code_distance_for_classical_layden_path(
     physical_error_rate: float,
     num_trotter_steps: int,
 ) -> float:
-    """Return the code distance for classical MCMC using the Layden proposal.
-
-    Every classical query invokes the Hamiltonian-simulation proposal circuit.
-    The distance is selected from the total spacetime volume of the complete
-    annealing path, rather than from the volume of one proposal invocation.
-    """
-    if num_trotter_steps < 1:
-        raise ValueError("Use num_trotter_steps >= 1.")
-
-    eps_SF, _, _, _ = split_quantum_error_budget(float(epsilon))
-    proposal_depth = float(num_trotter_steps) * (float(n) + 3.0)
-    logical_time = float(np.sum(np.asarray(classical_queries_per_step, dtype=float))) * proposal_depth
-    logical_space = float(n)
-
-    if logical_time <= 0.0:
-        raise ValueError("The classical Layden annealing path has zero logical time.")
-
-    return rotated_surface_code_distance(
-        logical_time * logical_space,
-        float(physical_error_rate),
-        float(eps_SF),
-    )
+    """Use the same classically sampled proposal resources as the runtime."""
+    eps_SF, _, _, _ = split_quantum_error_budget(epsilon)
+    depth, space = _classical_qemc_resources(n, classical_queries_per_step, num_trotter_steps)
+    if depth <= 0:
+        raise ValueError("The classical Hamiltonian-simulation path has zero logical depth.")
+    return rotated_surface_code_distance(depth * space, physical_error_rate, eps_SF)
 
 
 def plot_annealing_classical_and_quantum_surface_code_distance_vs_n_table(
@@ -4725,8 +3993,8 @@ def plot_annealing_classical_and_quantum_surface_code_distance_vs_n_table(
     line_alpha: float = 0.95,
     rowwise_y_limits: bool = True,
     physical_error_rate: float = 1e-3,
-    num_trotter_steps: int = 50,
-    arithmetic_type: str = "FIXED_POINT",
+    num_trotter_steps: int = DEFAULT_TROTTER_STEPS,
+    arithmetic_type: Literal["FIXED_POINT"] = "FIXED_POINT",
     classical_query_file: Path = CLASSICAL_QUERY_FILE,
     spectral_gap_file: Path = SPECTRAL_GAP_FILE,
     statistic: str = "mean+std",
@@ -4738,6 +4006,7 @@ def plot_annealing_classical_and_quantum_surface_code_distance_vs_n_table(
     grid_linewidth: float = 0.55,
     xlabel_labelpad: float = 18,
     debug: bool = False,
+    k_randomized_grid: int = 2,
 ) -> tuple[plt.Figure, np.ndarray]:
     """Plot full-path surface-code distance versus ``n`` in a panel table.
 
@@ -4752,11 +4021,9 @@ def plot_annealing_classical_and_quantum_surface_code_distance_vs_n_table(
     ``epsilon / 4``. Physical operation and measurement times do not enter,
     because they affect runtime but not the required code distance.
     """
-    if arithmetic_type not in ALLOWED_ARITHMETIC_TYPES:
-        raise ValueError(
-            f"Unknown arithmetic_type={arithmetic_type!r}. "
-            "The supplied runtime resource model supports only 'FIXED_POINT'."
-        )
+    k_randomized_grid = _validate_randomized_grid(k_randomized_grid)
+    if arithmetic_type != "FIXED_POINT":
+        raise ValueError("Only fixed-point arithmetic is supported.")
     if legend_placement not in {"legend_out", "top_left", "bottom_right"}:
         raise ValueError(
             "legend_placement must be 'legend_out', 'top_left', "
@@ -4867,7 +4134,6 @@ def plot_annealing_classical_and_quantum_surface_code_distance_vs_n_table(
                             n_local,
                             eps_W,
                             beta_t,
-                            arithmetic_type=arithmetic_type,
                         )
                     ),
                 )
@@ -4886,7 +4152,7 @@ def plot_annealing_classical_and_quantum_surface_code_distance_vs_n_table(
                             eps_W,
                             beta_t,
                             num_trotter_steps=num_trotter_steps,
-                            arithmetic_type=arithmetic_type,
+                            k_randomized_grid=k_randomized_grid,
                         )
                     ),
                 )

@@ -94,6 +94,53 @@ def load_spectral_gap(proposal: str, a: int | float, in_file: Path = SPECTRAL_GA
     return df.loc[mask, ["n", "idx", "beta", "delta"]].reset_index(drop=True)
 
 
+def get_spectral_gap_quantiles(
+    beta: float,
+    in_file: Path = SPECTRAL_GAP_FILE,
+    a: int | float = np.inf,
+    n_min: int = 3,
+    n_max: int = 10,
+    expected_instances: int | None = 100,
+) -> pd.DataFrame:
+    """Return empirical q10/q25/q50/q75/q90 for local, uniform and Layden moves.
+
+    Every (proposal,n) must contain expected_instances distinct instances.
+    Identical repeated rows are counted once; conflicting duplicates, missing
+    instances and invalid gaps raise. Zero gaps remain in the sample.
+    Quantiles use linear interpolation and never fitted or averaged gaps.
+    """
+    if not np.isfinite(beta) or beta < 0:
+        raise ValueError("beta must be finite and nonnegative.")
+    if a not in AS or n_min < 1 or n_max < n_min or int(n_min) != n_min or int(n_max) != n_max:
+        raise ValueError("Require a in AS and integer 1 <= n_min <= n_max.")
+    if expected_instances is not None and (expected_instances < 1 or int(expected_instances) != expected_instances):
+        raise ValueError("expected_instances must be positive or None.")
+    proposals = ("local1", "uniform", "layden")
+    raw = pd.read_pickle(in_file)
+    mask = (raw["proposal"].isin(proposals) & raw["a"].eq(a)
+            & raw["n"].between(n_min, n_max)
+            & np.isclose(raw["beta"].astype(float), beta, rtol=1e-10, atol=1e-12))
+    data = raw.loc[mask, ["proposal", "n", "idx", "delta"]].drop_duplicates()
+    if data["idx"].isna().any() or data.duplicated(["proposal", "n", "idx"]).any():
+        raise ValueError("Missing instance IDs or conflicting duplicate spectral-gap rows.")
+    gaps = data["delta"].to_numpy(dtype=float)
+    if np.any(~np.isfinite(gaps) | (gaps < 0) | (gaps > 1)):
+        raise ValueError("All selected instance gaps must be finite and in [0,1].")
+    data = data.assign(delta=gaps)
+    groups = data.groupby(["proposal", "n"])["delta"]
+    index = pd.MultiIndex.from_product([proposals, range(int(n_min), int(n_max) + 1)], names=["proposal", "n"])
+    counts = groups.size().reindex(index, fill_value=0)
+    bad = counts.eq(0) if expected_instances is None else counts.ne(expected_instances)
+    if bad.any():
+        key = counts[bad].index[0]
+        raise ValueError(f"Expected {expected_instances or 'at least one'} instances for {key}, found {counts[key]}.")
+    quantiles = groups.quantile([.10, .25, .50, .75, .90], interpolation="linear").unstack()
+    quantiles.columns = ["q10", "q25", "q50", "q75", "q90"]
+    result = counts.rename("count").to_frame().join(quantiles).reset_index()
+    result.insert(2, "beta", float(beta))
+    return result
+
+
 @cache
 def get_spectral_gap_stats(
     proposal: str,

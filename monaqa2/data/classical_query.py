@@ -332,7 +332,7 @@ def _epsilon_to_query_column(epsilon: float) -> str:
     eps_map = {10.0 ** (-k): f"queries_eps_1e-{k}" for k in range(2, 9)}
     eps_key = min(eps_map, key=lambda x: abs(x - float(epsilon)))
 
-    if not np.isclose(eps_key, float(epsilon)):
+    if not np.isclose(eps_key, float(epsilon), rtol=1e-12, atol=0.0):
         raise ValueError(f"epsilon must be one of {sorted(eps_map)}")
 
     return eps_map[eps_key]
