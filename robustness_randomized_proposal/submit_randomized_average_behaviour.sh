@@ -14,14 +14,12 @@ while read -r N PROCESSES MEMORY; do
             launch_randomized_average_behaviour.slurm "$N" "$MIN_INST" "$MAX_INST"
     done
 done <<'JOBS'
-10 100 16
+3 1 2
+4 1 2
+5 1 2
+6 1 2
+7 4 2
+8 10 2
+9 25 4
+10 100 4
 JOBS
-#3 1 2
-#4 1 2
-#5 1 2
-#6 1 4
-#7 4 4
-#8 10 8
-#9 25 8
-#10 100 16
-#JOBS
