@@ -3,7 +3,7 @@ from monaqa2.mcmc.model import IsingModel
 from monaqa2.mcmc.proposal import create_proposal_matrix_quantum_exact, create_proposal_matrix_local, create_proposal_matrix_quantum_layden, create_proposal_matrix_uniform
 
 
-def create_acceptance_matrix(model: IsingModel, beta: float, a: float = 1.0, rescaled: bool = True) -> np.ndarray:
+def create_acceptance_matrix(model: IsingModel, beta: float, a: float = np.inf, rescaled: bool = True) -> np.ndarray:
     
     if beta < 0:
         raise ValueError("beta must be non-negative.")
@@ -17,14 +17,14 @@ def create_acceptance_matrix(model: IsingModel, beta: float, a: float = 1.0, res
     if np.isinf(a):
         log_A = np.minimum(0.0, log_r)
     else:
-        log_A = log_r - np.logaddexp(0.0, a * log_r) / a
+        raise ValueError("Not supported anymore")
 
     A = np.exp(log_A)
     np.fill_diagonal(A, 1.0)
     return A
 
 
-def create_transition_matrix(P: np.ndarray | str, model: IsingModel, beta: float, a: float = 1.0, gamma: float = None, t: float = None, rescaled: bool = True) -> np.ndarray:
+def create_transition_matrix(P: np.ndarray | str, model: IsingModel, beta: float, a: float = np.inf, gamma: float = None, t: float = None, rescaled: bool = True) -> np.ndarray:
     n = model.n
     h = model.h_rescaled if rescaled else model.h
     J = model.J_rescaled if rescaled else model.J

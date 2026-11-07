@@ -15,9 +15,13 @@ def search_monotone(fun: "callable[int, any]", compare: "callable[any, float]", 
     assuming compare(fun(t)) is monotone non-increasing in t. Uses doubling to
     bracket a solution, then binary search; raises ValueError if none exists."""
     # find hi by doubling
+    if start_iter < 0 or max_iter < start_iter:
+        raise ValueError("Require 0 <= start_iter <= max_iter.")
     lo = start_iter
-    hi = max(lo, 1)
+    hi = min(max_iter, max(lo, 1))
     cost = compare(fun(lo))
+    if cost <= 0:
+        return lo
 
     while hi <= max_iter:
         if lo == hi == max_iter:
@@ -46,9 +50,13 @@ def search_monotone_debug(fun: "callable[int, any]", compare: "callable[any, flo
     assuming compare(fun(t)) is monotone non-increasing in t. Uses doubling to
     bracket a solution, then binary search; raises ValueError if none exists."""
     # find hi by doubling
+    if start_iter < 0 or max_iter < start_iter:
+        raise ValueError("Require 0 <= start_iter <= max_iter.")
     lo = start_iter
-    hi = max(lo, 1)
+    hi = min(max_iter, max(lo, 1))
     cost = compare(fun(lo))
+    if cost <= 0:
+        return lo
     debug = ""
 
     while hi <= max_iter:
