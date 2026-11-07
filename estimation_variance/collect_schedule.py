@@ -10,7 +10,7 @@ MIN_OVERLAP = np.exp(-1.0)
 
 CASES = {
     "schedule_outputs": "schedule_summary.pkl",
-    "schedule_outputs_safe": "schedule_summary_safe.pkl",
+    "schedule_outputs_fixed_safety": "schedule_summary_safe.pkl",
     "schedule_outputs_conservative": "schedule_summary_conservative.pkl",
 }
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=annealing_schedules_safe
-#SBATCH --account=
+#SBATCH --account=Sis26_mazzola
 #SBATCH --partition=dcgp_usr_prod
 #SBATCH --qos=normal
 #SBATCH --nodes=1
@@ -36,9 +36,12 @@ awk "BEGIN {exit !($fixed_safety > 0)}" || { echo "error: fixed_safety must be >
 # we need many parallel executable otherwise we might race all the compilations
 g++ -std=c++20 -O3 -march=native -mtune=native -ffast-math -fno-math-errno -funroll-loops -DNDEBUG generation_annealing_schedules.cpp -o generation_annealing_schedules_${SLURM_ARRAY_TASK_ID}.x
 
+# The metadata chosen file is written only once
 mkdir -p schedule_outputs_fixed_safety
-find schedule_outputs_fixed_safety -type f -name "*.txt" -empty -delete
-echo "$fixed_safety" > schedule_outputs_fixed_safety/chosen_fixed_safety.txt
+
+if [ "${SLURM_ARRAY_TASK_ID:-}" = "0" ]; then
+    echo "$fixed_safety" > schedule_outputs_fixed_safety/chosen_fixed_safety.txt
+fi
 
 idx=$SLURM_ARRAY_TASK_ID
 

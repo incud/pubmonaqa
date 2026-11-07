@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH --job-name=trotter_gaps
-#SBATCH --account=IscrC_MONAQA
+#SBATCH --account=Sis26_mazzola
 #SBATCH --partition=dcgp_usr_prod
 #SBATCH --qos=normal
-#SBATCH --array=0-299%200
+#SBATCH --array=0-299
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1

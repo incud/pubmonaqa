@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=variance
-#SBATCH --account=
+#SBATCH --account=Sis26_mazzola
 #SBATCH --partition=dcgp_usr_prod
 #SBATCH --qos=normal
 #SBATCH --nodes=1
@@ -30,7 +30,7 @@ srun --ntasks=1 --cpus-per-task=1 bash <<'EOF'
 set -euo pipefail
 
 for idx in $(seq 0 99); do
-    for n in $(seq 30 30); do
+    for n in $(seq 5 30); do
         out="variance_outputs/variance_n${n}_idx${idx}.txt"
         tmp="${out}.tmp"
 

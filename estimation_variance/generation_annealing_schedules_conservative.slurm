@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=conservative_annealing
-#SBATCH --account=
+#SBATCH --account=Sis26_mazzola
 #SBATCH --partition=dcgp_usr_prod
 #SBATCH --qos=normal
 #SBATCH --nodes=1
